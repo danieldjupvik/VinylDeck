@@ -1,5 +1,108 @@
 # VinylView MVP Implementation Plan
 
+## Implementation Progress
+
+> **Last Updated**: 2026-01-16
+>
+> This section tracks implementation progress. Check boxes indicate completed items.
+
+| Phase                          | Status      | Description                                                           |
+| ------------------------------ | ----------- | --------------------------------------------------------------------- |
+| Phase 1: Foundation            | ✅ Complete | Dependencies, shadcn, folder structure, Vite config, i18n, .nvmrc     |
+| Phase 2: Core Infrastructure   | ✅ Complete | Constants, storage, rate-limiter, API client, Discogs API, types      |
+| Phase 3: State & Providers     | ✅ Complete | QueryProvider, AuthProvider, useAuth hook                             |
+| Phase 4: Routing               | ✅ Complete | All routes: root, login, index, \_authenticated, collection, settings |
+| Phase 5: Layout Components     | ✅ Complete | AppSidebar, SidebarUser                                               |
+| Phase 6: Auth Components       | ✅ Complete | Login form built directly in login route                              |
+| Phase 7: Collection Components | ⏳ Pending  | useCollection hook, VinylCard, VinylGrid, toolbar, pagination         |
+| Phase 8: Animations & Polish   | ⏳ Pending  | Motion animations, responsive testing, PWA icons                      |
+| Phase 9: Testing               | ⏳ Pending  | Unit tests, component tests, integration tests                        |
+
+### Completed Files
+
+```
+src/
+├── api/
+│   ├── client.ts              ✅
+│   ├── discogs.ts             ✅
+│   └── rate-limiter.ts        ✅
+├── components/
+│   ├── layout/
+│   │   ├── app-sidebar.tsx    ✅
+│   │   └── sidebar-user.tsx   ✅
+│   └── ui/                    ✅ (all shadcn components)
+├── hooks/
+│   ├── use-auth.ts            ✅
+│   └── use-mobile.ts          ✅ (from shadcn)
+├── lib/
+│   ├── constants.ts           ✅
+│   ├── storage.ts             ✅
+│   └── utils.ts               ✅
+├── locales/en/
+│   └── translation.json       ✅
+├── providers/
+│   ├── auth-context.ts        ✅
+│   ├── auth-provider.tsx      ✅
+│   ├── i18n-provider.tsx      ✅
+│   └── query-provider.tsx     ✅
+├── routes/
+│   ├── __root.tsx             ✅
+│   ├── _authenticated.tsx     ✅
+│   ├── _authenticated/
+│   │   ├── collection.tsx     ✅ (placeholder)
+│   │   └── settings.tsx       ✅
+│   ├── index.tsx              ✅
+│   └── login.tsx              ✅
+├── types/
+│   └── discogs.ts             ✅
+├── __tests__/
+│   ├── setup.ts               ✅
+│   └── mocks/
+│       ├── handlers.ts        ✅
+│       └── server.ts          ✅
+├── index.css                  ✅
+├── main.tsx                   ✅
+└── routeTree.gen.ts           ✅ (auto-generated)
+```
+
+### Remaining Files to Create
+
+```
+src/
+├── components/
+│   └── collection/
+│       ├── vinyl-card.tsx           ⏳
+│       ├── vinyl-card-skeleton.tsx  ⏳
+│       ├── vinyl-grid.tsx           ⏳
+│       ├── collection-toolbar.tsx   ⏳
+│       └── pagination-controls.tsx  ⏳
+├── hooks/
+│   └── use-collection.ts            ⏳
+└── __tests__/
+    ├── api/
+    │   ├── rate-limiter.test.ts     ⏳
+    │   └── discogs.test.ts          ⏳
+    ├── hooks/
+    │   ├── use-auth.test.ts         ⏳
+    │   └── use-collection.test.ts   ⏳
+    ├── components/
+    │   ├── login-form.test.tsx      ⏳
+    │   ├── vinyl-card.test.tsx      ⏳
+    │   └── vinyl-grid.test.tsx      ⏳
+    └── integration/
+        └── auth-flow.test.tsx       ⏳
+public/
+└── icons/
+    ├── icon-192.png                 ⏳
+    └── icon-512.png                 ⏳
+```
+
+### Bug Fixes Applied
+
+- Fixed Axios headers iteration in `src/api/client.ts` (forEach not available on AxiosHeaders)
+
+---
+
 ## Overview
 
 A modern web application for browsing Discogs vinyl collections. The MVP focuses on authentication and the Collection view, with architecture designed for future expansion.

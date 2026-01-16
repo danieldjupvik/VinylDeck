@@ -27,14 +27,32 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
+// Helper to extract rate limit headers from Axios response
+function extractRateLimitHeaders(
+  axiosHeaders: Record<string, unknown>
+): Record<string, string> {
+  const headers: Record<string, string> = {}
+  const rateLimitKeys = [
+    'x-discogs-ratelimit',
+    'x-discogs-ratelimit-used',
+    'x-discogs-ratelimit-remaining'
+  ]
+
+  for (const key of rateLimitKeys) {
+    const value = axiosHeaders[key]
+    if (typeof value === 'string') {
+      headers[key] = value
+    }
+  }
+
+  return headers
+}
+
 // Response interceptor: Update rate limit state from headers
 apiClient.interceptors.response.use(
   (response) => {
     // Update rate limiter from response headers
-    const headers: Record<string, string> = {}
-    response.headers.forEach((value: string, key: string) => {
-      headers[key.toLowerCase()] = value
-    })
+    const headers = extractRateLimitHeaders(response.headers)
     rateLimiter.updateFromHeaders(headers)
 
     return response
@@ -42,10 +60,9 @@ apiClient.interceptors.response.use(
   (error: AxiosError) => {
     // Update rate limiter even on error responses
     if (error.response?.headers) {
-      const headers: Record<string, string> = {}
-      error.response.headers.forEach((value: string, key: string) => {
-        headers[key.toLowerCase()] = value
-      })
+      const headers = extractRateLimitHeaders(
+        error.response.headers as Record<string, unknown>
+      )
       rateLimiter.updateFromHeaders(headers)
     }
 

@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/use-auth'
@@ -28,10 +28,11 @@ function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   // Redirect if already authenticated
-  if (isAuthenticated) {
-    navigate({ to: '/collection' })
-    return null
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate({ to: '/collection' })
+    }
+  }, [isAuthenticated, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
