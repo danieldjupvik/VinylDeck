@@ -1,0 +1,109 @@
+{
+  "app": {
+    "name": "VinylView",
+    "description": "Browse your Discogs vinyl collection"
+  },
+  "language": {
+    "label": "Language",
+    "english": "English",
+    "norwegian": "Norwegian"
+  },
+  "common": {
+    "comingSoon": "(Coming soon)"
+  },
+  "nav": {
+    "collection": "Collection",
+    "wantlist": "Wantlist",
+    "settings": "Settings",
+    "browse": "Browse",
+    "backHome": "Go back home"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "username": "Username",
+    "token": "Personal Access Token",
+    "tokenPlaceholder": "Enter your Discogs PAT",
+    "usernamePlaceholder": "Enter your Discogs username",
+    "loginButton": "Sign In",
+    "loggingIn": "Signing in...",
+    "loginSuccess": "Successfully logged in",
+    "loginError": "Invalid username or token",
+    "logoutSuccess": "Successfully logged out"
+  },
+  "collection": {
+    "title": "My Collection",
+    "empty": "No vinyl records found",
+    "loading": "Loading collection...",
+    "search": "Search by artist or title...",
+    "sort": {
+      "placeholder": "Sort by",
+      "artist": "Artist",
+      "title": "Album",
+      "dateAdded": "Date Added",
+      "releaseYear": "Release Year",
+      "label": "Label",
+      "format": "Format",
+      "genre": "Genre",
+      "random": "Random"
+    },
+    "sortGroup": {
+      "timeline": "Timeline",
+      "albumInfo": "Album Info",
+      "other": "Other"
+    },
+    "sortOrder": {
+      "shuffle": "Shuffle",
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "az": "A-Z",
+      "za": "Z-A",
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "filters": {
+      "title": "Filters",
+      "button": "Filters",
+      "clear": "Clear all",
+      "genre": "Genre",
+      "style": "Style",
+      "label": "Label",
+      "vinylType": "Vinyl type",
+      "size": "Size",
+      "country": "Country",
+      "yearRange": "Year range",
+      "anyYear": "Any year",
+      "empty": "No options"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {{current}} of {{total}}"
+    },
+    "vinyl": "Vinyl",
+    "records": "{{count}} record",
+    "records_other": "{{count}} records",
+    "showing": "Showing {{start}}-{{end}} of {{total}} album",
+    "showing_other": "Showing {{start}}-{{end}} of {{total}} albums"
+  },
+  "settings": {
+    "title": "Settings",
+    "version": "Version",
+    "theme": "Theme",
+    "dark": "Dark",
+    "light": "Light"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "errors": {
+    "generic": "Something went wrong",
+    "network": "Network error. Please try again.",
+    "rateLimit": "Rate limit exceeded. Please wait a moment.",
+    "unauthorized": "Session expired. Please log in again.",
+    "notFound": "Page not found"
+  }
+}

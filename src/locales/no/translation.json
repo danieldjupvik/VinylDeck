@@ -1,0 +1,109 @@
+{
+  "app": {
+    "name": "VinylView",
+    "description": "Bla gjennom Discogs-vinylsamlingen din"
+  },
+  "language": {
+    "label": "Språk",
+    "english": "Engelsk",
+    "norwegian": "Norsk"
+  },
+  "common": {
+    "comingSoon": "(Kommer snart)"
+  },
+  "nav": {
+    "collection": "Samling",
+    "wantlist": "Ønskeliste",
+    "settings": "Innstillinger",
+    "browse": "Bla gjennom",
+    "backHome": "Gå tilbake hjem"
+  },
+  "auth": {
+    "login": "Logg inn",
+    "logout": "Logg ut",
+    "username": "Brukernavn",
+    "token": "Personlig tilgangstoken",
+    "tokenPlaceholder": "Skriv inn Discogs PAT",
+    "usernamePlaceholder": "Skriv inn Discogs-brukernavn",
+    "loginButton": "Logg inn",
+    "loggingIn": "Logger inn...",
+    "loginSuccess": "Innlogging vellykket",
+    "loginError": "Ugyldig brukernavn eller token",
+    "logoutSuccess": "Logget ut"
+  },
+  "collection": {
+    "title": "Min samling",
+    "empty": "Ingen vinylplater funnet",
+    "loading": "Laster samlingen...",
+    "search": "Søk etter artist eller tittel...",
+    "sort": {
+      "placeholder": "Sorter etter",
+      "artist": "Artist",
+      "title": "Album",
+      "dateAdded": "Dato lagt til",
+      "releaseYear": "Utgivelsesår",
+      "label": "Label",
+      "format": "Format",
+      "genre": "Sjanger",
+      "random": "Tilfeldig"
+    },
+    "sortGroup": {
+      "timeline": "Tidslinje",
+      "albumInfo": "Albuminfo",
+      "other": "Annet"
+    },
+    "sortOrder": {
+      "shuffle": "Bland",
+      "newest": "Nyest",
+      "oldest": "Eldst",
+      "az": "A-Å",
+      "za": "Å-A",
+      "asc": "Stigende",
+      "desc": "Synkende"
+    },
+    "filters": {
+      "title": "Filtre",
+      "button": "Filtre",
+      "clear": "Tøm alle",
+      "genre": "Sjanger",
+      "style": "Stil",
+      "label": "Label",
+      "vinylType": "Vinyltype",
+      "size": "Størrelse",
+      "country": "Land",
+      "yearRange": "Årsintervall",
+      "anyYear": "Alle år",
+      "empty": "Ingen alternativer"
+    },
+    "pagination": {
+      "previous": "Forrige",
+      "next": "Neste",
+      "page": "Side {{current}} av {{total}}"
+    },
+    "vinyl": "Vinyl",
+    "records": "{{count}} plate",
+    "records_other": "{{count}} plater",
+    "showing": "Viser {{start}}-{{end}} av {{total}} album",
+    "showing_other": "Viser {{start}}-{{end}} av {{total}} album"
+  },
+  "settings": {
+    "title": "Innstillinger",
+    "version": "Versjon",
+    "theme": "Tema",
+    "dark": "Mørk",
+    "light": "Lys"
+  },
+  "theme": {
+    "toggle": "Bytt tema",
+    "light": "Lys",
+    "dark": "Mørk",
+    "system": "System"
+  },
+  "errors": {
+    "generic": "Noe gikk galt",
+    "network": "Nettverksfeil. Prøv igjen.",
+    "rateLimit": "For mange forespørsler. Vent litt.",
+    "unauthorized": "Økten er utløpt. Logg inn på nytt.",
+    "notFound": "Siden ble ikke funnet"
+  }
+}
