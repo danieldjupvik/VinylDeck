@@ -14,6 +14,7 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { ModeToggle } from '@/components/layout/mode-toggle'
+import { LanguageToggle } from '@/components/layout/language-toggle'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage
@@ -57,7 +58,8 @@ function LoginPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center p-4">
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <LanguageToggle />
         <ModeToggle />
       </div>
       <Card className="w-full max-w-md">

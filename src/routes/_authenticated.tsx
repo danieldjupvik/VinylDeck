@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { ModeToggle } from '@/components/layout/mode-toggle'
+import { LanguageToggle } from '@/components/layout/language-toggle'
 
 export const Route = createFileRoute('/_authenticated')({
   component: AuthenticatedLayout
@@ -52,7 +53,10 @@ function AuthenticatedLayout() {
               <span className="font-semibold">VinylView</span>
             </div>
           </div>
-          <ModeToggle />
+          <div className="flex items-center gap-2">
+            <LanguageToggle />
+            <ModeToggle />
+          </div>
         </header>
         <Outlet />
       </SidebarInset>

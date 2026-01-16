@@ -3,6 +3,11 @@
     "name": "VinylView",
     "description": "Browse your Discogs vinyl collection"
   },
+  "language": {
+    "label": "Language",
+    "english": "English",
+    "norwegian": "Norwegian"
+  },
   "nav": {
     "collection": "Collection",
     "wantlist": "Wantlist",
@@ -70,6 +75,12 @@
     "theme": "Theme",
     "dark": "Dark",
     "light": "Light"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
   },
   "errors": {
     "generic": "Something went wrong",
