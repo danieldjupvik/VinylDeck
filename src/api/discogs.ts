@@ -3,6 +3,7 @@ import { COLLECTION } from '@/lib/constants'
 import type {
   DiscogsIdentity,
   DiscogsCollectionResponse,
+  DiscogsUserProfile,
   CollectionParams
 } from '@/types/discogs'
 
@@ -11,6 +12,18 @@ import type {
  */
 export async function getIdentity(): Promise<DiscogsIdentity> {
   const response = await apiClient.get<DiscogsIdentity>('/oauth/identity')
+  return response.data
+}
+
+/**
+ * Get a user profile by username
+ */
+export async function getUserProfile(
+  username: string
+): Promise<DiscogsUserProfile> {
+  const response = await apiClient.get<DiscogsUserProfile>(
+    `/users/${username}`
+  )
   return response.data
 }
 

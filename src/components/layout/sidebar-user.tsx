@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/use-auth'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { usePreferences } from '@/hooks/use-preferences'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +20,8 @@ import {
 
 export function SidebarUser() {
   const { t } = useTranslation()
-  const { username, logout } = useAuth()
+  const { username, logout, avatarUrl } = useAuth()
+  const { avatarSource, gravatarUrl } = usePreferences()
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -37,6 +39,12 @@ export function SidebarUser() {
         .slice(0, 2)
     : '?'
 
+  const preferredAvatar =
+    avatarSource === 'gravatar' ? gravatarUrl : avatarUrl
+  const fallbackAvatar =
+    avatarSource === 'gravatar' ? avatarUrl : gravatarUrl
+  const resolvedAvatar = preferredAvatar ?? fallbackAvatar
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -47,6 +55,13 @@ export function SidebarUser() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
+                {resolvedAvatar ? (
+                  <AvatarImage
+                    src={resolvedAvatar}
+                    alt={username ?? 'User'}
+                    className="rounded-lg object-cover"
+                  />
+                ) : null}
                 <AvatarFallback className="rounded-lg">
                   {initials}
                 </AvatarFallback>

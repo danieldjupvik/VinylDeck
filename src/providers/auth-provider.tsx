@@ -1,20 +1,30 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
-import { validateCredentials, getIdentity } from '@/api/discogs'
+import {
+  validateCredentials,
+  getIdentity as fetchIdentity,
+  getUserProfile
+} from '@/api/discogs'
 import {
   getToken,
   getUsername,
+  getStoredUserProfile,
+  getStoredIdentity,
   setToken,
+  setStoredUserProfile,
+  setStoredIdentity,
   setUsername,
   clearAuth
 } from '@/lib/storage'
 import { AuthContext } from './auth-context'
-import type { DiscogsIdentity } from '@/types/discogs'
+import type { DiscogsIdentity, DiscogsUserProfile } from '@/types/discogs'
+import { usePreferences } from '@/hooks/use-preferences'
 
 interface AuthState {
   isAuthenticated: boolean
   isLoading: boolean
   username: string | null
   userId: number | null
+  avatarUrl: string | null
 }
 
 interface AuthProviderProps {
@@ -22,11 +32,13 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  const { gravatarEmail, setGravatarEmail } = usePreferences()
   const [state, setState] = useState<AuthState>({
     isAuthenticated: false,
     isLoading: true,
     username: null,
-    userId: null
+    userId: null,
+    avatarUrl: null
   })
 
   // Validate existing token on mount
@@ -41,12 +53,62 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       try {
-        const identity = await getIdentity()
+        const storedIdentity = getStoredIdentity()
+        const storedProfile = getStoredUserProfile()
+
+        if (!gravatarEmail && storedProfile?.email) {
+          setGravatarEmail(storedProfile.email)
+        }
+
+        if (storedIdentity) {
+          if (!storedProfile) {
+            try {
+              const profile = await getUserProfile(storedIdentity.username)
+              setStoredUserProfile(profile)
+              if (!gravatarEmail && profile.email) {
+                setGravatarEmail(profile.email)
+              }
+              setState({
+                isAuthenticated: true,
+                isLoading: false,
+                username: storedIdentity.username,
+                userId: storedIdentity.id,
+                avatarUrl: profile.avatar_url ?? storedIdentity.avatar_url ?? null
+              })
+              return
+            } catch {
+              // Fall back to stored identity only
+            }
+          }
+          setState({
+            isAuthenticated: true,
+            isLoading: false,
+            username: storedIdentity.username,
+            userId: storedIdentity.id,
+            avatarUrl:
+              storedProfile?.avatar_url ?? storedIdentity.avatar_url ?? null
+          })
+          return
+        }
+
+        const identity = await fetchIdentity()
+        setStoredIdentity(identity)
+        let profile: DiscogsUserProfile | null = null
+        try {
+          profile = await getUserProfile(identity.username)
+          setStoredUserProfile(profile)
+        } catch {
+          profile = null
+        }
+        if (!gravatarEmail && profile?.email) {
+          setGravatarEmail(profile.email)
+        }
         setState({
           isAuthenticated: true,
           isLoading: false,
           username: identity.username,
-          userId: identity.id
+          userId: identity.id,
+          avatarUrl: profile?.avatar_url ?? identity.avatar_url ?? null
         })
       } catch {
         // Token is invalid, clear it
@@ -55,13 +117,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
           isAuthenticated: false,
           isLoading: false,
           username: null,
-          userId: null
+          userId: null,
+          avatarUrl: null
         })
       }
     }
 
     validateSession()
-  }, [])
+  }, [gravatarEmail, setGravatarEmail])
 
   const login = useCallback(
     async (username: string, token: string): Promise<void> => {
@@ -78,17 +141,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error('Username does not match token')
       }
 
+      let profile: DiscogsUserProfile | null = null
+      try {
+        profile = await getUserProfile(identity.username)
+      } catch {
+        profile = null
+      }
+
       // Store credentials and update state
       setToken(token)
       setUsername(identity.username)
+      setStoredIdentity(identity)
+      if (profile) {
+        setStoredUserProfile(profile)
+      }
+      if (!gravatarEmail && profile?.email) {
+        setGravatarEmail(profile.email)
+      }
       setState({
         isAuthenticated: true,
         isLoading: false,
         username: identity.username,
-        userId: identity.id
+        userId: identity.id,
+        avatarUrl: profile?.avatar_url ?? identity.avatar_url ?? null
       })
     },
-    []
+    [gravatarEmail, setGravatarEmail]
   )
 
   const logout = useCallback(() => {
@@ -97,7 +175,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isAuthenticated: false,
       isLoading: false,
       username: null,
-      userId: null
+      userId: null,
+      avatarUrl: null
     })
   }, [])
 

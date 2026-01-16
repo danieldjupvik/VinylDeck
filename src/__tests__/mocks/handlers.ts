@@ -14,6 +14,21 @@ export const handlers = [
     return new HttpResponse(null, { status: 401 })
   }),
 
+  http.get('https://api.discogs.com/users/:username', ({ request, params }) => {
+    const auth = request.headers.get('Authorization')
+    if (auth === 'Discogs token=valid-token') {
+      return HttpResponse.json({
+        id: 123,
+        username: params.username,
+        resource_url: `https://api.discogs.com/users/${params.username}`,
+        avatar_url:
+          'https://www.gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0?s=52&r=pg&d=mm',
+        email: 'testuser@example.com'
+      })
+    }
+    return new HttpResponse(null, { status: 401 })
+  }),
+
   // Collection endpoint
   http.get(
     'https://api.discogs.com/users/:username/collection/folders/0/releases',
