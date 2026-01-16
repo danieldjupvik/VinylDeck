@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { useTheme } from '@/hooks/use-theme'
+import type { Theme } from '@/providers/theme-context'
 
 export function ModeToggle() {
   const { t } = useTranslation()
@@ -24,7 +25,10 @@ export function ModeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+        <DropdownMenuRadioGroup
+          value={theme}
+          onValueChange={(v) => setTheme(v as Theme)}
+        >
           <DropdownMenuRadioItem value="light">
             <Sun className="mr-2 h-4 w-4" />
             {t('theme.light', 'Light')}

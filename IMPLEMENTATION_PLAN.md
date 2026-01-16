@@ -6,17 +6,17 @@
 >
 > This section tracks implementation progress. Check boxes indicate completed items.
 
-| Phase                          | Status      | Description                                                           |
-| ------------------------------ | ----------- | --------------------------------------------------------------------- |
-| Phase 1: Foundation            | ✅ Complete | Dependencies, shadcn, folder structure, Vite config, i18n, .nvmrc     |
-| Phase 2: Core Infrastructure   | ✅ Complete | Constants, storage, rate-limiter, API client, Discogs API, types      |
-| Phase 3: State & Providers     | ✅ Complete | QueryProvider, AuthProvider, useAuth hook                             |
-| Phase 4: Routing               | ✅ Complete | All routes: root, login, index, \_authenticated, collection, settings |
-| Phase 5: Layout Components     | ✅ Complete | AppSidebar, SidebarUser                                               |
-| Phase 6: Auth Components       | ✅ Complete | Login form built directly in login route                              |
-| Phase 7: Collection Components | ⏳ Pending  | useCollection hook, VinylCard, VinylGrid, toolbar, pagination         |
-| Phase 8: Animations & Polish   | ⏳ Pending  | Motion animations, responsive testing, PWA icons                      |
-| Phase 9: Testing               | ⏳ Pending  | Unit tests, component tests, integration tests                        |
+| Phase                          | Status         | Description                                                           |
+| ------------------------------ | -------------- | --------------------------------------------------------------------- |
+| Phase 1: Foundation            | ✅ Complete    | Dependencies, shadcn, folder structure, Vite config, i18n, .nvmrc     |
+| Phase 2: Core Infrastructure   | ✅ Complete    | Constants, storage, rate-limiter, API client, Discogs API, types      |
+| Phase 3: State & Providers     | ✅ Complete    | QueryProvider, AuthProvider, useAuth hook, ThemeProvider              |
+| Phase 4: Routing               | ✅ Complete    | All routes: root, login, index, \_authenticated, collection, settings |
+| Phase 5: Layout Components     | ✅ Complete    | AppSidebar, SidebarUser, ModeToggle                                   |
+| Phase 6: Auth Components       | ✅ Complete    | Login form built directly in login route                              |
+| Phase 7: Collection Components | ✅ Complete    | useCollection hook, VinylCard, VinylGrid, toolbar, pagination         |
+| Phase 8: Animations & Polish   | 🔄 In Progress | Card animations, vinyl color badges, responsive grid, design polish   |
+| Phase 9: Testing               | ⏳ Pending     | Unit tests, component tests, integration tests                        |
 
 ### Completed Files
 
@@ -27,13 +27,22 @@ src/
 │   ├── discogs.ts             ✅
 │   └── rate-limiter.ts        ✅
 ├── components/
+│   ├── collection/
+│   │   ├── collection-toolbar.tsx   ✅
+│   │   ├── pagination-controls.tsx  ✅
+│   │   ├── vinyl-card-skeleton.tsx  ✅
+│   │   ├── vinyl-card.tsx           ✅
+│   │   └── vinyl-grid.tsx           ✅
 │   ├── layout/
 │   │   ├── app-sidebar.tsx    ✅
+│   │   ├── mode-toggle.tsx    ✅
 │   │   └── sidebar-user.tsx   ✅
 │   └── ui/                    ✅ (all shadcn components)
 ├── hooks/
 │   ├── use-auth.ts            ✅
-│   └── use-mobile.ts          ✅ (from shadcn)
+│   ├── use-collection.ts      ✅
+│   ├── use-mobile.ts          ✅ (from shadcn)
+│   └── use-theme.ts           ✅
 ├── lib/
 │   ├── constants.ts           ✅
 │   ├── storage.ts             ✅
@@ -44,12 +53,14 @@ src/
 │   ├── auth-context.ts        ✅
 │   ├── auth-provider.tsx      ✅
 │   ├── i18n-provider.tsx      ✅
-│   └── query-provider.tsx     ✅
+│   ├── query-provider.tsx     ✅
+│   ├── theme-context.ts       ✅
+│   └── theme-provider.tsx     ✅
 ├── routes/
 │   ├── __root.tsx             ✅
 │   ├── _authenticated.tsx     ✅
 │   ├── _authenticated/
-│   │   ├── collection.tsx     ✅ (placeholder)
+│   │   ├── collection.tsx     ✅ (full implementation)
 │   │   └── settings.tsx       ✅
 │   ├── index.tsx              ✅
 │   └── login.tsx              ✅
@@ -69,15 +80,6 @@ src/
 
 ```
 src/
-├── components/
-│   └── collection/
-│       ├── vinyl-card.tsx           ⏳
-│       ├── vinyl-card-skeleton.tsx  ⏳
-│       ├── vinyl-grid.tsx           ⏳
-│       ├── collection-toolbar.tsx   ⏳
-│       └── pagination-controls.tsx  ⏳
-├── hooks/
-│   └── use-collection.ts            ⏳
 └── __tests__/
     ├── api/
     │   ├── rate-limiter.test.ts     ⏳
@@ -97,9 +99,24 @@ public/
     └── icon-512.png                 ⏳
 ```
 
-### Bug Fixes Applied
+### Bug Fixes & Enhancements Applied
+
+**Bug Fixes:**
 
 - Fixed Axios headers iteration in `src/api/client.ts` (forEach not available on AxiosHeaders)
+- Fixed React Compiler memoization warnings in `use-collection.ts`
+- Fixed TypeScript type issues with theme toggle component
+
+**Design Enhancements (Phase 8 - In Progress):**
+
+- **Vinyl Color Badges**: Automatically extracted and color-coded badges showing vinyl color with matching background colors (Yellow, Red, Pink, Blue, Green, Purple, Orange, White/Clear, Black, Grey, Brown, Smoke, Marbled/Splatter)
+- **Weight Badges**: Display vinyl weight information (e.g., "180g") in separate badge
+- **Smart Filtering**: Filters out irrelevant information like pressing plants (United, Optimal, Pallas, GZ), packaging (Gatefold, Sleeve, Jacket), and edition info
+- **Card Animations**: Entire card scales and gains shadow on hover (not just image)
+- **Hover Overlay**: Gradient overlay with full details appears on hover
+- **Responsive Grid**: Max 5 columns on desktop, optimized spacing (gap-6 instead of gap-4)
+- **Badge Styling**: Thin borders (ring-1) with darker colors for better visibility on all backgrounds, disc icon on color badges
+- **Theme System**: Full light/dark/system theme support with ModeToggle component
 
 ---
 
@@ -109,8 +126,8 @@ A modern web application for browsing Discogs vinyl collections. The MVP focuses
 
 ## MVP Scope
 
-- **In scope**: Login (Username + PAT), View Collection (vinyl-only grid), Logout, Dark theme, PWA
-- **Out of scope (future)**: Wantlist, Collection Value/Stats, OAuth, Light theme
+- **In scope**: Login (Username + PAT), View Collection (vinyl-only grid with color badges), Logout, Theme picker (Light/Dark/System), PWA
+- **Out of scope (future)**: Wantlist, Collection Value/Stats, OAuth, Detailed release view
 
 ---
 
@@ -306,22 +323,33 @@ bunx shadcn add button input card skeleton sidebar sonner scroll-area dropdown-m
 
 **Collection Features:**
 
-- Grid view with cover art focus
+- Grid view with cover art focus (max 5 columns on desktop)
 - Client-side vinyl filtering
 - Sort: Artist, Title, Date Added
 - Search: Filter by artist/title
 - Pagination with 100 items/page
+- **Vinyl color badges**: Automatically extracted from format data with color-matched backgrounds
+- **Weight badges**: Shows vinyl weight (180g, etc.) when available
+- **Smart info filtering**: Removes pressing plants, packaging, and irrelevant edition info
+- **Card hover animations**: Scale and shadow effects on entire card
+- **Hover overlay**: Gradient overlay with full release details
+- **Responsive design**: 2-5 columns based on screen size with optimized spacing
 
 ### Phase 8: Animations & Polish
 
-1. Add motion animations:
-   - Page transitions (fade/slide)
-   - Card hover effects (scale, shadow)
-   - Loading skeleton pulse
-2. Responsive testing (mobile, tablet, desktop)
-3. PWA manifest and icons
-4. Service worker for offline caching
-5. Clean up demo files (App.css, placeholder content)
+**Completed:**
+
+1. ✅ Card hover effects (scale, shadow on entire card)
+2. ✅ Vinyl color badge system with color-matching
+3. ✅ Responsive grid testing (2-5 columns, mobile to desktop)
+4. ✅ Theme system (Light/Dark/System)
+5. ✅ Loading skeleton animations
+
+**Remaining:**
+
+6. ⏳ PWA manifest icons (icon-192.png, icon-512.png)
+7. ⏳ Service worker optimization for offline caching
+8. ⏳ Page transition animations (if desired)
 
 ### Phase 9: Testing
 
