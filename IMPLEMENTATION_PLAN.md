@@ -29,12 +29,14 @@ src/
 ├── components/
 │   ├── collection/
 │   │   ├── collection-toolbar.tsx   ✅
+│   │   ├── collection-filters.tsx   ✅
 │   │   ├── pagination-controls.tsx  ✅
 │   │   ├── vinyl-card-skeleton.tsx  ✅
 │   │   ├── vinyl-card.tsx           ✅
 │   │   └── vinyl-grid.tsx           ✅
 │   ├── layout/
 │   │   ├── app-sidebar.tsx    ✅
+│   │   ├── language-toggle.tsx ✅
 │   │   ├── mode-toggle.tsx    ✅
 │   │   └── sidebar-user.tsx   ✅
 │   └── ui/                    ✅ (all shadcn components)
@@ -46,8 +48,11 @@ src/
 ├── lib/
 │   ├── constants.ts           ✅
 │   ├── storage.ts             ✅
+│   ├── url-state.ts           ✅
 │   └── utils.ts               ✅
 ├── locales/en/
+│   └── translation.json       ✅
+├── locales/no/
 │   └── translation.json       ✅
 ├── providers/
 │   ├── auth-context.ts        ✅
@@ -117,6 +122,9 @@ public/
 - **Responsive Grid**: Max 5 columns on desktop, optimized spacing (gap-6 instead of gap-4)
 - **Badge Styling**: Thin borders (ring-1) with darker colors for better visibility on all backgrounds, disc icon on color badges
 - **Theme System**: Full light/dark/system theme support with ModeToggle component
+- **Filter Panel**: Responsive filter popover/sheet with Genre, Style, Label, Vinyl type, Size, Country, and Year range
+- **Sort Enhancements**: Added release year, label, format, genre, and random options with grouped labels
+- **Language Toggle**: English/Norwegian switching with system language auto-detect
 
 ---
 
@@ -325,7 +333,9 @@ bunx shadcn add button input card skeleton sidebar sonner scroll-area dropdown-m
 
 - Grid view with cover art focus (max 5 columns on desktop)
 - Client-side vinyl filtering
-- Sort: Artist, Title, Date Added
+- Sort: Artist, Album, Date Added, Release Year, Label, Format, Genre, Random
+- Filters: Genre, Style, Label, Vinyl type, Size, Country, Year range
+- Random: Shuffle sorting option
 - Search: Filter by artist/title
 - Pagination with 100 items/page
 - **Vinyl color badges**: Automatically extracted from format data with color-matched backgrounds

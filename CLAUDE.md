@@ -24,6 +24,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **TanStack Router** for file-based routing
 - **TanStack Query** for server state management
 - **i18next** for internationalization
+- **country-flag-icons** for lightweight flag icons
 - **Vitest** + **React Testing Library** + **MSW** for testing
 - **PWA** via vite-plugin-pwa
 
@@ -110,5 +111,12 @@ Layout components in `src/components/layout/`:
 
 - `app-sidebar.tsx` - Main navigation sidebar with Collection, Wantlist (disabled), Settings
 - `sidebar-user.tsx` - User avatar and logout dropdown in sidebar footer
+- `language-toggle.tsx` - Language dropdown (English/Norwegian)
+- `mode-toggle.tsx` - Theme switcher (Light/Dark/System)
 
 The sidebar uses shadcn's sidebar component with collapsible functionality.
+
+## Internationalization
+
+- Language auto-detects from system (English/Norwegian)
+- Language toggle appears next to the theme toggle
