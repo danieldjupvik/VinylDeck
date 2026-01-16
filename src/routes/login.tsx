@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
+import { ModeToggle } from '@/components/layout/mode-toggle'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage
@@ -55,7 +56,10 @@ function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="relative flex min-h-screen items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <ModeToggle />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">{t('app.name')}</CardTitle>

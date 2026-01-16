@@ -1,8 +1,14 @@
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
+import { Disc3 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger
+} from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
+import { ModeToggle } from '@/components/layout/mode-toggle'
 
 export const Route = createFileRoute('/_authenticated')({
   component: AuthenticatedLayout
@@ -36,6 +42,18 @@ function AuthenticatedLayout() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
+        <header className="flex h-14 items-center justify-between border-b px-4">
+          <div className="flex items-center gap-2">
+            <SidebarTrigger className="md:hidden" />
+            <div className="flex items-center gap-2 md:hidden">
+              <div className="bg-primary text-primary-foreground flex aspect-square size-6 items-center justify-center rounded-md">
+                <Disc3 className="size-3.5" />
+              </div>
+              <span className="font-semibold">VinylView</span>
+            </div>
+          </div>
+          <ModeToggle />
+        </header>
         <Outlet />
       </SidebarInset>
     </SidebarProvider>

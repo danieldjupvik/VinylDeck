@@ -1,4 +1,4 @@
-import { Disc3, Heart, Settings } from 'lucide-react'
+import { Disc3, Heart } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from '@tanstack/react-router'
 import {
@@ -11,8 +11,7 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarSeparator
+  SidebarMenuItem
 } from '@/components/ui/sidebar'
 import { SidebarUser } from './sidebar-user'
 
@@ -67,27 +66,6 @@ export function AppSidebar() {
                 >
                   <Heart />
                   <span>{t('nav.wantlist')}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator />
-
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive('/settings')}
-                  tooltip={t('nav.settings')}
-                >
-                  <Link to="/settings">
-                    <Settings />
-                    <span>{t('nav.settings')}</span>
-                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

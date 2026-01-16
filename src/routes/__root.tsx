@@ -9,7 +9,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <div className="dark min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       <Outlet />
       <Toaster />
     </div>

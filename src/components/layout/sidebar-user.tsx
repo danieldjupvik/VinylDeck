@@ -1,6 +1,6 @@
-import { ChevronsUpDown, LogOut } from 'lucide-react'
+import { ChevronsUpDown, LogOut, Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/use-auth'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -8,19 +8,18 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import {
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar
+  SidebarMenuItem
 } from '@/components/ui/sidebar'
 
 export function SidebarUser() {
   const { t } = useTranslation()
   const { username, logout } = useAuth()
-  const { isMobile } = useSidebar()
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -60,10 +59,17 @@ export function SidebarUser() {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? 'bottom' : 'right'}
-            align="end"
+            side="top"
+            align="start"
             sideOffset={4}
           >
+            <DropdownMenuItem asChild>
+              <Link to="/settings">
+                <Settings className="mr-2 size-4" />
+                {t('nav.settings')}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 size-4" />
               {t('auth.logout')}
