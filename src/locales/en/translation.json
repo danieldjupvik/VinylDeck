@@ -58,6 +58,20 @@
       "asc": "Ascending",
       "desc": "Descending"
     },
+    "filters": {
+      "title": "Filters",
+      "button": "Filters",
+      "clear": "Clear all",
+      "genre": "Genre",
+      "style": "Style",
+      "label": "Label",
+      "vinylType": "Vinyl type",
+      "size": "Size",
+      "country": "Country",
+      "yearRange": "Year range",
+      "anyYear": "Any year",
+      "empty": "No options"
+    },
     "pagination": {
       "previous": "Previous",
       "next": "Next",

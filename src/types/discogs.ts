@@ -41,6 +41,7 @@ export interface DiscogsBasicInformation {
   formats: DiscogsFormat[]
   labels: DiscogsLabel[]
   artists: DiscogsArtist[]
+  country?: string
   genres: string[]
   styles: string[]
   master_id?: number

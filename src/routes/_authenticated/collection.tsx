@@ -26,7 +26,18 @@ function CollectionPage() {
     sort,
     setSort,
     sortOrder,
-    setSortOrder
+    setSortOrder,
+    filterOptions,
+    selectedFilters,
+    setSelectedGenres,
+    setSelectedStyles,
+    setSelectedLabels,
+    setSelectedTypes,
+    setSelectedSizes,
+    setSelectedCountries,
+    setYearRange,
+    clearFilters,
+    activeFilterCount
   } = useCollection({ page })
   const visibleCount = filteredReleases.length
   const rangeStart = visibleCount > 0 ? 1 : 0
@@ -76,6 +87,19 @@ function CollectionPage() {
         onSortChange={handleSortChange}
         sortOrder={sortOrder}
         onSortOrderChange={handleSortOrderChange}
+        filters={{
+          options: filterOptions,
+          selected: selectedFilters,
+          setSelectedGenres,
+          setSelectedStyles,
+          setSelectedLabels,
+          setSelectedTypes,
+          setSelectedSizes,
+          setSelectedCountries,
+          setYearRange,
+          clearFilters,
+          activeFilterCount
+        }}
       />
 
       <VinylGrid releases={filteredReleases} isLoading={isLoading} />

@@ -12,6 +12,10 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import {
+  CollectionFilters,
+  type CollectionFiltersProps
+} from '@/components/collection/collection-filters'
 import type { CollectionSortKey, CollectionSortOrder } from '@/types/discogs'
 
 interface CollectionToolbarProps {
@@ -21,6 +25,7 @@ interface CollectionToolbarProps {
   onSortChange: (sort: CollectionSortKey) => void
   sortOrder: CollectionSortOrder
   onSortOrderChange: (order: CollectionSortOrder) => void
+  filters: CollectionFiltersProps
 }
 
 export function CollectionToolbar({
@@ -29,7 +34,8 @@ export function CollectionToolbar({
   sort,
   onSortChange,
   sortOrder,
-  onSortOrderChange
+  onSortOrderChange,
+  filters
 }: CollectionToolbarProps) {
   const { t } = useTranslation()
 
@@ -70,9 +76,10 @@ export function CollectionToolbar({
           className="pl-9"
         />
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <CollectionFilters {...filters} />
         <Select value={sort} onValueChange={onSortChange}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger size="sm" className="w-[140px]">
             <SelectValue placeholder={t('collection.sort.placeholder')} />
           </SelectTrigger>
           <SelectContent>
@@ -115,10 +122,10 @@ export function CollectionToolbar({
         </Select>
         <Button
           variant="outline"
-          size="sm"
+          size="icon-sm"
           onClick={toggleSortOrder}
           title={sortOrderLabel}
-          className="gap-2"
+          aria-label={sortOrderLabel}
         >
           {isRandomSort ? (
             <Shuffle className="h-4 w-4" />
@@ -127,7 +134,6 @@ export function CollectionToolbar({
           ) : (
             <ArrowDown className="h-4 w-4" />
           )}
-          <span className="text-xs font-medium">{sortOrderLabel}</span>
         </Button>
       </div>
     </div>

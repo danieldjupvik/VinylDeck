@@ -1,5 +1,5 @@
 import { Languages } from 'lucide-react'
-import Flag from 'react-world-flags'
+import { NO, US } from 'country-flag-icons/react/3x2'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {
@@ -34,7 +34,7 @@ function LanguageFlag({
   lang: 'en' | 'no'
   className?: string
 }) {
-  const code = lang === 'no' ? 'NO' : 'US'
+  const FlagComponent = lang === 'no' ? NO : US
 
   return (
     <span
@@ -44,7 +44,7 @@ function LanguageFlag({
       )}
       aria-hidden="true"
     >
-      <Flag code={code} className="h-full w-full object-cover" />
+      <FlagComponent className="h-full w-full" />
     </span>
   )
 }

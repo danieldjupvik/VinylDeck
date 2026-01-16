@@ -58,6 +58,20 @@
       "asc": "Stigende",
       "desc": "Synkende"
     },
+    "filters": {
+      "title": "Filtre",
+      "button": "Filtre",
+      "clear": "Tøm alle",
+      "genre": "Sjanger",
+      "style": "Stil",
+      "label": "Label",
+      "vinylType": "Vinyltype",
+      "size": "Størrelse",
+      "country": "Land",
+      "yearRange": "Årsintervall",
+      "anyYear": "Alle år",
+      "empty": "Ingen alternativer"
+    },
     "pagination": {
       "previous": "Forrige",
       "next": "Neste",
