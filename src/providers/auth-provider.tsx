@@ -7,15 +7,8 @@ import {
   setUsername,
   clearAuth
 } from '@/lib/storage'
-import { AuthContext } from './auth-context'
+import { AuthContext, type AuthState } from './auth-context'
 import type { DiscogsIdentity } from '@/types/discogs'
-
-interface AuthState {
-  isAuthenticated: boolean
-  isLoading: boolean
-  username: string | null
-  userId: number | null
-}
 
 interface AuthProviderProps {
   children: ReactNode

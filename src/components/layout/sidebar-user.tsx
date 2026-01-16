@@ -31,7 +31,8 @@ export function SidebarUser() {
   const initials = username
     ? username
         .split(/[\s_-]/)
-        .map((part) => part[0])
+        .filter((part) => part.length > 0)
+        .map((part) => part.charAt(0))
         .join('')
         .toUpperCase()
         .slice(0, 2)

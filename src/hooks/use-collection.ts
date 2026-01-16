@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { getCollection, isVinylRecord } from '@/api/discogs'
 import { useAuth } from '@/hooks/use-auth'
+import { COLLECTION } from '@/lib/constants'
 import {
   readParamList,
   readParamRange,
@@ -171,7 +172,18 @@ export function useCollection(
     urlFilters.yearRange
   )
   const [randomSeed, setRandomSeed] = useState(() => Date.now())
+  const page = options.page ?? 1
   const isClientSort = sort === 'genre' || sort === 'random'
+  const hasSearch = search.trim().length > 0
+  const hasActiveFilters =
+    selectedGenres.length > 0 ||
+    selectedStyles.length > 0 ||
+    selectedLabels.length > 0 ||
+    selectedTypes.length > 0 ||
+    selectedSizes.length > 0 ||
+    selectedCountries.length > 0 ||
+    yearRangeSelection !== null
+  const shouldFetchAllPages = isClientSort || hasSearch || hasActiveFilters
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -232,16 +244,43 @@ export function useCollection(
     queryKey: [
       'collection',
       username,
-      options.page ?? 1,
+      shouldFetchAllPages ? 'all' : page,
       serverSort,
       serverSortOrder
     ],
-    queryFn: () =>
-      getCollection(username!, {
-        page: options.page ?? 1,
-        sort: serverSort,
-        sortOrder: serverSortOrder
-      }),
+    queryFn: async () => {
+      if (!username) {
+        throw new Error('Username is required')
+      }
+
+      const perPage = COLLECTION.PER_PAGE
+      const fetchPage = (pageNumber: number) =>
+        getCollection(username, {
+          page: pageNumber,
+          perPage,
+          sort: serverSort,
+          sortOrder: serverSortOrder
+        })
+
+      if (!shouldFetchAllPages) {
+        return fetchPage(page)
+      }
+
+      const firstPage = await fetchPage(1)
+      const totalPages = firstPage.pagination.pages
+
+      if (totalPages <= 1) {
+        return firstPage
+      }
+
+      const releases = [...firstPage.releases]
+      for (let currentPage = 2; currentPage <= totalPages; currentPage += 1) {
+        const response = await fetchPage(currentPage)
+        releases.push(...response.releases)
+      }
+
+      return { ...firstPage, releases }
+    },
     enabled: !!username,
     staleTime: 5 * 60 * 1000 // 5 minutes
   })
@@ -458,6 +497,20 @@ export function useCollection(
     return filteredReleases
   }, [filteredReleases, sort, sortOrder, randomSeed])
 
+  const perPage = data?.pagination.per_page ?? COLLECTION.PER_PAGE
+  const totalPages = shouldFetchAllPages
+    ? Math.max(1, Math.ceil(sortedReleases.length / perPage))
+    : data?.pagination.pages ?? 1
+  const safePage = shouldFetchAllPages ? Math.min(page, totalPages) : page
+  const pagedReleases = useMemo(() => {
+    if (!shouldFetchAllPages) {
+      return sortedReleases
+    }
+
+    const startIndex = (safePage - 1) * perPage
+    return sortedReleases.slice(startIndex, startIndex + perPage)
+  }, [shouldFetchAllPages, sortedReleases, safePage, perPage])
+
   const yearRangeActive =
     !!yearRange &&
     (!filterOptions.yearBounds ||
@@ -505,19 +558,26 @@ export function useCollection(
     setYearRangeSelection(null)
   }
 
-  const pagination = data?.pagination
-    ? {
-        page: data.pagination.page,
-        pages: data.pagination.pages,
-        total: data.pagination.items,
-        perPage: data.pagination.per_page
-      }
+  const pagination = data
+    ? shouldFetchAllPages
+      ? {
+          page: safePage,
+          pages: totalPages,
+          total: sortedReleases.length,
+          perPage
+        }
+      : {
+          page: data.pagination.page,
+          pages: data.pagination.pages,
+          total: data.pagination.items,
+          perPage: data.pagination.per_page
+        }
     : null
 
   return {
     releases: releases ?? [],
     vinylOnly,
-    filteredReleases: sortedReleases,
+    filteredReleases: pagedReleases,
     isLoading,
     isError,
     error: error as Error | null,

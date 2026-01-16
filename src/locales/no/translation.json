@@ -8,6 +8,9 @@
     "english": "Engelsk",
     "norwegian": "Norsk"
   },
+  "common": {
+    "comingSoon": "(Kommer snart)"
+  },
   "nav": {
     "collection": "Samling",
     "wantlist": "Ønskeliste",
