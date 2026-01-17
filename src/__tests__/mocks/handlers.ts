@@ -1,19 +1,21 @@
 import { http, HttpResponse } from 'msw'
 
 export const handlers = [
-  // Identity endpoint
+  // Identity endpoint - does not return email per API docs
   http.get('https://api.discogs.com/oauth/identity', ({ request }) => {
     const auth = request.headers.get('Authorization')
     if (auth === 'Discogs token=valid-token') {
       return HttpResponse.json({
         username: 'testuser',
         id: 123,
-        resource_url: 'https://api.discogs.com/users/testuser'
+        resource_url: 'https://api.discogs.com/users/testuser',
+        consumer_name: 'Test App'
       })
     }
     return new HttpResponse(null, { status: 401 })
   }),
 
+  // User profile endpoint - returns email only if authenticated as the user
   http.get('https://api.discogs.com/users/:username', ({ request, params }) => {
     const auth = request.headers.get('Authorization')
     if (auth === 'Discogs token=valid-token') {

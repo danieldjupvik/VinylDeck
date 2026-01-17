@@ -141,6 +141,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error('Username does not match token')
       }
 
+      // Store token BEFORE calling getUserProfile so the API client can use it
+      setToken(token)
+      setUsername(identity.username)
+
       let profile: DiscogsUserProfile | null = null
       try {
         profile = await getUserProfile(identity.username)
@@ -148,9 +152,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         profile = null
       }
 
-      // Store credentials and update state
-      setToken(token)
-      setUsername(identity.username)
+      // Store identity and profile
       setStoredIdentity(identity)
       if (profile) {
         setStoredUserProfile(profile)
