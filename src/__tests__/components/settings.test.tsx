@@ -131,7 +131,7 @@ describe('Settings Page', () => {
 
   it('displays app name and description', () => {
     renderSettings()
-    expect(screen.getByText('VinylView')).toBeInTheDocument()
+    expect(screen.getByText('VinylDeck')).toBeInTheDocument()
     expect(
       screen.getByText(/browse your discogs vinyl collection/i)
     ).toBeInTheDocument()

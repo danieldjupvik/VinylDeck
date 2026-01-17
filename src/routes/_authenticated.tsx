@@ -54,7 +54,7 @@ function AuthenticatedLayout() {
               <SidebarTrigger className="md:hidden" />
               <div className="flex items-center gap-2 md:hidden">
                 <BrandMark size="sm" />
-                <span className="font-semibold">VinylView</span>
+                <span className="font-semibold">VinylDeck</span>
               </div>
             </div>
             <div className="flex items-center gap-2">

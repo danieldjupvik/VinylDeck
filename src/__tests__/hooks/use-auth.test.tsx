@@ -38,7 +38,7 @@ describe('useAuth', () => {
 
     expect(result.current.isAuthenticated).toBe(true)
     expect(result.current.username).toBe('testuser')
-    expect(localStorage.getItem('vinylview_token')).toBe('valid-token')
+    expect(localStorage.getItem('vinyldeck_token')).toBe('valid-token')
   })
 
   it('logs out and clears auth state', async () => {
@@ -56,7 +56,7 @@ describe('useAuth', () => {
 
     expect(result.current.isAuthenticated).toBe(false)
     expect(result.current.username).toBeNull()
-    expect(localStorage.getItem('vinylview_token')).toBeNull()
+    expect(localStorage.getItem('vinyldeck_token')).toBeNull()
   })
 
   it('throws error when login credentials are invalid', async () => {
@@ -139,7 +139,7 @@ describe('useAuth', () => {
 
     expect(result.current.isAuthenticated).toBe(false)
     expect(result.current.username).toBeNull()
-    expect(localStorage.getItem('vinylview_token')).toBeNull()
+    expect(localStorage.getItem('vinyldeck_token')).toBeNull()
   })
 
   it('handles getUserProfile failure on mount by using cached profile', async () => {
@@ -169,7 +169,7 @@ describe('useAuth', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     expect(result.current.isAuthenticated).toBe(false)
-    expect(localStorage.getItem('vinylview_username')).toBeNull()
+    expect(localStorage.getItem('vinyldeck_username')).toBeNull()
   })
 
   it('clears auth when no username exists on mount', async () => {
@@ -180,6 +180,6 @@ describe('useAuth', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     expect(result.current.isAuthenticated).toBe(false)
-    expect(localStorage.getItem('vinylview_token')).toBeNull()
+    expect(localStorage.getItem('vinyldeck_token')).toBeNull()
   })
 })

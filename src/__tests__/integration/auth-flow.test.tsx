@@ -20,7 +20,7 @@ const renderApp = (initialPath: string) => {
   })
 
   render(
-    <ThemeProvider defaultTheme="dark" storageKey="vinylview-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="vinyldeck-theme">
       <QueryProvider>
         <PreferencesProvider>
           <AuthProvider>
@@ -58,6 +58,6 @@ describe('auth flow', () => {
     expect(
       await screen.findByRole('heading', { name: /my collection/i })
     ).toBeInTheDocument()
-    expect(localStorage.getItem('vinylview_token')).toBe('valid-token')
+    expect(localStorage.getItem('vinyldeck_token')).toBe('valid-token')
   })
 })

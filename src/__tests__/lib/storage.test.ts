@@ -101,7 +101,7 @@ describe('Storage utilities', () => {
       id: 123,
       username: 'testuser',
       resource_url: 'https://api.discogs.com/users/testuser',
-      consumer_name: 'VinylView'
+      consumer_name: 'VinylDeck'
     }
 
     it('stores and retrieves identity', () => {
@@ -182,7 +182,7 @@ describe('Storage utilities', () => {
         id: 123,
         username: 'testuser',
         resource_url: 'https://api.discogs.com/users/testuser',
-        consumer_name: 'VinylView'
+        consumer_name: 'VinylDeck'
       }
 
       const mockProfile: DiscogsUserProfile = {
@@ -242,7 +242,7 @@ describe('Storage utilities', () => {
         id: 123,
         username: 'testuser',
         resource_url: 'https://api.discogs.com/users/testuser',
-        consumer_name: 'VinylView'
+        consumer_name: 'VinylDeck'
       }
 
       setStoredIdentity(minimalIdentity)

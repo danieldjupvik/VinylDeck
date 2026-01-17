@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "VinylView",
+    "name": "VinylDeck",
     "description": "Browse your Discogs vinyl collection"
   },
   "language": {
@@ -92,7 +92,7 @@
     "subtitle": "Manage your profile and app preferences",
     "profile": {
       "title": "Profile",
-      "description": "Personalize how your profile appears in VinylView",
+      "description": "Personalize how your profile appears in VinylDeck",
       "avatar": {
         "title": "Avatar",
         "description": "Choose the avatar shown in the sidebar and menus.",

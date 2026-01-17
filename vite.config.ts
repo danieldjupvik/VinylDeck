@@ -22,8 +22,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/*.png'],
       manifest: {
-        name: 'VinylView',
-        short_name: 'VinylView',
+        name: 'VinylDeck',
+        short_name: 'VinylDeck',
         description: 'Browse your Discogs vinyl collection',
         theme_color: '#09090b',
         background_color: '#09090b',

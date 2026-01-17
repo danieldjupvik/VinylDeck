@@ -22,7 +22,7 @@ declare module '@tanstack/react-router' {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider defaultTheme="dark" storageKey="vinylview-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="vinyldeck-theme">
       <QueryProvider>
         <PreferencesProvider>
           <AuthProvider>

@@ -1,4 +1,4 @@
-# VinylView MVP Implementation Plan
+# VinylDeck MVP Implementation Plan
 
 ## Implementation Progress
 
@@ -320,7 +320,7 @@ bunx shadcn add button input card skeleton sidebar sonner scroll-area dropdown-m
 
 **Sidebar Structure:**
 
-- Header: Logo placeholder + "VinylView"
+- Header: Logo placeholder + "VinylDeck"
 - Browse section: Collection (active), Wantlist (future, disabled)
 - Settings at bottom
 - Footer: User avatar, username, logout dropdown

@@ -112,7 +112,7 @@ Auth flow:
 Layout components in `src/components/layout/`:
 
 - `app-sidebar.tsx` - Main navigation sidebar with Collection, Wantlist (disabled), Settings
-- `brand-mark.tsx` - Shared circular VinylView mark (login, sidebar, loading)
+- `brand-mark.tsx` - Shared circular VinylDeck mark (login, sidebar, loading)
 - `sidebar-user.tsx` - User avatar and logout dropdown in sidebar footer
 - `language-toggle.tsx` - Language dropdown (English/Norwegian)
 - `mode-toggle.tsx` - Theme switcher (Light/Dark/System)
