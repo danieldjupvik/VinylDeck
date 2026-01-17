@@ -83,11 +83,25 @@
     "vinyl": "Vinyl",
     "records": "{{count}} record",
     "records_other": "{{count}} records",
+    "nonVinylHidden": "Non-vinyl hidden:",
     "showing": "Showing {{start}}-{{end}} of {{total}} album",
     "showing_other": "Showing {{start}}-{{end}} of {{total}} albums"
   },
   "settings": {
     "title": "Settings",
+    "subtitle": "Manage your profile and app preferences",
+    "profile": {
+      "title": "Profile",
+      "description": "Personalize how your profile appears in VinylView",
+      "avatar": {
+        "title": "Avatar",
+        "description": "Choose the avatar shown in the sidebar and menus.",
+        "discogs": "Discogs avatar",
+        "discogsHint": "Uses your Discogs profile image",
+        "gravatar": "Gravatar",
+        "gravatarHint": "Uses a Gravatar linked to your email"
+      }
+    },
     "version": "Version",
     "theme": "Theme",
     "dark": "Dark",

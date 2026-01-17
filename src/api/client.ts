@@ -10,7 +10,18 @@ export const apiClient = axios.create({
   }
 })
 
-// Request interceptor: Add auth header and handle rate limiting
+/**
+ * Request interceptor: Add auth header and handle rate limiting
+ *
+ * Discogs API Requirements:
+ * - Authentication: Must include "Discogs token={token}" in Authorization header
+ * - Rate Limiting: Respect 60 req/min for authenticated, 25 req/min for unauthenticated
+ * - User Agent: Should identify application (handled by axios defaults)
+ *
+ * This interceptor:
+ * 1. Waits if approaching rate limit (via rateLimiter.waitIfNeeded())
+ * 2. Adds Authorization header with token from localStorage
+ */
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     // Wait if we're being rate limited
@@ -27,7 +38,14 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// Helper to extract rate limit headers from Axios response
+/**
+ * Helper to extract Discogs rate limit headers from Axios response.
+ *
+ * Discogs provides these headers in every response:
+ * - X-Discogs-Ratelimit: Total requests allowed per minute
+ * - X-Discogs-Ratelimit-Used: Requests made in current window
+ * - X-Discogs-Ratelimit-Remaining: Remaining requests in window
+ */
 function extractRateLimitHeaders(
   axiosHeaders: Record<string, unknown>
 ): Record<string, string> {
@@ -48,7 +66,16 @@ function extractRateLimitHeaders(
   return headers
 }
 
-// Response interceptor: Update rate limit state from headers
+/**
+ * Response interceptor: Update rate limit state from headers
+ *
+ * Extracts rate limit info from every Discogs API response
+ * and updates the rate limiter state. This allows the rate
+ * limiter to accurately track remaining requests and throttle
+ * when necessary.
+ *
+ * Updates are performed on both successful and error responses.
+ */
 apiClient.interceptors.response.use(
   (response) => {
     // Update rate limiter from response headers

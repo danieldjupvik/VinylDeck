@@ -5,6 +5,7 @@ export interface AuthState {
   isLoading: boolean
   username: string | null
   userId: number | null
+  avatarUrl: string | null
 }
 
 export interface AuthContextValue extends AuthState {

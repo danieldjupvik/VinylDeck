@@ -83,11 +83,25 @@
     "vinyl": "Vinyl",
     "records": "{{count}} plate",
     "records_other": "{{count}} plater",
+    "nonVinylHidden": "Ikke-vinyl skjult:",
     "showing": "Viser {{start}}-{{end}} av {{total}} album",
     "showing_other": "Viser {{start}}-{{end}} av {{total}} album"
   },
   "settings": {
     "title": "Innstillinger",
+    "subtitle": "Administrer profilen din og app-innstillinger",
+    "profile": {
+      "title": "Profil",
+      "description": "Tilpass hvordan profilen din vises i VinylView",
+      "avatar": {
+        "title": "Avatar",
+        "description": "Velg avataren som vises i sidepanelet og menyer.",
+        "discogs": "Discogs-avatar",
+        "discogsHint": "Bruker profilbildet ditt fra Discogs",
+        "gravatar": "Gravatar",
+        "gravatarHint": "Bruker en Gravatar koblet til e-posten din"
+      }
+    },
     "version": "Versjon",
     "theme": "Tema",
     "dark": "Mørk",
