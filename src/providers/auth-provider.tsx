@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   validateCredentials,
   getIdentity as fetchIdentity,
@@ -25,6 +25,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const { gravatarEmail, setGravatarEmail } = usePreferences()
+  const latestGravatarEmailRef = useRef(gravatarEmail)
   const [state, setState] = useState<AuthState>({
     isAuthenticated: false,
     isLoading: true,
@@ -32,6 +33,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     userId: null,
     avatarUrl: null
   })
+
+  useEffect(() => {
+    latestGravatarEmailRef.current = gravatarEmail
+  }, [gravatarEmail])
 
   // Validate existing token on mount
   useEffect(() => {
@@ -55,7 +60,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const storedIdentity = getStoredIdentity()
         const storedProfile = getStoredUserProfile()
 
-        if (!gravatarEmail && storedProfile?.email) {
+        if (!latestGravatarEmailRef.current && storedProfile?.email) {
+          latestGravatarEmailRef.current = storedProfile.email
           setGravatarEmail(storedProfile.email)
         }
 
@@ -64,7 +70,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             try {
               const profile = await getUserProfile(storedIdentity.username)
               setStoredUserProfile(profile)
-              if (!gravatarEmail && profile.email) {
+              if (!latestGravatarEmailRef.current && profile.email) {
+                latestGravatarEmailRef.current = profile.email
                 setGravatarEmail(profile.email)
               }
               setState({
@@ -100,7 +107,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         } catch {
           profile = null
         }
-        if (!gravatarEmail && profile?.email) {
+        if (!latestGravatarEmailRef.current && profile?.email) {
+          latestGravatarEmailRef.current = profile.email
           setGravatarEmail(profile.email)
         }
         setState({
@@ -124,7 +132,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     validateSession()
-  }, [gravatarEmail, setGravatarEmail])
+  }, [setGravatarEmail])
 
   const login = useCallback(
     async (username: string, token: string): Promise<void> => {
@@ -157,7 +165,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (profile) {
         setStoredUserProfile(profile)
       }
-      if (!gravatarEmail && profile?.email) {
+      if (!latestGravatarEmailRef.current && profile?.email) {
+        latestGravatarEmailRef.current = profile.email
         setGravatarEmail(profile.email)
       }
       setState({
@@ -168,7 +177,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         avatarUrl: profile?.avatar_url ?? identity.avatar_url ?? null
       })
     },
-    [gravatarEmail, setGravatarEmail]
+    [setGravatarEmail]
   )
 
   const logout = useCallback(() => {

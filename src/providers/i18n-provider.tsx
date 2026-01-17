@@ -28,8 +28,13 @@ const detectLanguage = () => {
 
 const readStoredLanguage = () => {
   if (typeof window === 'undefined') return null
-  const stored = localStorage.getItem(STORAGE_KEYS.LANGUAGE)
-  return stored ? normalizeLanguage(stored) : null
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.LANGUAGE)
+    return stored ? normalizeLanguage(stored) : null
+  } catch (error) {
+    console.warn('Failed to read language from localStorage.', error)
+    return null
+  }
 }
 
 i18n.use(initReactI18next).init({
@@ -52,7 +57,11 @@ i18n.use(initReactI18next).init({
 
 if (typeof window !== 'undefined') {
   i18n.on('languageChanged', (language) => {
-    localStorage.setItem(STORAGE_KEYS.LANGUAGE, normalizeLanguage(language))
+    try {
+      localStorage.setItem(STORAGE_KEYS.LANGUAGE, normalizeLanguage(language))
+    } catch (error) {
+      console.warn('Failed to save language to localStorage.', error)
+    }
   })
 }
 

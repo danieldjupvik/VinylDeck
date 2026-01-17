@@ -12,7 +12,6 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 
 export const Route = createFileRoute('/_authenticated/settings')({
@@ -123,12 +122,6 @@ function SettingsPage() {
                   </div>
                 </button>
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label>{t('settings.profile.gravatarEmail')}</Label>
-              <p className="text-sm text-muted-foreground">
-                {t('settings.profile.gravatarFetched')}
-              </p>
             </div>
           </CardContent>
         </Card>

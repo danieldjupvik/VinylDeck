@@ -44,6 +44,16 @@ class RateLimiter {
 
   private waitPromise: Promise<void> | null = null
 
+  private resetWindowIfExpired(): boolean {
+    if (Date.now() - this.state.lastUpdated <= RATE_LIMIT.WINDOW_MS) {
+      return false
+    }
+
+    this.state.remaining = this.state.limit
+    this.state.used = 0
+    return true
+  }
+
   /**
    * Update rate limit state from Discogs response headers.
    *
@@ -74,9 +84,7 @@ class RateLimiter {
    */
   shouldThrottle(): boolean {
     // Reset if window has passed (Discogs resets after 60s of no requests)
-    if (Date.now() - this.state.lastUpdated > RATE_LIMIT.WINDOW_MS) {
-      this.state.remaining = this.state.limit
-      this.state.used = 0
+    if (this.resetWindowIfExpired()) {
       return false
     }
 
