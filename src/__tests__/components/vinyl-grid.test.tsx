@@ -46,9 +46,7 @@ const releases: DiscogsCollectionRelease[] = [
 
 describe('VinylGrid', () => {
   it('renders skeletons while loading', () => {
-    const { container } = render(
-      <VinylGrid releases={[]} isLoading={true} />
-    )
+    const { container } = render(<VinylGrid releases={[]} isLoading={true} />)
 
     const skeletons = container.querySelectorAll('[data-slot="skeleton"]')
     expect(skeletons.length).toBeGreaterThanOrEqual(10)

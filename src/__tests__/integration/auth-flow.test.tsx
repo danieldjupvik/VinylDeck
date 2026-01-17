@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router'
+import {
+  createMemoryHistory,
+  createRouter,
+  RouterProvider
+} from '@tanstack/react-router'
 import { describe, expect, it } from 'vitest'
 import { routeTree } from '@/routeTree.gen'
 import { QueryProvider } from '@/providers/query-provider'
