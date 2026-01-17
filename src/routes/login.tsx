@@ -111,7 +111,7 @@ function LoginPage() {
             </div>
             <Button
               type="submit"
-              className="w-full animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-backwards delay-700"
+              className="w-full animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-backwards"
               disabled={isLoading || !username.trim() || !token.trim()}
             >
               {isLoading ? (
