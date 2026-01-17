@@ -124,6 +124,12 @@ The sidebar uses shadcn's sidebar component with collapsible functionality.
 - Language auto-detects from system (English/Norwegian)
 - Language toggle appears next to the theme toggle
 
+## Collection View Toggle
+
+- Collection supports grid and table views with a toolbar toggle.
+- View mode preference is stored in localStorage (`STORAGE_KEYS.VIEW_MODE`).
+- Table view is designed for responsive use; columns collapse on smaller screens.
+
 ## View Transitions
 
 - React 19 ViewTransition API enabled in TanStack Router (`defaultViewTransition: true`)

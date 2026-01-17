@@ -45,8 +45,8 @@
       "placeholder": "Sorter etter",
       "artist": "Artist",
       "title": "Album",
-      "dateAdded": "Dato lagt til",
-      "releaseYear": "Utgivelsesår",
+      "dateAdded": "Lagt til",
+      "releaseYear": "Utgitt",
       "label": "Label",
       "format": "Format",
       "genre": "Sjanger",
@@ -79,6 +79,21 @@
       "yearRange": "Årsintervall",
       "anyYear": "Alle år",
       "empty": "Ingen alternativer"
+    },
+    "view": {
+      "grid": "Rute",
+      "table": "Tabell",
+      "switchToGrid": "Bytt til rutenettvisning",
+      "switchToTable": "Bytt til tabellvisning"
+    },
+    "table": {
+      "cover": "Omslag",
+      "titleArtist": "Tittel / artist",
+      "year": "År",
+      "genre": "Sjanger",
+      "label": "Label",
+      "format": "Format",
+      "country": "Land"
     },
     "pagination": {
       "previous": "Forrige",

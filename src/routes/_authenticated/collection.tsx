@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { AlertCircle, RotateCw } from 'lucide-react'
 import { useCollection } from '@/hooks/use-collection'
+import { useViewPreference } from '@/hooks/use-view-preference'
 import { VinylGrid } from '@/components/collection/vinyl-grid'
+import { VinylTable } from '@/components/collection/vinyl-table'
 import { CollectionToolbar } from '@/components/collection/collection-toolbar'
 import { PaginationControls } from '@/components/collection/pagination-controls'
 import { Badge } from '@/components/ui/badge'
@@ -17,6 +19,10 @@ function CollectionPage() {
   const { t, i18n } = useTranslation()
   const [page, setPage] = useState(1)
   const [now, setNow] = useState(() => Date.now())
+  const { viewMode, toggleView } = useViewPreference()
+  const [isViewSwitching, setIsViewSwitching] = useState(false)
+  const [hasViewToggled, setHasViewToggled] = useState(false)
+  const viewSwitchTimeoutRef = useRef<number | null>(null)
 
   const {
     filteredReleases,
@@ -67,6 +73,14 @@ function CollectionPage() {
     }, 30_000)
 
     return () => window.clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (viewSwitchTimeoutRef.current !== null) {
+        window.clearTimeout(viewSwitchTimeoutRef.current)
+      }
+    }
   }, [])
 
   const lastUpdatedLabel = useMemo(() => {
@@ -162,6 +176,24 @@ function CollectionPage() {
     setPage(1)
   }
 
+  const handleViewToggle = () => {
+    toggleView()
+    setIsViewSwitching(true)
+    setHasViewToggled(true)
+    if (viewSwitchTimeoutRef.current !== null) {
+      window.clearTimeout(viewSwitchTimeoutRef.current)
+    }
+    viewSwitchTimeoutRef.current = window.setTimeout(() => {
+      setIsViewSwitching(false)
+    }, 420)
+  }
+
+  const shouldAnimateItems =
+    isViewSwitching || (shouldAnimateCards && !hasViewToggled)
+  const gridAnimationClassName = isViewSwitching
+    ? 'animate-view-switch'
+    : 'animate-card-pop'
+
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in-95 duration-300">
@@ -225,6 +257,8 @@ function CollectionPage() {
             onSortChange={handleSortChange}
             sortOrder={sortOrder}
             onSortOrderChange={handleSortOrderChange}
+            viewMode={viewMode}
+            onViewToggle={handleViewToggle}
             filters={{
               options: filterOptions,
               selected: selectedFilters,
@@ -242,11 +276,20 @@ function CollectionPage() {
         </div>
       </div>
 
-      <VinylGrid
-        releases={filteredReleases}
-        isLoading={isLoading || isFetching}
-        shouldAnimate={shouldAnimateCards}
-      />
+      {viewMode === 'grid' ? (
+        <VinylGrid
+          releases={filteredReleases}
+          isLoading={isLoading || isFetching}
+          shouldAnimate={shouldAnimateItems}
+          animationClassName={gridAnimationClassName}
+        />
+      ) : (
+        <VinylTable
+          releases={filteredReleases}
+          isLoading={isLoading || isFetching}
+          shouldAnimate={shouldAnimateItems}
+        />
+      )}
 
       {pagination && (
         <PaginationControls

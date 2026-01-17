@@ -45,8 +45,8 @@
       "placeholder": "Sort by",
       "artist": "Artist",
       "title": "Album",
-      "dateAdded": "Date Added",
-      "releaseYear": "Release Year",
+      "dateAdded": "Added",
+      "releaseYear": "Released",
       "label": "Label",
       "format": "Format",
       "genre": "Genre",
@@ -79,6 +79,21 @@
       "yearRange": "Year range",
       "anyYear": "Any year",
       "empty": "No options"
+    },
+    "view": {
+      "grid": "Grid",
+      "table": "Table",
+      "switchToGrid": "Switch to grid view",
+      "switchToTable": "Switch to table view"
+    },
+    "table": {
+      "cover": "Cover",
+      "titleArtist": "Title / Artist",
+      "year": "Year",
+      "genre": "Genre",
+      "label": "Label",
+      "format": "Format",
+      "country": "Country"
     },
     "pagination": {
       "previous": "Previous",
