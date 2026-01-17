@@ -9,13 +9,18 @@
     "norwegian": "Norsk"
   },
   "common": {
-    "comingSoon": "(Kommer snart)"
+    "comingSoon": "(Kommer snart)",
+    "soon": "Snart"
   },
   "nav": {
     "collection": "Samling",
     "wantlist": "Ønskeliste",
+    "random": "Tilfeldig",
     "settings": "Innstillinger",
     "browse": "Bla gjennom",
+    "analyze": "Analysere",
+    "collectionValue": "Samlingens verdi",
+    "stats": "Statistikk",
     "backHome": "Gå tilbake hjem"
   },
   "auth": {

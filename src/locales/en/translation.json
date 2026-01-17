@@ -9,13 +9,18 @@
     "norwegian": "Norwegian"
   },
   "common": {
-    "comingSoon": "(Coming soon)"
+    "comingSoon": "(Coming soon)",
+    "soon": "Soon"
   },
   "nav": {
     "collection": "Collection",
     "wantlist": "Wantlist",
+    "random": "Random",
     "settings": "Settings",
     "browse": "Browse",
+    "analyze": "Analyze",
+    "collectionValue": "Collection Value",
+    "stats": "Stats",
     "backHome": "Go back home"
   },
   "auth": {

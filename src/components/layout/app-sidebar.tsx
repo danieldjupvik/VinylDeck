@@ -1,4 +1,10 @@
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from '@/components/ui/collapsible'
+import { Badge } from '@/components/ui/badge'
+import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -11,7 +17,14 @@ import {
   SidebarMenuItem
 } from '@/components/ui/sidebar'
 import { Link, useLocation } from '@tanstack/react-router'
-import { Disc3, Heart } from 'lucide-react'
+import {
+  BarChart3,
+  ChevronRight,
+  DollarSign,
+  Disc3,
+  Heart,
+  Shuffle
+} from 'lucide-react'
 import type { MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BrandMark } from './brand-mark'
@@ -56,37 +69,92 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>{t('nav.browse')}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive('/collection')}
-                  tooltip={t('nav.collection')}
-                >
-                  <Link
-                    to="/collection"
-                    onClick={handleSameRouteClick('/collection')}
-                  >
-                    <Disc3 />
-                    <span>{t('nav.collection')}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  disabled
-                  tooltip={`${t('nav.wantlist')} ${t('common.comingSoon')}`}
-                >
-                  <Heart />
-                  <span>{t('nav.wantlist')}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Browse Section */}
+        <Collapsible defaultOpen className="group/collapsible">
+          <SidebarGroup>
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center">
+                {t('nav.browse')}
+                <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive('/collection')}
+                      tooltip={t('nav.collection')}
+                    >
+                      <Link
+                        to="/collection"
+                        onClick={handleSameRouteClick('/collection')}
+                      >
+                        <Disc3 />
+                        <span>{t('nav.collection')}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton disabled>
+                      <Heart />
+                      <span>{t('nav.wantlist')}</span>
+                      <Badge variant="outline" className="ml-auto text-[10px]">
+                        {t('common.soon')}
+                      </Badge>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton disabled>
+                      <Shuffle />
+                      <span>{t('nav.random')}</span>
+                      <Badge variant="outline" className="ml-auto text-[10px]">
+                        {t('common.soon')}
+                      </Badge>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
+        {/* Analyze Section */}
+        <Collapsible defaultOpen className="group/collapsible">
+          <SidebarGroup>
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center">
+                {t('nav.analyze')}
+                <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton disabled>
+                      <DollarSign />
+                      <span>{t('nav.collectionValue')}</span>
+                      <Badge variant="outline" className="ml-auto text-[10px]">
+                        {t('common.soon')}
+                      </Badge>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton disabled>
+                      <BarChart3 />
+                      <span>{t('nav.stats')}</span>
+                      <Badge variant="outline" className="ml-auto text-[10px]">
+                        {t('common.soon')}
+                      </Badge>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
       </SidebarContent>
 
       <SidebarFooter className="pb-3">
