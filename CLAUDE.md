@@ -32,13 +32,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `src/api/` - API client, rate limiter, and Discogs API functions
 - `src/components/ui/` - shadcn/ui components (added via `bunx shadcn add <component>`)
-- `src/components/layout/` - Layout components (sidebar, app layout)
+- `src/components/layout/` - Layout components (sidebar, brand mark, toggles)
 - `src/components/collection/` - Collection view components
 - `src/components/auth/` - Authentication components
-- `src/hooks/` - Custom React hooks
-- `src/lib/` - Utility functions and constants
+- `src/hooks/` - Custom React hooks (auth, collection, preferences, theme)
+- `src/lib/` - Utility functions, constants, storage, gravatar helpers
 - `src/locales/` - i18n translation files
-- `src/providers/` - React context providers
+- `src/providers/` - React context providers (auth, theme, preferences, query, i18n)
 - `src/routes/` - TanStack Router file-based routes
 - `src/types/` - TypeScript type definitions
 - `src/__tests__/` - Test files and mocks
@@ -68,7 +68,7 @@ Routes are defined in `src/routes/` using TanStack Router's file-based routing:
 - `index.tsx` - Redirects to `/collection` if authenticated, `/login` if not
 - `login.tsx` - Login page with username/token form
 - `_authenticated.tsx` - Layout route with auth guard, redirects to `/login` if not authenticated
-- `_authenticated/collection.tsx` - Collection page (placeholder)
+- `_authenticated/collection.tsx` - Collection page (full implementation)
 - `_authenticated/settings.tsx` - Settings page with app version
 
 ## Testing
@@ -77,7 +77,8 @@ Tests use Vitest with React Testing Library and MSW for API mocking:
 
 - `src/__tests__/setup.ts` - Test setup with MSW server
 - `src/__tests__/mocks/` - MSW handlers and server config
-- Place tests next to source files or in `src/__tests__/`
+- Tests are organized under `src/__tests__/{api,hooks,components,integration}`
+- `src/__tests__/hooks/use-collection.test.tsx` covers client-side filter + pagination interactions
 
 ## API Layer
 
@@ -111,6 +112,7 @@ Auth flow:
 Layout components in `src/components/layout/`:
 
 - `app-sidebar.tsx` - Main navigation sidebar with Collection, Wantlist (disabled), Settings
+- `brand-mark.tsx` - Shared circular VinylView mark (login, sidebar, loading)
 - `sidebar-user.tsx` - User avatar and logout dropdown in sidebar footer
 - `language-toggle.tsx` - Language dropdown (English/Norwegian)
 - `mode-toggle.tsx` - Theme switcher (Light/Dark/System)
@@ -128,6 +130,7 @@ The sidebar uses shadcn's sidebar component with collapsible functionality.
 - Smooth fade transitions between pages (300ms duration)
 - Respects `prefers-reduced-motion` for accessibility (50ms duration when enabled)
 - CSS configured in `src/index.css` with custom fade-in/fade-out animations
+- Same-route sidebar navigation prevents redundant transitions
 
 ## PWA (Progressive Web App)
 
