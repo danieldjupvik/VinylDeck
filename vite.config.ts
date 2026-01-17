@@ -24,6 +24,9 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      devOptions: {
+        enabled: false
+      },
       includeAssets: ['icons/*.png'],
       manifest: {
         name: 'VinylDeck',
