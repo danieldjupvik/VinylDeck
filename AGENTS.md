@@ -13,6 +13,16 @@ This file provides guidance for automated agents and AI assistants when working 
 - `bun run test:coverage` - Run tests with coverage report
 - `bun run test:ui` - Run tests with UI
 
+## Releases & Versioning
+
+This project uses GitHub tags and the GitHub release system for version management:
+
+- **main branch** (production): Normal releases with semantic versioning tags (e.g., `v1.0.0`)
+- **develop branch** (development): Pre-releases and beta tags (e.g., `v1.0.0-beta.1`)
+- Tags follow semantic versioning format
+- GitHub releases are created for each version with release notes
+- Release artifacts are managed through GitHub
+
 ## Tech Stack
 
 - **React 19** with React Compiler enabled (via babel-plugin-react-compiler)
