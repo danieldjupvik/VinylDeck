@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Disc3 } from 'lucide-react'
+import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import type { DiscogsCollectionRelease, DiscogsFormat } from '@/types/discogs'
+import { getLimitedGenreParts } from '@/lib/formatters'
 import {
   Table,
   TableBody,
@@ -19,14 +21,6 @@ interface VinylTableProps {
   shouldAnimate: boolean
 }
 
-const formatGenres = (genres: string[]) => {
-  const parts = genres
-    .flatMap((genre) => genre.split(',').map((part) => part.trim()))
-    .filter(Boolean)
-  const limited = parts.slice(0, 2)
-  return limited.join(', ')
-}
-
 const formatFormats = (formats: DiscogsFormat[]) => {
   const unique = Array.from(
     new Set((formats ?? []).map((format) => format.name).filter(Boolean))
@@ -34,13 +28,11 @@ const formatFormats = (formats: DiscogsFormat[]) => {
   return unique.join(', ')
 }
 
-type TranslationFunction = ReturnType<typeof useTranslation>['t']
-
 interface VinylTableRowProps {
   release: DiscogsCollectionRelease
   index: number
   shouldAnimate: boolean
-  t: TranslationFunction
+  t: TFunction
 }
 
 function VinylTableRow({
@@ -56,7 +48,10 @@ function VinylTableRow({
     : t('collection.unknownArtist')
   const coverImage = info.cover_image || info.thumb
   const year = info.year > 0 ? info.year : null
-  const genreText = info.genres?.length ? formatGenres(info.genres) : null
+  const genreParts = info.genres?.length
+    ? getLimitedGenreParts(info.genres)
+    : []
+  const genreText = genreParts.length ? genreParts.join(', ') : null
   const labelText = info.labels?.[0]?.name ?? null
   const formatText = formatFormats(info.formats)
   const animationDelay = Math.min(index * 30, 300)

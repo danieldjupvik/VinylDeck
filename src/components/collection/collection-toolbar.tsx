@@ -27,6 +27,7 @@ interface CollectionToolbarProps {
   onSortChange: (sort: CollectionSortKey) => void
   sortOrder: CollectionSortOrder
   onSortOrderChange: (order: CollectionSortOrder) => void
+  onReshuffle?: () => void
   viewMode: ViewMode
   onViewToggle: () => void
   filters: CollectionFiltersProps
@@ -39,6 +40,7 @@ export function CollectionToolbar({
   onSortChange,
   sortOrder,
   onSortOrderChange,
+  onReshuffle,
   viewMode,
   onViewToggle,
   filters
@@ -46,6 +48,10 @@ export function CollectionToolbar({
   const { t } = useTranslation()
 
   const toggleSortOrder = () => {
+    if (isRandomSort) {
+      onReshuffle?.()
+      return
+    }
     onSortOrderChange(sortOrder === 'asc' ? 'desc' : 'asc')
   }
 
@@ -57,6 +63,7 @@ export function CollectionToolbar({
     sort === 'format' ||
     sort === 'genre'
   const isRandomSort = sort === 'random'
+  const canReshuffle = Boolean(onReshuffle)
   const sortOrderLabel = (() => {
     if (isRandomSort) return t('collection.sortOrder.shuffle')
     if (isTimelineSort) {
@@ -139,6 +146,7 @@ export function CollectionToolbar({
           variant="outline"
           size="icon-sm"
           onClick={toggleSortOrder}
+          disabled={isRandomSort && !canReshuffle}
           title={sortOrderLabel}
           aria-label={sortOrderLabel}
           className="transition-all duration-200 hover:scale-110"
