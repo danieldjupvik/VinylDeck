@@ -1,0 +1,174 @@
+{
+  "app": {
+    "name": "VinylDeck",
+    "description": "Bla gjennom Discogs-vinylsamlingen din"
+  },
+  "language": {
+    "label": "Språk",
+    "english": "Engelsk",
+    "norwegian": "Norsk"
+  },
+  "common": {
+    "comingSoon": "(Kommer snart)",
+    "soon": "Snart"
+  },
+  "nav": {
+    "collection": "Samling",
+    "wantlist": "Ønskeliste",
+    "random": "Tilfeldig",
+    "settings": "Innstillinger",
+    "browse": "Bla gjennom",
+    "analyze": "Analysere",
+    "collectionValue": "Samlingens verdi",
+    "stats": "Statistikk",
+    "backHome": "Gå tilbake hjem"
+  },
+  "auth": {
+    "login": "Logg inn",
+    "logout": "Logg ut",
+    "username": "Brukernavn",
+    "token": "Personlig tilgangstoken",
+    "tokenPlaceholder": "Skriv inn Discogs PAT",
+    "usernamePlaceholder": "Skriv inn Discogs-brukernavn",
+    "loginButton": "Logg inn",
+    "loggingIn": "Logger inn...",
+    "loginSuccess": "Innlogging vellykket",
+    "loginError": "Ugyldig brukernavn eller token",
+    "logoutSuccess": "Logget ut"
+  },
+  "collection": {
+    "title": "Min samling",
+    "empty": "Ingen vinylplater funnet",
+    "loading": "Laster samlingen...",
+    "search": "Søk etter artist eller tittel...",
+    "sort": {
+      "placeholder": "Sorter etter",
+      "artist": "Artist",
+      "title": "Album",
+      "dateAdded": "Lagt til",
+      "releaseYear": "Utgitt",
+      "label": "Label",
+      "format": "Format",
+      "genre": "Sjanger",
+      "random": "Tilfeldig"
+    },
+    "sortGroup": {
+      "timeline": "Tidslinje",
+      "albumInfo": "Albuminfo",
+      "other": "Annet"
+    },
+    "sortOrder": {
+      "shuffle": "Bland",
+      "newest": "Nyest",
+      "oldest": "Eldst",
+      "az": "A-Å",
+      "za": "Å-A",
+      "asc": "Stigende",
+      "desc": "Synkende"
+    },
+    "filters": {
+      "title": "Filtre",
+      "button": "Filtre",
+      "clear": "Tøm alle",
+      "genre": "Sjanger",
+      "style": "Stil",
+      "label": "Label",
+      "vinylType": "Vinyltype",
+      "size": "Størrelse",
+      "country": "Land",
+      "yearRange": "Årsintervall",
+      "anyYear": "Alle år",
+      "empty": "Ingen alternativer"
+    },
+    "view": {
+      "grid": "Rute",
+      "table": "Tabell",
+      "switchToGrid": "Bytt til rutenettvisning",
+      "switchToTable": "Bytt til tabellvisning"
+    },
+    "table": {
+      "cover": "Omslag",
+      "titleArtist": "Tittel / artist",
+      "year": "År",
+      "genre": "Sjanger",
+      "label": "Label",
+      "format": "Format",
+      "country": "Land"
+    },
+    "unknownArtist": "Ukjent artist",
+    "pagination": {
+      "previous": "Forrige",
+      "next": "Neste",
+      "page": "Side {{current}} av {{total}}",
+      "navigation": "Paginering for samling"
+    },
+    "vinyl": "Vinyl",
+    "records": "{{count}} plate",
+    "records_other": "{{count}} plater",
+    "lastUpdated": "Sist oppdatert: {{time}}",
+    "notUpdated": "Ikke oppdatert ennå",
+    "refresh": "Oppdater",
+    "nonVinylHidden": "Ikke-vinyl skjult:",
+    "showing": "Viser {{start}}-{{end}} av {{total}} album",
+    "showing_other": "Viser {{start}}-{{end}} av {{total}} album"
+  },
+  "settings": {
+    "title": "Innstillinger",
+    "subtitle": "Administrer profilen din og app-innstillinger",
+    "profile": {
+      "title": "Profil",
+      "description": "Tilpass hvordan profilen din vises i VinylDeck",
+      "avatar": {
+        "title": "Avatar",
+        "description": "Velg avataren som vises i sidepanelet og menyer.",
+        "discogs": "Discogs-avatar",
+        "discogsHint": "Bruker profilbildet ditt fra Discogs",
+        "gravatar": "Gravatar",
+        "gravatarHint": "Bruker en Gravatar koblet til e-posten din"
+      }
+    },
+    "version": "Versjon",
+    "appearance": {
+      "title": "Utseende",
+      "description": "Tilpass hvordan VinylDeck ser ut og føles",
+      "theme": {
+        "title": "Tema",
+        "description": "Velg ditt foretrukne fargetema.",
+        "light": "Lys",
+        "lightHint": "Et lyst, rent utseende",
+        "dark": "Mørk",
+        "darkHint": "Behagelig for øynene",
+        "system": "System",
+        "systemHint": "Følger enhetsinnstillingene"
+      },
+      "language": {
+        "title": "Språk",
+        "description": "Velg ditt foretrukne språk.",
+        "english": "Engelsk",
+        "englishHint": "English (US)",
+        "norwegian": "Norsk",
+        "norwegianHint": "Norsk (Bokmål)"
+      }
+    },
+    "about": {
+      "title": "Om",
+      "description": "Informasjon om appen",
+      "changelog": "Endringslogg",
+      "privacy": "Personvernerklæring",
+      "terms": "Vilkår for bruk"
+    }
+  },
+  "theme": {
+    "toggle": "Bytt tema",
+    "light": "Lys",
+    "dark": "Mørk",
+    "system": "System"
+  },
+  "errors": {
+    "generic": "Noe gikk galt",
+    "network": "Nettverksfeil. Prøv igjen.",
+    "rateLimit": "For mange forespørsler. Vent litt.",
+    "unauthorized": "Økten er utløpt. Logg inn på nytt.",
+    "notFound": "Siden ble ikke funnet"
+  }
+}
