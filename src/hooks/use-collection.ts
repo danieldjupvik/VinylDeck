@@ -153,6 +153,7 @@ interface UseCollectionReturn {
   setSelectedCountries: (values: string[]) => void
   setYearRange: (range: [number, number] | null) => void
   clearFilters: () => void
+  reshuffleRandom: () => void
   activeFilterCount: number
   nonVinylCount: number
   nonVinylBreakdown: NonVinylBreakdownItem[]
@@ -251,6 +252,12 @@ export function useCollection(
       setRandomSeed((seed) => seed + 1)
     }
     setSortOrder(nextOrder)
+  }
+
+  const reshuffleRandom = () => {
+    if (sort === 'random') {
+      setRandomSeed((seed) => seed + 1)
+    }
   }
 
   const {
@@ -702,6 +709,7 @@ export function useCollection(
     setSelectedCountries,
     setYearRange: setYearRangeSelection,
     clearFilters,
+    reshuffleRandom,
     activeFilterCount,
     nonVinylCount: nonVinylStats.total,
     nonVinylBreakdown: nonVinylStats.breakdown,

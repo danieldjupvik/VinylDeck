@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils'
 import type { DiscogsCollectionRelease } from '@/types/discogs'
 import { Disc3 } from 'lucide-react'
+import { getLimitedGenreParts } from '@/lib/formatters'
 
 interface VinylCardProps {
   release: DiscogsCollectionRelease
@@ -167,6 +168,7 @@ function extractVinylInfo(
   formats: { name: string; text?: string }[]
 ): VinylInfo {
   const info: VinylInfo = {}
+  const colorCandidates: string[] = []
 
   for (const format of formats) {
     if (format.name === 'Vinyl' && format.text) {
@@ -189,11 +191,19 @@ function extractVinylInfo(
 
         // If it's not irrelevant and not a weight, assume it's a color
         // Colors typically come first or are descriptive terms
-        if (!info.color && part.length > 0) {
-          info.color = part
+        if (part.length > 0) {
+          colorCandidates.push(part)
         }
       }
     }
+  }
+
+  if (colorCandidates.length > 0) {
+    const matchedColor =
+      colorCandidates.find(
+        (candidate) => getColorStyles(candidate) !== DEFAULT_COLOR_STYLE
+      ) ?? colorCandidates[0]
+    info.color = matchedColor
   }
 
   return info
@@ -204,17 +214,16 @@ export function VinylCard({ release, className }: VinylCardProps) {
   const artistName = info.artists.map((a) => a.name).join(', ')
   const coverImage = info.cover_image || info.thumb
   const year = info.year > 0 ? info.year : null
-  const genreList =
+  const genreParts =
     info.genres && info.genres.length > 0
-      ? (() => {
-          const parts = info.genres
-            .flatMap((genre) => genre.split(',').map((part) => part.trim()))
-            .filter(Boolean)
-          const limited = parts.slice(0, 2)
-          if (limited.length === 2) return `${limited[0]} & ${limited[1]}`
-          return limited.join(', ')
-        })()
-      : null
+      ? getLimitedGenreParts(info.genres)
+      : []
+  const genreList =
+    genreParts.length === 2
+      ? `${genreParts[0]} & ${genreParts[1]}`
+      : genreParts.length > 0
+        ? genreParts.join(', ')
+        : null
   const metaLine = [year ? String(year) : null, genreList]
     .filter(Boolean)
     .join(' · ')

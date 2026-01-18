@@ -53,6 +53,7 @@ function CollectionPage() {
     setSelectedCountries,
     setYearRange,
     clearFilters,
+    reshuffleRandom,
     activeFilterCount
   } = useCollection({ page })
   const visibleCount = filteredReleases.length
@@ -141,6 +142,10 @@ function CollectionPage() {
   const handleSortOrderChange = (newOrder: typeof sortOrder) => {
     setSortOrder(newOrder)
     setPage(1)
+  }
+
+  const handleReshuffle = () => {
+    reshuffleRandom()
   }
 
   const handleSearchChange = (nextSearch: string) => {
@@ -269,6 +274,7 @@ function CollectionPage() {
             onSortChange={handleSortChange}
             sortOrder={sortOrder}
             onSortOrderChange={handleSortOrderChange}
+            onReshuffle={handleReshuffle}
             viewMode={viewMode}
             onViewToggle={handleViewToggle}
             filters={{
