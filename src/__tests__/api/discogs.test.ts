@@ -29,7 +29,7 @@ describe('discogs api', () => {
   it('passes collection params to the API', async () => {
     server.use(
       http.get(
-        'https://api.discogs.com/users/:username/collection/folders/0/releases',
+        'https://api.discogs.com/users/:username/collection/folders/3/releases',
         ({ request }) => {
           const url = new URL(request.url)
           expect(url.searchParams.get('page')).toBe('2')
@@ -53,6 +53,7 @@ describe('discogs api', () => {
     const response = await getCollection('testuser', {
       page: 2,
       perPage: 50,
+      folderId: 3,
       sort: 'artist',
       sortOrder: 'asc'
     })
@@ -111,10 +112,10 @@ describe('discogs api', () => {
         ({ request }) => {
           const url = new URL(request.url)
           expect(url.searchParams.get('page')).toBe('1')
-          expect(url.searchParams.get('per_page')).toBe('50')
+          expect(url.searchParams.get('per_page')).toBe('100')
 
           return HttpResponse.json({
-            pagination: { page: 1, pages: 1, per_page: 50, items: 10 },
+            pagination: { page: 1, pages: 1, per_page: 100, items: 10 },
             wants: []
           })
         }
