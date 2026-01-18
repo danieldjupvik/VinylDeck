@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import type { DiscogsCollectionRelease } from '@/types/discogs'
 import { Disc3 } from 'lucide-react'
@@ -210,9 +211,11 @@ function extractVinylInfo(
 }
 
 export function VinylCard({ release, className }: VinylCardProps) {
+  const [imageErrored, setImageErrored] = useState(false)
   const { basic_information: info } = release
   const artistName = info.artists.map((a) => a.name).join(', ')
   const coverImage = info.cover_image || info.thumb
+  const showCoverImage = Boolean(coverImage) && !imageErrored
   const year = info.year > 0 ? info.year : null
   const genreParts =
     info.genres && info.genres.length > 0
@@ -239,12 +242,13 @@ export function VinylCard({ release, className }: VinylCardProps) {
     >
       {/* Cover Art */}
       <div className="relative z-0 aspect-square overflow-hidden">
-        {coverImage ? (
+        {showCoverImage ? (
           <img
             src={coverImage}
             alt={`${artistName} - ${info.title}`}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
             loading="lazy"
+            onError={() => setImageErrored(true)}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-muted">

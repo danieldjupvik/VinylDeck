@@ -486,7 +486,7 @@ export function useCollection(
     const searchLower = search.toLowerCase()
     return vinylOnly.filter((release) => {
       const info = release.basic_information
-      const artistMatch = info.artists.some((artist) =>
+      const artistMatch = (info.artists ?? []).some((artist) =>
         artist.name.toLowerCase().includes(searchLower)
       )
       const titleMatch = info.title.toLowerCase().includes(searchLower)
