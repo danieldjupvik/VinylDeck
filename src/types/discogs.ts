@@ -4,6 +4,20 @@
  * ==============================================================================
  */
 
+export type DiscogsCurrency =
+  | 'USD'
+  | 'GBP'
+  | 'EUR'
+  | 'CAD'
+  | 'AUD'
+  | 'JPY'
+  | 'CHF'
+  | 'MXN'
+  | 'BRL'
+  | 'NZD'
+  | 'SEK'
+  | 'ZAR'
+
 /**
  * Response from GET /oauth/request_token
  */
@@ -40,7 +54,7 @@ export interface DiscogsUserProfileUpdate {
   /** Biographical information about the user */
   profile?: string
   /** Currency for marketplace data. Must be one of: USD GBP EUR CAD AUD JPY CHF MXN BRL NZD SEK ZAR */
-  curr_abbr?: string
+  curr_abbr?: DiscogsCurrency
 }
 
 /**
@@ -87,7 +101,7 @@ export interface DiscogsUserProfile {
   seller_rating?: number
   seller_rating_stars?: number
   seller_num_ratings?: number
-  curr_abbr?: string
+  curr_abbr?: DiscogsCurrency
   avatar_url?: string
   banner_url?: string
   wantlist_url?: string

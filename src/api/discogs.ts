@@ -46,8 +46,9 @@ export async function getOAuthRequestToken(
   consumerSecret: string,
   callbackUrl: string
 ): Promise<DiscogsOAuthRequestToken> {
-  const timestamp = Date.now().toString()
+  const timestamp = Math.floor(Date.now() / 1000).toString()
   const nonce = Math.random().toString(36).substring(2)
+  const encodedCallbackUrl = encodeURIComponent(callbackUrl)
 
   const authHeader =
     `OAuth oauth_consumer_key="${consumerKey}", ` +
@@ -55,7 +56,7 @@ export async function getOAuthRequestToken(
     `oauth_signature="${consumerSecret}&", ` +
     `oauth_signature_method="PLAINTEXT", ` +
     `oauth_timestamp="${timestamp}", ` +
-    `oauth_callback="${callbackUrl}"`
+    `oauth_callback="${encodedCallbackUrl}"`
 
   const response = await apiClient.get<string>('/oauth/request_token', {
     headers: {
@@ -85,30 +86,13 @@ export async function getOAuthAccessToken(
   consumerKey: string,
   consumerSecret: string,
   requestToken: string,
-  requestTokenSecret: string,
   verifier: string
 ): Promise<DiscogsOAuthAccessToken> {
-  const timestamp = Date.now().toString()
+  const timestamp = Math.floor(Date.now() / 1000).toString()
   const nonce = Math.random().toString(36).substring(2)
 
-  // Note: For Access Token request with PLAINTEXT signature,
-  // standard OAuth 1.0a would likely use consumerSecret&tokenSecret.
-  // However, Discogs docs example shows: oauth_signature="your_consumer_secret&"
-  // We will follow the example but keep in mind standard practice might be:
-  // const signature = `${consumerSecret}&${requestTokenSecret}`;
-  // Let's try the standard way first as it's more likely to be correct for Step 3,
-  // or stick to the prompt's explicit instruction if interpreted literally.
-  // The prompt says: "This involves setting ... your oauth_signature to be your consumer secret followed by an ampersand (&)."
-  // BUT then it says "oauth_signature='your_consumer_secret&'" in the example block.
-  // Given that `requestTokenSecret` is usually needed to sign the request token exchange,
-  // simply using `consumerSecret&` would ignore the token secret we just got.
-  // I will assume the prompt/doc meant `consumerSecret&` for the FIRST step,
-  // and for the access token step, standard OAuth applies, OR I should check if
-  // Discogs is weird.
-  // *Decision*: I will use `consumerSecret&tokenSecret` because `requestTokenSecret` is
-  // returned in step 1 for a reason. If Discogs strictly wanted `consumerSecret&`,
-  // the token secret would be useless for this step.
-  const signature = `${consumerSecret}&${requestTokenSecret}`
+  // Discogs docs specify PLAINTEXT signature as consumerSecret& for access tokens.
+  const signature = `${consumerSecret}&`
 
   const authHeader =
     `OAuth oauth_consumer_key="${consumerKey}", ` +
