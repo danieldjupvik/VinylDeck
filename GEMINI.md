@@ -93,7 +93,7 @@ Use Conventional Commits so release-please generates clear changelog entries. Th
 
 **Good examples (user-facing, imperative):**
 
-```
+```text
 feat: add grid/table toggle for collection view
 feat: support filtering by release year
 feat: add keyboard navigation to vinyl cards
@@ -104,7 +104,7 @@ fix: correct genre display for multi-genre releases
 
 **Bad examples (avoid these):**
 
-```
+```text
 feat: Added the thing          # Past tense, vague
 fix: Fix bug                   # Redundant "fix", no description
 feat: Implement feature X.     # Period at end, verbose
@@ -113,7 +113,7 @@ update stuff                   # No type prefix, vague
 
 **With scope (optional, for larger codebases):**
 
-```
+```text
 feat(auth): add session timeout warning
 fix(api): handle rate limit errors gracefully
 ```
@@ -124,7 +124,7 @@ Release-please reads commit messages on `main` to build the changelog. Follow th
 
 **1. Name your PR with a Conventional Commit title:**
 
-```
+```text
 feat: add collection search functionality
 fix: resolve pagination reset on filter change
 chore: update TypeScript to 5.9
@@ -140,7 +140,7 @@ chore: update TypeScript to 5.9
 
 **3. Example of what GitHub shows:**
 
-```
+```text
 feat: add collection search functionality
 
 * WIP: search input
@@ -151,7 +151,7 @@ feat: add collection search functionality
 
 **Change it to just:**
 
-```
+```text
 feat: add collection search functionality
 ```
 
