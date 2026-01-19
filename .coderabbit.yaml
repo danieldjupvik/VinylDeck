@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 language: en-US
-tone_instructions: 'Be constructive and concise. Prioritize correctness, security, and performance over style. Explain the "why" briefly.'
+tone_instructions: 'You are an expert code reviewer in TypeScript, JavaScript, and NodeJS. You work in an enterprise software developer team, providing concise and clear code review advice.'
 early_access: true
 enable_free_tier: true
 inheritance: false
@@ -48,17 +48,22 @@ reviews:
     - '!dist/**'
     - '!build/**'
     - '!coverage/**'
+    - '!**/__generated__/**'
+    - '!**/generated/**'
     - '!*.lock'
     - '!bun.lockb'
     - '!pnpm-lock.yaml'
     - '!package-lock.json'
+    - '!**/*.{png,jpg,jpeg,gif,svg,ico,webp}'
+    - '!**/*.xml'
   path_instructions:
-    - path: 'src/**/*.tsx'
+    - path: 'src/**/*.{ts,tsx}'
       instructions: >-
-        Review React components for proper hook usage, accessibility (a11y),
-        and component composition. Check for missing key props in lists,
-        proper dependency arrays in useEffect/useMemo/useCallback, and
-        ensure components follow the established patterns in this codebase.
+        Review TypeScript and React code for conformity with best practices.
+        Check: proper hook usage (dependency arrays in useEffect/useMemo/useCallback),
+        accessibility (a11y), avoid `any` types (prefer `unknown`), explicit return types
+        on functions, proper error handling, and component composition patterns.
+        Ensure internationalization strings are externalized (i18next).
     - path: 'src/api/**/*.ts'
       instructions: >-
         Review API code for proper error handling, rate limiting compliance,
@@ -69,8 +74,10 @@ reviews:
         in effects, and clear return type signatures.
     - path: 'src/__tests__/**/*'
       instructions: >-
-        Review tests for meaningful assertions, proper mocking, and coverage
-        of edge cases. Ensure tests are not overly brittle or implementation-coupled.
+        Review tests for alignment with Vitest best practices. Ensure test descriptions
+        are sufficiently detailed to clarify the purpose of each test. Check for meaningful
+        assertions, proper mocking with MSW, coverage of edge cases, and test independence.
+        Tests should verify functionality, not implementation details.
   abort_on_close: true
   disable_cache: false
   auto_review:
@@ -81,7 +88,8 @@ reviews:
       - 'DO NOT MERGE'
     labels: []
     drafts: false
-    base_branches: []
+    base_branches:
+      - main
     ignore_usernames: []
   finishing_touches:
     docstrings:
