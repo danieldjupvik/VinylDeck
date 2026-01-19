@@ -23,16 +23,13 @@ export default defineConfig([
       importX.flatConfigs.recommended,
       importX.flatConfigs.typescript,
       jsxA11y.flatConfigs.strict,
-      reactPlugin.configs.flat.all,
+      reactPlugin.configs.flat.recommended,
       reactPlugin.configs.flat['jsx-runtime'],
       tseslint.configs.recommendedTypeChecked,
       reactHooks.configs.flat.recommended,
-      reactRefresh.configs.vite
+      reactRefresh.configs.vite,
+      i18next.configs['flat/recommended']
     ],
-    plugins: {
-      'import-x': importX,
-      i18next
-    },
     languageOptions: {
       ecmaVersion: 'latest',
       globals: globals.browser,
@@ -47,33 +44,22 @@ export default defineConfig([
       }
     },
     rules: {
-      // Avoid noisy displayName requirements for inline/test components.
-      'react/display-name': 'off',
-      // Trim strict React style rules that force formatting-only changes.
-      'react/jsx-indent': 'off',
-      'react/jsx-indent-props': 'off',
-      'react/jsx-filename-extension': 'off',
-      'react/jsx-max-depth': 'off',
-      'react/jsx-max-props-per-line': 'off',
-      'react/jsx-sort-props': 'off',
-      'react/jsx-newline': 'off',
-      'react/jsx-wrap-multilines': 'off',
-      'react/jsx-curly-newline': 'off',
-      'react/jsx-one-expression-per-line': 'off',
-      'react/forbid-component-props': 'off',
-      'react/jsx-no-bind': 'off',
-      'react/no-unstable-nested-components': 'off',
-      'react/self-closing-comp': 'off',
-      'react/jsx-boolean-value': 'off',
-      'react/prefer-read-only-props': 'off',
-      'react/no-multi-comp': 'off',
-      // Avoid noisy rules that conflict with TS typing or JSX patterns.
-      'react/jsx-props-no-spreading': 'off',
-      'react/require-default-props': 'off',
-      'react/jsx-no-literals': 'off',
-      'react/function-component-definition': 'off',
+      // Catch components defined inside render that cause state loss
+      'react/no-unstable-nested-components': 'warn',
+      // Catch new objects/arrays in context providers causing unnecessary re-renders
+      'react/jsx-no-constructed-context-values': 'warn',
+      // Catch {count && <Component />} rendering "0" when count is 0
+      'react/jsx-no-leaked-render': 'warn',
+      // Catch default props like { items = [] } creating new references each render
+      'react/no-object-type-as-default-prop': 'warn',
+      // Catch controlled inputs missing onChange or readOnly
+      'react/checked-requires-onchange-or-readonly': 'warn',
+      // Security: prevent javascript: URLs
+      'react/jsx-no-script-url': 'error',
+      // Catch array index as key which causes bugs on reorder/delete
+      'react/no-array-index-key': 'warn',
       'import-x/no-dynamic-require': 'warn',
-      'import-x/no-nodejs-modules': 'warn',
+      'import-x/no-nodejs-modules': 'error',
       'import-x/order': [
         'warn',
         {
@@ -98,8 +84,7 @@ export default defineConfig([
           ],
           pathGroupsExcludedImportTypes: ['builtin']
         }
-      ],
-      'i18next/no-literal-string': 'error'
+      ]
     }
   },
   {
