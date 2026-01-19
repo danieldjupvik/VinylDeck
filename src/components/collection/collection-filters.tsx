@@ -157,9 +157,9 @@ function FilterContent({
           <h3 className="text-sm font-semibold">
             {t('collection.filters.title')}
           </h3>
-          {hasActiveFilters ? (
+          {activeFilterCount > 0 && (
             <Badge variant="secondary">{activeFilterCount}</Badge>
-          ) : null}
+          )}
         </div>
         <Button
           variant="ghost"

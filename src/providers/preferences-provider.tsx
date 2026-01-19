@@ -57,12 +57,12 @@ export function PreferencesProvider({ children }: PreferencesProviderProps) {
     }
   }, [gravatarEmail])
 
-  const setAvatarSource = useCallback((source: AvatarSource) => {
+  const setAvatarSource = useCallback((source: AvatarSource): void => {
     storeAvatarSource(source)
     setAvatarSourceState(source)
   }, [])
 
-  const setGravatarEmail = useCallback((email: string) => {
+  const setGravatarEmail = useCallback((email: string): void => {
     const normalized = normalizeGravatarEmail(email)
     storeGravatarEmail(normalized)
     setGravatarEmailState(normalized)

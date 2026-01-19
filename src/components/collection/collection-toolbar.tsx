@@ -154,10 +154,14 @@ export function CollectionToolbar({
         >
           {isRandomSort ? (
             <Shuffle className="h-4 w-4" />
-          ) : sortOrder === 'asc' ? (
-            <ArrowUp className="h-4 w-4" />
           ) : (
-            <ArrowDown className="h-4 w-4" />
+            <>
+              {sortOrder === 'asc' ? (
+                <ArrowUp className="h-4 w-4" />
+              ) : (
+                <ArrowDown className="h-4 w-4" />
+              )}
+            </>
           )}
         </Button>
       </div>

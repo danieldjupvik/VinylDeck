@@ -13,8 +13,8 @@ import {
 import type {
   CollectionSortKey,
   CollectionSortOrder,
-  DiscogsCollectionSortKey,
-  DiscogsCollectionRelease
+  DiscogsCollectionRelease,
+  DiscogsCollectionSortKey
 } from '@/types/discogs'
 
 const collator = new Intl.Collator(undefined, {
@@ -654,24 +654,26 @@ export function useCollection(
     setYearRangeSelection(null)
   }
 
-  const pagination = data
-    ? shouldFetchAllPages
-      ? {
-          page: safePage,
-          pages: totalPages,
-          total: sortedReleases.length,
-          perPage
-        }
-      : {
-          page: data.pagination.page,
-          pages: data.pagination.pages,
-          total:
-            data.pagination.pages <= 1
-              ? vinylOnly.length
-              : data.pagination.items,
-          perPage: data.pagination.per_page
-        }
-    : null
+  const pagination = (() => {
+    if (!data) return null
+
+    if (shouldFetchAllPages) {
+      return {
+        page: safePage,
+        pages: totalPages,
+        total: sortedReleases.length,
+        perPage
+      }
+    }
+
+    return {
+      page: data.pagination.page,
+      pages: data.pagination.pages,
+      total:
+        data.pagination.pages <= 1 ? vinylOnly.length : data.pagination.items,
+      perPage: data.pagination.per_page
+    }
+  })()
 
   const hasCompleteCollection =
     shouldFetchAllPages || (data?.pagination.pages ?? 0) <= 1

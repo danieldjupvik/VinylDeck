@@ -64,6 +64,7 @@ export default defineConfig([
       'react/jsx-no-script-url': 'error',
       // Catch array index as key which causes bugs on reorder/delete
       'react/no-array-index-key': 'warn',
+      'no-nested-ternary': 'error',
       'import-x/no-dynamic-require': 'warn',
       'import-x/no-nodejs-modules': 'error',
       'import-x/order': [

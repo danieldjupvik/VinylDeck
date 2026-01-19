@@ -224,12 +224,15 @@ export function VinylCard({ release, className }: VinylCardProps) {
     info.genres && info.genres.length > 0
       ? getLimitedGenreParts(info.genres)
       : []
-  const genreList =
-    genreParts.length === 2
-      ? `${genreParts[0]} & ${genreParts[1]}`
-      : genreParts.length > 0
-        ? genreParts.join(', ')
-        : null
+  const genreList = (() => {
+    if (genreParts.length === 2) {
+      return `${genreParts[0]} & ${genreParts[1]}`
+    }
+    if (genreParts.length > 0) {
+      return genreParts.join(', ')
+    }
+    return null
+  })()
   const metaLine = [year ? String(year) : null, genreList]
     .filter(Boolean)
     .join(' · ')
