@@ -28,7 +28,9 @@ This project uses **Trunk-Based Development** with a single `main` branch:
 4. CI runs tests automatically
 5. **Squash merge** the PR into `main`
 6. release-please automatically creates/updates a release PR
-7. When ready to release, merge the release-please PR
+7. When ready to release, **squash merge** the release-please PR
+
+**Use squash merge for ALL PRs** (both feature PRs and release-please PRs). This is [recommended by release-please](https://github.com/googleapis/release-please) for a clean, linear git history.
 
 ### How Release-Please Works
 
