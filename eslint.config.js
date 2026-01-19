@@ -5,6 +5,7 @@ import { importX } from 'eslint-plugin-import-x'
 import globals from 'globals'
 import i18next from 'eslint-plugin-i18next'
 import jsxA11y from 'eslint-plugin-jsx-a11y'
+import reactPlugin from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
@@ -21,6 +22,8 @@ export default defineConfig([
       importX.flatConfigs.recommended,
       importX.flatConfigs.typescript,
       jsxA11y.flatConfigs.strict,
+      reactPlugin.configs.flat.all,
+      reactPlugin.configs.flat['jsx-runtime'],
       tseslint.configs.recommendedTypeChecked,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite
@@ -37,7 +40,37 @@ export default defineConfig([
         tsconfigRootDir: __dirname
       }
     },
+    settings: {
+      react: {
+        version: 'detect'
+      }
+    },
     rules: {
+      // Avoid noisy displayName requirements for inline/test components.
+      'react/display-name': 'off',
+      // Trim strict React style rules that force formatting-only changes.
+      'react/jsx-indent': 'off',
+      'react/jsx-indent-props': 'off',
+      'react/jsx-filename-extension': 'off',
+      'react/jsx-max-depth': 'off',
+      'react/jsx-max-props-per-line': 'off',
+      'react/jsx-sort-props': 'off',
+      'react/jsx-newline': 'off',
+      'react/jsx-wrap-multilines': 'off',
+      'react/jsx-curly-newline': 'off',
+      'react/jsx-one-expression-per-line': 'off',
+      'react/forbid-component-props': 'off',
+      'react/jsx-no-bind': 'off',
+      'react/no-unstable-nested-components': 'off',
+      'react/self-closing-comp': 'off',
+      'react/jsx-boolean-value': 'off',
+      'react/prefer-read-only-props': 'off',
+      'react/no-multi-comp': 'off',
+      // Avoid noisy rules that conflict with TS typing or JSX patterns.
+      'react/jsx-props-no-spreading': 'off',
+      'react/require-default-props': 'off',
+      'react/jsx-no-literals': 'off',
+      'react/function-component-definition': 'off',
       'import-x/no-dynamic-require': 'warn',
       'import-x/no-nodejs-modules': 'warn',
       'import-x/order': [
