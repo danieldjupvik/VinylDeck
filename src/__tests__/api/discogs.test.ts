@@ -1,5 +1,7 @@
-import { describe, expect, it } from 'vitest'
 import { http, HttpResponse } from 'msw'
+import { describe, expect, it } from 'vitest'
+
+import { server } from '@/__tests__/mocks/server'
 import {
   getCollection,
   getIdentity,
@@ -11,7 +13,6 @@ import {
   getCollectionValue
 } from '@/api/discogs'
 import { setToken } from '@/lib/storage'
-import { server } from '@/__tests__/mocks/server'
 
 describe('discogs api', () => {
   it('returns identity using stored token', async () => {

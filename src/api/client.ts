@@ -1,6 +1,8 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
+
 import { DISCOGS_API_URL } from '@/lib/constants'
 import { getToken } from '@/lib/storage'
+
 import { rateLimiter } from './rate-limiter'
 
 export const apiClient = axios.create({

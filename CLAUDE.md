@@ -240,6 +240,53 @@ Tests use Vitest with React Testing Library and MSW for API mocking:
 - Tests are organized under `src/__tests__/{api,hooks,components,integration}`
 - `src/__tests__/hooks/use-collection.test.tsx` covers client-side filter + pagination interactions
 
+## Code Quality & Linting
+
+### ESLint Disable Directives
+
+When disabling ESLint rules inline, **always provide a clear reasoning comment** explaining why the rule is being disabled. Use the `-- reason` syntax:
+
+**Format:**
+
+```typescript
+// eslint-disable-next-line rule-name -- Clear explanation of why this is safe/necessary
+```
+
+**Good examples:**
+
+```typescript
+// eslint-disable-next-line react/no-array-index-key -- Skeleton items have no stable ID; index is safe for static placeholder list
+<VinylCardSkeleton key={`skeleton-${i}`} />
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Third-party library callback has untyped parameters
+const handler = (data: any) => processLegacyData(data)
+
+// eslint-disable-next-line react-hooks/exhaustive-deps -- Only run on mount, intentionally ignoring dependency
+useEffect(() => { initialize() }, [])
+```
+
+**Bad examples:**
+
+```typescript
+// eslint-disable-next-line react/no-array-index-key
+<VinylCardSkeleton key={`skeleton-${i}`} />  // No reasoning provided
+
+// TODO: fix this later
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const data: any = response  // Vague reasoning
+
+// eslint-disable-next-line  // No rule specified, disables all rules!
+```
+
+**Guidelines:**
+
+- Explain **why** the code is safe despite triggering the rule
+- Explain **why** the rule cannot be satisfied through refactoring
+- Be specific about the context (e.g., "static placeholder list", "third-party API contract")
+- Avoid vague reasons like "needed", "fix later", or "doesn't work otherwise"
+- Use inline disables (`eslint-disable-next-line`) instead of file-level disables when possible
+- Consider if the code can be refactored to avoid needing the disable directive
+
 ## API Layer
 
 The Discogs API client is in `src/api/`:

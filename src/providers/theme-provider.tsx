@@ -1,6 +1,14 @@
-import { type ReactNode, useEffect, useState } from 'react'
-import type { Theme } from './theme-context'
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from 'react'
+
 import { ThemeProviderContext } from './theme-context'
+
+import type { Theme } from './theme-context'
 
 type ThemeProviderProps = {
   children: ReactNode
@@ -43,17 +51,25 @@ export function ThemeProvider({
     return undefined
   }, [theme])
 
-  const value = {
-    theme,
-    setTheme: (nextTheme: Theme) => {
+  const handleSetTheme = useCallback(
+    (nextTheme: Theme) => {
       const validThemes: Theme[] = ['light', 'dark', 'system']
       const safeTheme = validThemes.includes(nextTheme)
         ? nextTheme
         : defaultTheme
       localStorage.setItem(storageKey, safeTheme)
       setTheme(safeTheme)
-    }
-  }
+    },
+    [defaultTheme, storageKey]
+  )
+
+  const value = useMemo(
+    () => ({
+      theme,
+      setTheme: handleSetTheme
+    }),
+    [theme, handleSetTheme]
+  )
 
   return (
     <ThemeProviderContext.Provider {...props} value={value}>

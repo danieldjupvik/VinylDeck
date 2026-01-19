@@ -1,7 +1,8 @@
-import { useAuth } from '@/hooks/use-auth'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { BrandMark } from '@/components/layout/brand-mark'
 import { useEffect } from 'react'
+
+import { BrandMark } from '@/components/layout/brand-mark'
+import { useAuth } from '@/hooks/use-auth'
 
 export const Route = createFileRoute('/')({
   component: IndexComponent

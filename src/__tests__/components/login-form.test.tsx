@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { AuthContext, type AuthContextValue } from '@/providers/auth-context'
 import { Route as LoginRoute } from '@/routes/login'
 
