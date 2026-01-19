@@ -4,6 +4,7 @@ import js from '@eslint/js'
 import { importX } from 'eslint-plugin-import-x'
 import globals from 'globals'
 import i18next from 'eslint-plugin-i18next'
+import jsxA11y from 'eslint-plugin-jsx-a11y'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
@@ -19,6 +20,7 @@ export default defineConfig([
       js.configs.recommended,
       importX.flatConfigs.recommended,
       importX.flatConfigs.typescript,
+      jsxA11y.flatConfigs.strict,
       tseslint.configs.recommendedTypeChecked,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite
@@ -69,6 +71,7 @@ export default defineConfig([
   {
     files: ['src/components/ui/**/*.{ts,tsx}'],
     rules: {
+      // Allow shadcn/ui components to keep literal strings and exports.
       'i18next/no-literal-string': 'off',
       'react-refresh/only-export-components': 'off'
     }
@@ -76,6 +79,7 @@ export default defineConfig([
   {
     files: ['vite.config.ts', 'eslint.config.js', 'scripts/**/*.{js,ts}'],
     rules: {
+      // Permit Node.js builtins in tooling and config files.
       'import-x/no-nodejs-modules': 'off'
     }
   }
