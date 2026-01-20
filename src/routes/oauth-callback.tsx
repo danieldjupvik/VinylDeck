@@ -114,23 +114,25 @@ function OAuthCallbackPage() {
           verifier: verifier
         })
 
-        // Store the access tokens
-        setOAuthTokens({
-          accessToken: result.accessToken,
-          accessTokenSecret: result.accessTokenSecret
-        })
-
         // Clear the temporary request tokens
         clearOAuthRequestTokens()
 
-        // Validate tokens and fetch identity via auth provider
+        const tokens = {
+          accessToken: result.accessToken,
+          accessTokenSecret: result.accessTokenSecret
+        }
+
+        // Validate tokens before storing - if validation fails, tokens are not persisted
         try {
-          await validateOAuthTokens()
+          await validateOAuthTokens(tokens)
         } catch {
           setError('validation_failed')
           setStatus('error')
           return
         }
+
+        // Store tokens only after successful validation
+        setOAuthTokens(tokens)
 
         setStatus('success')
 

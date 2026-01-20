@@ -185,19 +185,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [validateSession])
 
   /**
-   * Re-validate OAuth tokens.
-   * Called after OAuth callback stores new tokens in localStorage.
+   * Validates OAuth tokens and establishes an authenticated session.
+   * Can accept tokens directly (for OAuth callback) or read from storage.
+   *
+   * @param tokens - Optional tokens to validate. If not provided, reads from storage.
    */
-  const validateOAuthTokens = useCallback(async () => {
-    const tokens = getOAuthTokens()
+  const validateOAuthTokens = useCallback(
+    async (tokens?: OAuthTokens) => {
+      const tokensToValidate = tokens ?? getOAuthTokens()
 
-    if (!tokens) {
-      throw new Error('No OAuth tokens found')
-    }
+      if (!tokensToValidate) {
+        throw new Error('No OAuth tokens found')
+      }
 
-    setState((prev) => ({ ...prev, isLoading: true }))
-    await validateSession(tokens)
-  }, [validateSession])
+      setState((prev) => ({ ...prev, isLoading: true }))
+      await validateSession(tokensToValidate)
+    },
+    [validateSession]
+  )
 
   /**
    * Sign out - ends session but preserves OAuth tokens.

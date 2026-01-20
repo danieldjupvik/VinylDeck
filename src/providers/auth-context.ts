@@ -14,10 +14,12 @@ export interface AuthState {
 
 export interface AuthContextValue extends AuthState {
   /**
-   * Trigger re-validation of OAuth tokens.
-   * Called after OAuth callback stores tokens in localStorage.
+   * Validates OAuth tokens and establishes an authenticated session.
+   * Can accept tokens directly (for OAuth callback) or read from storage.
+   *
+   * @param tokens - Optional tokens to validate. If not provided, reads from storage.
    */
-  validateOAuthTokens: () => Promise<void>
+  validateOAuthTokens: (tokens?: OAuthTokens) => Promise<void>
   /**
    * Sign out - ends session but preserves OAuth tokens.
    * User will see "Welcome back" flow on next login.
