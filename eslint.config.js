@@ -109,6 +109,20 @@ export default defineConfig([
       'import-x/no-nodejs-modules': 'off'
     }
   },
+  {
+    files: ['api/**/*.{ts,tsx}', 'src/server/**/*.{ts,tsx}'],
+    languageOptions: {
+      globals: globals.node
+    },
+    rules: {
+      // Permit Node.js builtins in server-side code.
+      'import-x/no-nodejs-modules': 'off',
+      // Server code doesn't need React Refresh
+      'react-refresh/only-export-components': 'off',
+      // Server code doesn't need i18n
+      'i18next/no-literal-string': 'off'
+    }
+  },
   // turn off prettier rules that conflict with eslint rules
   eslintConfigPrettier
 ])
