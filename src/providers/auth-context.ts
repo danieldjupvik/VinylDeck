@@ -30,10 +30,6 @@ export interface AuthContextValue extends AuthState {
    * User will need to re-authorize with Discogs on next login.
    */
   disconnect: () => void
-  /**
-   * @deprecated Use signOut() instead. Kept for backwards compatibility.
-   */
-  logout: () => void
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)

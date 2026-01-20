@@ -29,7 +29,7 @@ function getBaseUrl() {
  * Creates a tRPC client for use outside of React components.
  * This is useful for calling tRPC procedures in non-React contexts.
  */
-export function createTRPCClient() {
+export function createTRPCClient(): ReturnType<typeof trpc.createClient> {
   return trpc.createClient({
     links: [
       httpBatchLink({

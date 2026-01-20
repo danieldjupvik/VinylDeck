@@ -29,7 +29,7 @@ export const Route = createFileRoute('/login')({
   component: LoginPage
 })
 
-function LoginPage() {
+function LoginPage(): React.JSX.Element {
   const { t } = useTranslation()
   const { isAuthenticated, validateOAuthTokens } = useAuth()
   const navigate = useNavigate()

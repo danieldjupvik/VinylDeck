@@ -14,6 +14,7 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(packageJson.version)
   },
   server: {
+    // Proxy API requests to local tRPC dev server (run: bun run dev:server)
     proxy: {
       '/api': {
         target: 'http://localhost:3001',

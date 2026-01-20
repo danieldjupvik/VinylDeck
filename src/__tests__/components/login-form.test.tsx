@@ -43,7 +43,6 @@ function createMockAuthValue(
     validateOAuthTokens: vi.fn().mockResolvedValue(undefined),
     signOut: vi.fn(),
     disconnect: vi.fn(),
-    logout: vi.fn(),
     ...overrides
   }
 }

@@ -12,6 +12,17 @@ import {
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -109,7 +120,7 @@ function SettingsPage() {
     i18n.resolvedLanguage ?? i18n.language ?? 'en'
   )
 
-  const handleDisconnect = () => {
+  const handleDisconnect = (): void => {
     disconnect()
     toast.success(t('settings.account.disconnectSuccess'))
     void navigate({ to: '/login' })
@@ -216,6 +227,47 @@ function SettingsPage() {
                   </div>
                 </button>
               </div>
+            </div>
+
+            <Separator />
+
+            {/* Disconnect Discogs */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-sm font-medium">
+                  {t('settings.account.disconnect.title')}
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  {t('settings.account.disconnect.description')}
+                </p>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" className="w-full sm:w-auto">
+                    <LogOut className="mr-2 size-4" />
+                    {t('settings.account.disconnect.button')}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      {t('settings.account.disconnect.confirmTitle')}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t('settings.account.disconnect.confirmDescription')}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDisconnect}
+                      className="bg-destructive hover:bg-destructive/90 text-white"
+                    >
+                      {t('settings.account.disconnect.button')}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </CardContent>
         </Card>
@@ -361,32 +413,6 @@ function SettingsPage() {
                 </span>
                 <span className="font-mono text-sm">{APP_VERSION}</span>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Account Section */}
-        <Card className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards delay-250 duration-500">
-          <CardHeader>
-            <CardTitle>{t('settings.account.title')}</CardTitle>
-            <CardDescription>
-              {t('settings.account.description')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium">
-                  {t('settings.account.disconnect.title')}
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  {t('settings.account.disconnect.description')}
-                </p>
-              </div>
-              <Button variant="destructive" onClick={handleDisconnect}>
-                <LogOut className="mr-2 size-4" />
-                {t('settings.account.disconnect.button')}
-              </Button>
             </div>
           </CardContent>
         </Card>

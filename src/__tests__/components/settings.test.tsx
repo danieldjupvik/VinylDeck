@@ -90,7 +90,6 @@ const renderSettings = (
     validateOAuthTokens: vi.fn(),
     signOut: vi.fn(),
     disconnect: vi.fn(),
-    logout: vi.fn(),
     ...authOverrides
   }
 

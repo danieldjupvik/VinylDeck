@@ -10,6 +10,23 @@ import type {
 } from '../../../types/discogs.js'
 
 /**
+ * Handles Discogs API errors and converts them to tRPC errors.
+ * Checks for 401 errors (invalid/expired tokens) and returns appropriate error codes.
+ */
+function handleDiscogsError(error: unknown, fallbackMessage: string): never {
+  if (error instanceof Error && error.message.includes('401')) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'Invalid or expired OAuth tokens'
+    })
+  }
+  throw new TRPCError({
+    code: 'INTERNAL_SERVER_ERROR',
+    message: error instanceof Error ? error.message : fallbackMessage
+  })
+}
+
+/**
  * Discogs API router for proxying authenticated requests.
  * All Discogs API calls must go through the server because OAuth 1.0a
  * requires the Consumer Secret to sign every request.
@@ -46,17 +63,7 @@ export const discogsRouter = router({
           rateLimit
         }
       } catch (error) {
-        if (error instanceof Error && error.message.includes('401')) {
-          throw new TRPCError({
-            code: 'UNAUTHORIZED',
-            message: 'Invalid or expired OAuth tokens'
-          })
-        }
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message:
-            error instanceof Error ? error.message : 'Failed to get identity'
-        })
+        handleDiscogsError(error, 'Failed to get identity')
       }
     }),
 
@@ -105,24 +112,16 @@ export const discogsRouter = router({
             ...(input.sortOrder && { sort_order: input.sortOrder })
           })
 
-        // Cast to our types - the library types are incomplete but the API returns these fields
+        // Type cast required: @lionralfs/discogs-client types are incomplete.
+        // The Discogs API returns additional fields (basic_information, formats, etc.)
+        // that our DiscogsCollectionRelease type captures but the library omits.
         return {
           releases: data.releases as unknown as DiscogsCollectionRelease[],
           pagination: data.pagination as unknown as DiscogsPagination,
           rateLimit
         }
       } catch (error) {
-        if (error instanceof Error && error.message.includes('401')) {
-          throw new TRPCError({
-            code: 'UNAUTHORIZED',
-            message: 'Invalid or expired OAuth tokens'
-          })
-        }
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message:
-            error instanceof Error ? error.message : 'Failed to get collection'
-        })
+        handleDiscogsError(error, 'Failed to get collection')
       }
     }),
 
@@ -161,19 +160,7 @@ export const discogsRouter = router({
           rateLimit
         }
       } catch (error) {
-        if (error instanceof Error && error.message.includes('401')) {
-          throw new TRPCError({
-            code: 'UNAUTHORIZED',
-            message: 'Invalid or expired OAuth tokens'
-          })
-        }
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message:
-            error instanceof Error
-              ? error.message
-              : 'Failed to get user profile'
-        })
+        handleDiscogsError(error, 'Failed to get user profile')
       }
     })
 })

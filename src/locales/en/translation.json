@@ -10,7 +10,8 @@
   },
   "common": {
     "comingSoon": "(Coming soon)",
-    "soon": "Soon"
+    "soon": "Soon",
+    "cancel": "Cancel"
   },
   "nav": {
     "collection": "Collection",
@@ -171,7 +172,9 @@
       "disconnect": {
         "title": "Disconnect Discogs",
         "description": "Remove your Discogs authorization. You'll need to re-authorize to use VinylDeck again.",
-        "button": "Disconnect Discogs account"
+        "button": "Disconnect Discogs account",
+        "confirmTitle": "Disconnect Discogs account?",
+        "confirmDescription": "This will remove your Discogs authorization. You'll need to sign in again to use VinylDeck."
       },
       "disconnectSuccess": "Discogs account disconnected"
     }

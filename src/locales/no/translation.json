@@ -10,7 +10,8 @@
   },
   "common": {
     "comingSoon": "(Kommer snart)",
-    "soon": "Snart"
+    "soon": "Snart",
+    "cancel": "Avbryt"
   },
   "nav": {
     "collection": "Samling",
@@ -171,7 +172,9 @@
       "disconnect": {
         "title": "Koble fra Discogs",
         "description": "Fjern Discogs-autorisasjonen din. Du må autorisere på nytt for å bruke VinylDeck igjen.",
-        "button": "Koble fra Discogs-konto"
+        "button": "Koble fra Discogs-konto",
+        "confirmTitle": "Koble fra Discogs-konto?",
+        "confirmDescription": "Dette vil fjerne Discogs-autorisasjonen din. Du må logge inn på nytt for å bruke VinylDeck."
       },
       "disconnectSuccess": "Discogs-konto frakoblet"
     }

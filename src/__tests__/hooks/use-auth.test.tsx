@@ -24,7 +24,6 @@ function createMockAuthWrapper(overrides: Partial<AuthContextValue> = {}) {
     validateOAuthTokens: async () => {},
     signOut: () => {},
     disconnect: () => {},
-    logout: () => {},
     ...overrides
   }
 

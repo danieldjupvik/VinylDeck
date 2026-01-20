@@ -52,7 +52,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * This is called on mount (if session active) and after OAuth callback.
    */
   const validateSession = useCallback(
-    async (tokens: OAuthTokens) => {
+    async (tokens: OAuthTokens): Promise<void> => {
       try {
         // Fetch identity via tRPC client directly with the tokens
         const identityResult =
@@ -190,7 +190,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * @param tokens - Optional tokens to validate. If not provided, reads from storage.
    */
   const validateOAuthTokens = useCallback(
-    async (tokens?: OAuthTokens) => {
+    async (tokens?: OAuthTokens): Promise<void> => {
       const tokensToValidate = tokens ?? getOAuthTokens()
 
       if (!tokensToValidate) {
@@ -207,7 +207,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * Sign out - ends session but preserves OAuth tokens.
    * User will see "Welcome back" flow on next login.
    */
-  const signOut = useCallback(() => {
+  const signOut = useCallback((): void => {
     signOutStorage()
 
     setState({
@@ -224,7 +224,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * Disconnect - fully removes Discogs authorization.
    * Clears all tokens and caches. User must re-authorize.
    */
-  const disconnect = useCallback(() => {
+  const disconnect = useCallback((): void => {
     disconnectDiscogs()
 
     // Clear sensitive caches on disconnect
@@ -251,12 +251,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     })
   }, [])
 
-  // Backwards compatibility alias
-  const logout = signOut
-
   const value = useMemo(
-    () => ({ ...state, validateOAuthTokens, signOut, disconnect, logout }),
-    [state, validateOAuthTokens, signOut, disconnect, logout]
+    () => ({ ...state, validateOAuthTokens, signOut, disconnect }),
+    [state, validateOAuthTokens, signOut, disconnect]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
