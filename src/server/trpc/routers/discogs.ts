@@ -93,7 +93,7 @@ export const discogsRouter = router({
         username: z.string(),
         folderId: z.number().optional().default(0),
         page: z.number().optional().default(1),
-        perPage: z.number().optional().default(50),
+        perPage: z.number().max(100).optional().default(50), // Discogs API max
         sort: z
           .enum([
             'label',
