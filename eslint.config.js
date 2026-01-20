@@ -15,7 +15,8 @@ import tseslint from 'typescript-eslint'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // TODO: remove src/__tests__ when tests are updated
+  globalIgnores(['dist', 'src/__tests__']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
