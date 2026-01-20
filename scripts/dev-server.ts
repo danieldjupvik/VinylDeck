@@ -1,6 +1,6 @@
 /**
  * Local development server for tRPC API endpoints.
- * This mimics the Vercel Edge Functions environment for local development.
+ * This mimics the Vercel Serverless Functions environment for local development.
  *
  * Run with: bun run scripts/dev-server.ts
  */

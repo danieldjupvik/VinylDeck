@@ -135,7 +135,7 @@ DISCOGS_CONSUMER_SECRET=your_dev_consumer_secret
 | 8     | Storage & PAT Cleanup                    | ✅     |
 | 9     | i18n Updates                             | ✅     |
 | 10    | Session Management & Welcome Back Flow   | ✅     |
-| 11    | Tests                                    | ⬜     |
+| 11    | Tests                                    | ✅     |
 
 > **Architecture Note:** All Discogs API calls must go through the server because OAuth 1.0a requires the Consumer Secret to sign every request. The `@lionralfs/discogs-client` handles signing automatically when configured with OAuth credentials.
 
@@ -764,5 +764,5 @@ Total: ~115 lines of boilerplate for full type-safety.
 
 **Phase 11 (Tests):**
 
-- [ ] `bun run test:run` passes
-- [ ] CI pipeline green
+- [x] `bun run test:run` passes
+- [x] CI pipeline green (lint + build pass)

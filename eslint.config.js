@@ -15,8 +15,7 @@ import tseslint from 'typescript-eslint'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig([
-  // TODO: remove src/__tests__ when tests are updated
-  globalIgnores(['dist', 'src/__tests__']),
+  globalIgnores(['dist']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -122,6 +121,32 @@ export default defineConfig([
       'react-refresh/only-export-components': 'off',
       // Server code doesn't need i18n
       'i18next/no-literal-string': 'off'
+    }
+  },
+  {
+    files: ['src/__tests__/**/*.{ts,tsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        // Vitest globals
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        vi: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly'
+      }
+    },
+    rules: {
+      // Test files don't need i18n
+      'i18next/no-literal-string': 'off',
+      // Test files can export test utilities
+      'react-refresh/only-export-components': 'off',
+      // Allow non-null assertions in tests for cleaner assertions
+      '@typescript-eslint/no-non-null-assertion': 'off'
     }
   },
   // turn off prettier rules that conflict with eslint rules

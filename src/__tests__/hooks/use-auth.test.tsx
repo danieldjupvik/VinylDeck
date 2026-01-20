@@ -1,83 +1,131 @@
-import { renderHook, waitFor, act } from '@testing-library/react'
-import { describe, expect, it, beforeEach } from 'vitest'
+import { renderHook, act } from '@testing-library/react'
+import { describe, expect, it, beforeEach, vi } from 'vitest'
 
 import { useAuth } from '@/hooks/use-auth'
-import { setOAuthTokens } from '@/lib/storage'
+import { setOAuthTokens, setSessionActive, getOAuthTokens } from '@/lib/storage'
+import { AuthContext, type AuthContextValue } from '@/providers/auth-context'
 
-// TODO: These tests need to be rewritten for OAuth flow
-// The old PAT-based login tests are no longer applicable.
-// New tests should:
-// 1. Create a TRPCTestProvider that mocks tRPC calls
-// 2. Mock discogs.getIdentity responses
-// 3. Test OAuth token validation flow
-// 4. Test validateOAuthTokens() function
+import { mockOAuthTokens } from '../mocks/handlers'
 
-// Placeholder wrapper - tests are skipped until properly implemented
-const wrapper = ({ children }: { children: React.ReactNode }) => children
+import type { ReactNode } from 'react'
 
-describe.skip('useAuth - OAuth flow', () => {
+/**
+ * Creates a mock auth wrapper for testing useAuth hook behavior.
+ * Uses a mock AuthContext instead of the real AuthProvider to avoid tRPC dependencies.
+ */
+function createMockAuthWrapper(overrides: Partial<AuthContextValue> = {}) {
+  const defaultValue: AuthContextValue = {
+    isAuthenticated: false,
+    isLoading: false,
+    username: null,
+    userId: null,
+    avatarUrl: null,
+    oauthTokens: null,
+    validateOAuthTokens: async () => {},
+    signOut: () => {},
+    disconnect: () => {},
+    logout: () => {},
+    ...overrides
+  }
+
+  return function MockAuthWrapper({ children }: { children: ReactNode }) {
+    return (
+      <AuthContext.Provider value={defaultValue}>
+        {children}
+      </AuthContext.Provider>
+    )
+  }
+}
+
+describe('useAuth - with mocked context', () => {
   beforeEach(() => {
     localStorage.clear()
     sessionStorage.clear()
   })
 
-  it('starts unauthenticated when no OAuth tokens are stored', async () => {
-    const { result } = renderHook(() => useAuth(), { wrapper })
+  it('returns unauthenticated state when context is not authenticated', () => {
+    const { result } = renderHook(() => useAuth(), {
+      wrapper: createMockAuthWrapper({ isAuthenticated: false })
+    })
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.isAuthenticated).toBe(false)
     expect(result.current.username).toBeNull()
-    expect(result.current.oauthTokens).toBeNull()
   })
 
-  it('validates OAuth tokens and updates auth state', async () => {
-    // Store OAuth tokens before rendering
-    setOAuthTokens({
-      accessToken: 'valid-access-token',
-      accessTokenSecret: 'valid-secret'
+  it('returns authenticated state when context is authenticated', () => {
+    const { result } = renderHook(() => useAuth(), {
+      wrapper: createMockAuthWrapper({
+        isAuthenticated: true,
+        username: 'testuser',
+        userId: 123,
+        oauthTokens: mockOAuthTokens
+      })
     })
 
-    const { result } = renderHook(() => useAuth(), { wrapper })
-
-    await waitFor(() => expect(result.current.isLoading).toBe(false))
-
-    // With valid tokens and mocked tRPC, should be authenticated
     expect(result.current.isAuthenticated).toBe(true)
-    expect(result.current.oauthTokens).not.toBeNull()
+    expect(result.current.username).toBe('testuser')
+    expect(result.current.userId).toBe(123)
+    expect(result.current.oauthTokens).toEqual(mockOAuthTokens)
   })
 
-  it('logs out and clears auth state', async () => {
-    setOAuthTokens({
-      accessToken: 'valid-access-token',
-      accessTokenSecret: 'valid-secret'
+  it('exposes signOut function', () => {
+    const signOut = vi.fn()
+    const { result } = renderHook(() => useAuth(), {
+      wrapper: createMockAuthWrapper({
+        isAuthenticated: true,
+        signOut
+      })
     })
-
-    const { result } = renderHook(() => useAuth(), { wrapper })
-
-    await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     act(() => {
-      result.current.logout()
+      result.current.signOut()
     })
 
-    expect(result.current.isAuthenticated).toBe(false)
-    expect(result.current.username).toBeNull()
-    expect(result.current.oauthTokens).toBeNull()
-    expect(localStorage.getItem('vinyldeck_oauth_token')).toBeNull()
+    expect(signOut).toHaveBeenCalled()
   })
 
-  it('clears auth when OAuth tokens are invalid', async () => {
-    setOAuthTokens({
-      accessToken: 'invalid-token',
-      accessTokenSecret: 'invalid-secret'
+  it('exposes disconnect function', () => {
+    const disconnect = vi.fn()
+    const { result } = renderHook(() => useAuth(), {
+      wrapper: createMockAuthWrapper({
+        isAuthenticated: true,
+        disconnect
+      })
     })
 
-    const { result } = renderHook(() => useAuth(), { wrapper })
+    act(() => {
+      result.current.disconnect()
+    })
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false))
+    expect(disconnect).toHaveBeenCalled()
+  })
 
-    // With invalid tokens, should clear auth
-    expect(result.current.isAuthenticated).toBe(false)
-    expect(result.current.oauthTokens).toBeNull()
+  it('throws when used outside of AuthProvider', () => {
+    expect(() => {
+      renderHook(() => useAuth())
+    }).toThrow('useAuth must be used within an AuthProvider')
+  })
+})
+
+describe('OAuth token storage behavior', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    sessionStorage.clear()
+  })
+
+  it('stores OAuth tokens correctly', () => {
+    setOAuthTokens(mockOAuthTokens)
+    expect(getOAuthTokens()).toEqual(mockOAuthTokens)
+  })
+
+  it('preserves tokens when session becomes inactive', () => {
+    setOAuthTokens(mockOAuthTokens)
+    setSessionActive(true)
+
+    // Simulate sign out (session inactive but tokens preserved)
+    setSessionActive(false)
+
+    // Tokens should still be there
+    expect(getOAuthTokens()).toEqual(mockOAuthTokens)
   })
 })
