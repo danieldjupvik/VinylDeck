@@ -45,7 +45,8 @@ export const Route = createFileRoute('/login')({
 })
 
 /**
- * Visual vinyl record showcase component for desktop view
+ * Visual vinyl record showcase component for desktop view.
+ * Uses CSS box-shadow for groove rings to reduce DOM complexity (9 divs → 1 div).
  */
 function VinylShowcase(): React.JSX.Element {
   return (
@@ -54,19 +55,8 @@ function VinylShowcase(): React.JSX.Element {
       <div className="relative h-80 w-80 xl:h-96 xl:w-96">
         {/* Spinning vinyl record */}
         <div className="animate-vinyl-spin-slow absolute inset-0">
-          {/* Outer ring / vinyl body */}
-          <div className="dark:from-foreground/25 dark:to-foreground/10 absolute inset-0 rounded-full bg-gradient-to-br from-zinc-900 to-zinc-800" />
-
-          {/* Groove rings */}
-          <div className="dark:border-foreground/20 absolute inset-4 rounded-full border border-zinc-700" />
-          <div className="dark:border-foreground/15 absolute inset-6 rounded-full border border-zinc-600" />
-          <div className="dark:border-foreground/20 absolute inset-8 rounded-full border border-zinc-700" />
-          <div className="dark:border-foreground/15 absolute inset-10 rounded-full border border-zinc-600" />
-          <div className="dark:border-foreground/20 absolute inset-12 rounded-full border border-zinc-700" />
-          <div className="dark:border-foreground/15 absolute inset-14 rounded-full border border-zinc-600" />
-          <div className="dark:border-foreground/20 absolute inset-16 rounded-full border border-zinc-700" />
-          <div className="dark:border-foreground/15 absolute inset-20 rounded-full border border-zinc-600" />
-          <div className="dark:border-foreground/20 absolute inset-24 rounded-full border border-zinc-700" />
+          {/* Vinyl body with groove rings via box-shadow */}
+          <div className="dark:from-foreground/25 dark:to-foreground/10 absolute inset-0 rounded-full bg-gradient-to-br from-zinc-900 to-zinc-800 shadow-[inset_0_0_0_16px_transparent,inset_0_0_0_17px_rgba(63,63,70,0.6),inset_0_0_0_24px_transparent,inset_0_0_0_25px_rgba(82,82,91,0.5),inset_0_0_0_32px_transparent,inset_0_0_0_33px_rgba(63,63,70,0.6),inset_0_0_0_40px_transparent,inset_0_0_0_41px_rgba(82,82,91,0.5),inset_0_0_0_48px_transparent,inset_0_0_0_49px_rgba(63,63,70,0.6),inset_0_0_0_56px_transparent,inset_0_0_0_57px_rgba(82,82,91,0.5),inset_0_0_0_64px_transparent,inset_0_0_0_65px_rgba(63,63,70,0.6),inset_0_0_0_80px_transparent,inset_0_0_0_81px_rgba(82,82,91,0.5),inset_0_0_0_96px_transparent,inset_0_0_0_97px_rgba(63,63,70,0.6)] dark:shadow-[inset_0_0_0_16px_transparent,inset_0_0_0_17px_rgba(255,255,255,0.2),inset_0_0_0_24px_transparent,inset_0_0_0_25px_rgba(255,255,255,0.15),inset_0_0_0_32px_transparent,inset_0_0_0_33px_rgba(255,255,255,0.2),inset_0_0_0_40px_transparent,inset_0_0_0_41px_rgba(255,255,255,0.15),inset_0_0_0_48px_transparent,inset_0_0_0_49px_rgba(255,255,255,0.2),inset_0_0_0_56px_transparent,inset_0_0_0_57px_rgba(255,255,255,0.15),inset_0_0_0_64px_transparent,inset_0_0_0_65px_rgba(255,255,255,0.2),inset_0_0_0_80px_transparent,inset_0_0_0_81px_rgba(255,255,255,0.15),inset_0_0_0_96px_transparent,inset_0_0_0_97px_rgba(255,255,255,0.2)]" />
 
           {/* Center label */}
           <div className="from-primary/50 to-primary/30 absolute inset-[35%] rounded-full bg-gradient-to-br" />

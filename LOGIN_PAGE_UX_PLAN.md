@@ -23,29 +23,32 @@ This plan addresses UX issues identified in `LOGIN_PAGE_UX_ISSUES.md`.
 
 ## Progress
 
-| #   | Issue                                    | Priority | Status  |
-| --- | ---------------------------------------- | -------- | ------- |
-| 1   | Confirmation for "Use different account" | High     | Pending |
-| 2   | Inline error state (not just toasts)     | High     | Pending |
-| 3   | Disable non-functional public browse     | High     | Pending |
-| 4   | Fix information hierarchy                | Medium   | Pending |
-| 5   | Add form accessibility (label)           | Medium   | Pending |
-| 6   | Avatar in welcome back flow              | Medium   | Pending |
-| 7   | Account creation guidance                | Medium   | Pending |
-| 8   | Improve error messages                   | Medium   | Pending |
-| 9   | OAuth transparency                       | Medium   | Pending |
-| 10  | Skip link for keyboard users             | Low      | Pending |
-| 11  | Visual feedback on OAuth redirect        | Low      | Pending |
+| #   | Issue                                    | Priority | Status     |
+| --- | ---------------------------------------- | -------- | ---------- |
+| 1   | Confirmation for "Use different account" | High     | ✅ Done    |
+| 2   | Inline error state (not just toasts)     | High     | ✅ Done    |
+| 3   | Disable non-functional public browse     | High     | ✅ Done    |
+| 4   | Fix information hierarchy                | Medium   | ✅ Done    |
+| 5   | Add form accessibility (label)           | Medium   | ✅ Done    |
+| 6   | Avatar in welcome back flow              | Medium   | ✅ Done    |
+| 7   | Account creation guidance                | Medium   | ✅ Done    |
+| 8   | Improve error messages                   | Medium   | ✅ Done    |
+| 9   | OAuth transparency                       | Medium   | ✅ Done    |
+| 10  | Skip link for keyboard users             | Low      | ⏭️ Skipped |
+| 11  | Visual feedback on OAuth redirect        | Low      | ✅ Done    |
 
-### Experimental Phase (Separate PR)
+### Experimental Phase
 
 | #   | Issue                    | Priority     | Status  |
 | --- | ------------------------ | ------------ | ------- |
-| 12  | Reduce VinylShowcase DOM | Experimental | Pending |
+| 12  | Reduce VinylShowcase DOM | Experimental | ✅ Done |
 
-**Note**: Issue 12 (VinylShowcase DOM optimization) is isolated to a separate phase due to risk of visual regression. It should be implemented and tested independently.
+**Note**: Issue 12 uses CSS box-shadow for groove rings instead of 9 separate div elements. Requires visual verification in both light and dark modes.
 
-**Skipped**: Tooltips for theme/language toggles - these icons (sun/moon, globe) are universally understood and don't need additional labels.
+**Skipped**:
+
+- Tooltips for theme/language toggles - icons (sun/moon, globe) are universally understood
+- Skip link for keyboard users - not working properly and low value for this page
 
 ---
 
