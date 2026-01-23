@@ -1,4 +1,8 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import {
+  QueryClient,
+  QueryClientProvider,
+  keepPreviousData
+} from '@tanstack/react-query'
 import { TRPCClientError } from '@trpc/client'
 import { useState, type ReactNode } from 'react'
 
@@ -25,6 +29,8 @@ function createQueryClient() {
     defaultOptions: {
       queries: {
         staleTime: 1000 * 60 * 5, // 5 minutes
+        gcTime: 1000 * 60 * 60 * 24, // 24 hours
+        placeholderData: keepPreviousData, // Show old data during refetch
         retry: (failureCount, error) => {
           // Don't retry on certain tRPC error codes
           const code = getTRPCErrorCode(error)
