@@ -176,5 +176,43 @@ export const discogsRouter = router({
       } catch (error) {
         handleDiscogsError(error, 'Failed to get user profile')
       }
+    }),
+
+  /**
+   * Get collection metadata for change detection.
+   * Returns only the total count without fetching full collection data.
+   * Fast endpoint (1 API call) for detecting new/deleted items.
+   */
+  getCollectionMetadata: publicProcedure
+    .input(
+      z.object({
+        accessToken: z.string(),
+        accessTokenSecret: z.string(),
+        username: z.string()
+      })
+    )
+    .mutation(async ({ input }) => {
+      const client = createDiscogsClient(
+        input.accessToken,
+        input.accessTokenSecret
+      )
+
+      try {
+        // Fetch only first page with per_page=1 (minimal data transfer)
+        const { data, rateLimit } = await client
+          .user()
+          .collection()
+          .getReleases(input.username, 0, {
+            page: 1,
+            per_page: 1
+          })
+
+        return {
+          totalCount: data.pagination.items,
+          rateLimit
+        }
+      } catch (error) {
+        handleDiscogsError(error, 'Failed to get collection metadata')
+      }
     })
 })
