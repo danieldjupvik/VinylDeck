@@ -2,6 +2,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
+import { setupCrossTabSync } from '@/lib/cross-tab-sync'
 import { AuthProvider } from '@/providers/auth-provider'
 import { PreferencesProvider } from '@/providers/preferences-provider'
 import { QueryProvider } from '@/providers/query-provider'
@@ -21,6 +22,9 @@ declare module '@tanstack/react-router' {
     router: typeof router
   }
 }
+
+// Setup cross-tab auth synchronization
+setupCrossTabSync()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
