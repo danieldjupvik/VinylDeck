@@ -9,7 +9,7 @@ import { useAuthStore } from '@/stores/auth-store'
  *
  * Call this once during app initialization.
  */
-export function setupCrossTabSync() {
+export function setupCrossTabSync(): void {
   if (typeof window === 'undefined') return
 
   window.addEventListener('storage', (event) => {

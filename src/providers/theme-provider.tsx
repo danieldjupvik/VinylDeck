@@ -13,7 +13,10 @@ import type { ThemeProviderProps } from 'next-themes'
  * - Simpler implementation (~88 lines → ~15 lines)
  * - Battle-tested library (zero bundle impact, already installed)
  */
-export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+export function ThemeProvider({
+  children,
+  ...props
+}: ThemeProviderProps): React.JSX.Element {
   return (
     <NextThemesProvider
       attribute="class"
