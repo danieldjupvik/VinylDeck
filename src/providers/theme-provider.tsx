@@ -1,87 +1,29 @@
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState
-} from 'react'
+// src/providers/theme-provider.tsx
+import { ThemeProvider as NextThemesProvider } from 'next-themes'
 
-import { ThemeProviderContext } from './theme-context'
+import type { ThemeProviderProps } from 'next-themes'
 
-import type { Theme } from './theme-context'
-
-type ThemeProviderProps = {
-  children: ReactNode
-  defaultTheme?: Theme
-  storageKey?: string
-}
-
-export function ThemeProvider({
-  children,
-  defaultTheme = 'system',
-  storageKey = 'vinyldeck-theme',
-  ...props
-}: ThemeProviderProps): React.JSX.Element {
-  const [theme, setTheme] = useState<Theme>(() => {
-    try {
-      const stored = localStorage.getItem(storageKey)
-      const validThemes: Theme[] = ['light', 'dark', 'system']
-      return validThemes.includes(stored as Theme)
-        ? (stored as Theme)
-        : defaultTheme
-    } catch {
-      return defaultTheme
-    }
-  })
-
-  useEffect(() => {
-    const root = window.document.documentElement
-    root.classList.remove('light', 'dark')
-
-    if (theme === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      const applySystemTheme = () => {
-        const systemTheme = mediaQuery.matches ? 'dark' : 'light'
-        root.classList.remove('light', 'dark')
-        root.classList.add(systemTheme)
-      }
-
-      applySystemTheme()
-      mediaQuery.addEventListener('change', applySystemTheme)
-      return () => mediaQuery.removeEventListener('change', applySystemTheme)
-    }
-
-    root.classList.add(theme)
-    return undefined
-  }, [theme])
-
-  const handleSetTheme = useCallback(
-    (nextTheme: Theme) => {
-      const validThemes: Theme[] = ['light', 'dark', 'system']
-      const safeTheme = validThemes.includes(nextTheme)
-        ? nextTheme
-        : defaultTheme
-      try {
-        localStorage.setItem(storageKey, safeTheme)
-      } catch {
-        // Ignore storage errors
-      }
-      setTheme(safeTheme)
-    },
-    [defaultTheme, storageKey]
-  )
-
-  const value = useMemo(
-    () => ({
-      theme,
-      setTheme: handleSetTheme
-    }),
-    [theme, handleSetTheme]
-  )
-
+/**
+ * Theme provider using next-themes.
+ * Prevents FOUC (flash of unstyled content) and flickering during theme toggle.
+ *
+ * Benefits:
+ * - No white flash on page load (inline script in index.html)
+ * - No flickering on theme toggle (disableTransitionOnChange)
+ * - Simpler implementation (~88 lines → ~15 lines)
+ * - Battle-tested library (zero bundle impact, already installed)
+ */
+export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return (
-    <ThemeProviderContext.Provider {...props} value={value}>
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="system"
+      storageKey="vinyldeck-theme"
+      enableSystem
+      disableTransitionOnChange
+      {...props}
+    >
       {children}
-    </ThemeProviderContext.Provider>
+    </NextThemesProvider>
   )
 }
