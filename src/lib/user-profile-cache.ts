@@ -19,6 +19,18 @@ export function getStoredUserProfile(): DiscogsUserProfile | null {
   }
 }
 
+/**
+ * Stores user profile in localStorage for "Welcome back" flow.
+ *
+ * Note on email storage: The email field is intentionally stored to
+ * auto-initialize the Gravatar email preference when users first log in
+ * (see auth-provider.tsx). This provides a better UX for users who want
+ * to use their Discogs email for Gravatar. The email is only visible to
+ * the user themselves (never shared) and can be cleared by disconnecting
+ * the Discogs account.
+ *
+ * @param profile - User profile from Discogs API
+ */
 export function setStoredUserProfile(profile: DiscogsUserProfile): void {
   try {
     localStorage.setItem('vinyldeck_user_profile', JSON.stringify(profile))

@@ -1,6 +1,7 @@
 // src/components/collection/collection-sync-banner.tsx
 import { useIsFetching } from '@tanstack/react-query'
 import { Loader2, RefreshCw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,7 @@ import { useAuthStore } from '@/stores/auth-store'
  * 7. Banner visible on Settings, Collection, and all future authenticated pages
  */
 export function CollectionSyncBanner(): React.JSX.Element | null {
+  const { t } = useTranslation()
   const { hasChanges, newItemsCount, deletedItemsCount, refreshCollection } =
     useCollectionSync()
   const username = useAuthStore((state) => state.username)
@@ -32,41 +34,41 @@ export function CollectionSyncBanner(): React.JSX.Element | null {
   if (!hasChanges && !isFetching) return null
 
   const getMessage = (): string => {
-    if (isFetching) return 'Refreshing collection...'
+    if (isFetching) return t('collection.refreshing')
 
     const parts: string[] = []
     if (newItemsCount > 0) {
-      parts.push(
-        `${newItemsCount} new item${newItemsCount > 1 ? 's' : ''} detected.`
-      )
+      parts.push(t('collection.newItems', { count: newItemsCount }))
     }
     if (deletedItemsCount > 0) {
-      parts.push(
-        `${deletedItemsCount} item${deletedItemsCount > 1 ? 's' : ''} removed.`
-      )
+      parts.push(t('collection.deletedItems', { count: deletedItemsCount }))
     }
-    parts.push('Refresh to see changes.')
+    parts.push(t('collection.refreshPrompt'))
     return parts.join(' ')
   }
 
   return (
-    <Alert className="mb-4">
-      {isFetching ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        <RefreshCw className="h-4 w-4" />
-      )}
-      <AlertDescription className="flex items-center justify-between">
-        <span>{getMessage()}</span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={refreshCollection}
-          disabled={isFetching}
-        >
-          {isFetching ? 'Refreshing...' : 'Refresh Now'}
-        </Button>
-      </AlertDescription>
-    </Alert>
+    <div className="px-6 pt-6">
+      <Alert className="mb-4">
+        {isFetching ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <RefreshCw className="h-4 w-4" />
+        )}
+        <AlertDescription className="flex items-center justify-between">
+          <span>{getMessage()}</span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refreshCollection}
+            disabled={isFetching}
+          >
+            {isFetching
+              ? t('collection.sync.refreshing')
+              : t('collection.sync.refreshNow')}
+          </Button>
+        </AlertDescription>
+      </Alert>
+    </div>
   )
 }

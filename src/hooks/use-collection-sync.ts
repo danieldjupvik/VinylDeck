@@ -45,10 +45,10 @@ export function useCollectionSync(): {
   // Critical: Must match on stable prefix ['collection', username] not ['collection', username, 'all']
   // because the query key varies based on filters (page number vs 'all'). The subscription ensures
   // reactivity when cache updates. Changing this can miss cached data or cause stale comparisons.
-  const cachedCount = useSyncExternalStore(
+  const cachedState = useSyncExternalStore(
     (onStoreChange) => queryClient.getQueryCache().subscribe(onStoreChange),
     () => {
-      if (!username) return 0
+      if (!username) return '0|0'
 
       const queries = queryClient.getQueryCache().findAll({
         queryKey: ['collection', username],
@@ -69,17 +69,29 @@ export function useCollectionSync(): {
       const cachedCollection = latestQuery?.state.data as
         | DiscogsCollectionResponse
         | undefined
-      return cachedCollection?.pagination?.items ?? 0
+      const cachedCount = cachedCollection?.pagination?.items ?? 0
+      const hasCachedData = cachedCollection !== undefined
+      return `${hasCachedData ? 1 : 0}|${cachedCount}`
     },
-    () => 0
+    () => '0|0'
   )
+
+  const [hasCachedDataToken, cachedCountToken] = cachedState.split('|')
+  const hasCachedData = hasCachedDataToken === '1'
+  const cachedCount = Number(cachedCountToken)
 
   // Calculate changes
   const liveCount = meta?.totalCount ?? 0
+  const hasCachedDataResolved = hasCachedData
+  const cachedCountResolved = cachedCount
 
-  const hasChanges = cachedCount > 0 && liveCount !== cachedCount
-  const newItemsCount = Math.max(0, liveCount - cachedCount)
-  const deletedItemsCount = Math.max(0, cachedCount - liveCount)
+  const hasChanges = hasCachedDataResolved && liveCount !== cachedCountResolved
+  const newItemsCount = hasCachedDataResolved
+    ? Math.max(0, liveCount - cachedCountResolved)
+    : 0
+  const deletedItemsCount = hasCachedDataResolved
+    ? Math.max(0, cachedCountResolved - liveCount)
+    : 0
 
   return {
     hasChanges,

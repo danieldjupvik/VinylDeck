@@ -2,7 +2,8 @@ export const APP_VERSION = __APP_VERSION__
 
 /**
  * Theme configuration.
- * IMPORTANT: Keep DEFAULT_THEME in sync with index.html inline script.
+ * IMPORTANT: Keep THEME.DEFAULT in sync with index.html inline script.
+ * IMPORTANT: THEME.STORAGE_KEY must match the next-themes storage key.
  */
 export const THEME = {
   /** Default theme for new users (must match index.html inline script) */

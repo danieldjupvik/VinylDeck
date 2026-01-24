@@ -83,9 +83,7 @@ function AuthenticatedLayout() {
             </div>
           </header>
           {/* Global collection sync banner - shows on all authenticated pages */}
-          <div className="px-6 pt-6">
-            <CollectionSyncBanner />
-          </div>
+          <CollectionSyncBanner />
           <div className="flex-1">
             <Outlet />
           </div>
