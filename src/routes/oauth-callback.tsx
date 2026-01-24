@@ -169,7 +169,6 @@ function OAuthCallbackPage() {
     }
 
     void exchangeTokens()
-    return undefined
   }, [
     denied,
     getAccessToken,

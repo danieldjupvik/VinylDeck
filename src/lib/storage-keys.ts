@@ -15,9 +15,6 @@ export const STORAGE_KEYS = {
 } as const
 
 /**
- * Session storage keys for temporary OAuth flow state.
- */
-/**
  * IndexedDB keys for large data storage.
  */
 export const IDB_KEYS = {
@@ -25,6 +22,9 @@ export const IDB_KEYS = {
   QUERY_CACHE: 'vinyldeck-query-cache'
 } as const
 
+/**
+ * Session storage keys for temporary OAuth flow state.
+ */
 export const SESSION_KEYS = {
   /** Temporary OAuth request token during authorization */
   OAUTH_REQUEST: 'vinyldeck-oauth-request',
