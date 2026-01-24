@@ -63,6 +63,25 @@ export default defineConfig([
       }
     },
     rules: {
+      // Report exports that are not used anywhere in the codebase
+      'import-x/no-unused-modules': [
+        'error',
+        {
+          unusedExports: true,
+          // Ignore type-only exports (they're for type contracts, not runtime)
+          ignoreUnusedTypeExports: true,
+          // Ignore entry points, config files, and files used externally
+          ignoreExports: [
+            'src/main.tsx',
+            'src/routeTree.gen.ts',
+            'src/providers/**/*.tsx', // Providers are used in provider tree
+            'api/**/*.ts', // Vercel serverless functions
+            'src/server/**/*.ts', // Server-side code consumed by API
+            'vite.config.ts',
+            'eslint.config.js'
+          ]
+        }
+      ],
       // Require explicit return types on exported functions for better documentation
       '@typescript-eslint/explicit-module-boundary-types': [
         'warn',
@@ -124,7 +143,9 @@ export default defineConfig([
       'i18next/no-literal-string': 'off',
       'react-refresh/only-export-components': 'off',
       // shadcn/ui components are generated, don't require explicit return types
-      '@typescript-eslint/explicit-module-boundary-types': 'off'
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      // shadcn/ui exports are consumed by app code, not internal
+      'import-x/no-unused-modules': 'off'
     }
   },
   {
