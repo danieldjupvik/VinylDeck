@@ -8,7 +8,7 @@ import { SESSION_KEYS } from '@/lib/storage-keys'
  * @param url - The URL to validate
  * @returns true if the URL is safe for internal redirect
  */
-export function isValidRedirectUrl(url: string): boolean {
+function isValidRedirectUrl(url: string): boolean {
   // Decode URL to catch encoded bypass attempts (e.g., /%2f%2fevil.com -> //evil.com)
   let decodedUrl: string
   try {
