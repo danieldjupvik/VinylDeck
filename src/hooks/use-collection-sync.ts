@@ -42,6 +42,9 @@ export function useCollectionSync(): {
     }
   )
 
+  // Critical: Must match on stable prefix ['collection', username] not ['collection', username, 'all']
+  // because the query key varies based on filters (page number vs 'all'). The subscription ensures
+  // reactivity when cache updates. Changing this can miss cached data or cause stale comparisons.
   const cachedCount = useSyncExternalStore(
     (onStoreChange) => queryClient.getQueryCache().subscribe(onStoreChange),
     () => {
