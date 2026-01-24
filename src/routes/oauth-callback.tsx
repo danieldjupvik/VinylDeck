@@ -57,17 +57,33 @@ function OAuthCallbackPage() {
   const [status, setStatus] = useState<OAuthCallbackStatus>('loading')
   const [error, setError] = useState<OAuthError | null>(null)
 
-  // Prevent double execution in React StrictMode
-  const hasStartedRef = useRef(false)
+  // Track which params we've processed to prevent double execution in StrictMode
+  // while still allowing re-execution when params change (e.g., router hydration)
+  const processedParamsRef = useRef<string | null>(null)
 
   const getAccessToken = trpc.oauth.getAccessToken.useMutation()
 
   useEffect(() => {
-    // Guard against double execution (React StrictMode runs effects twice)
-    if (hasStartedRef.current) {
+    // Create a key from current params to detect changes
+    const paramsKey = `${oauth_token ?? ''}|${oauth_verifier ?? ''}|${denied ?? ''}`
+
+    // Skip if we've already processed these exact params (prevents StrictMode double-run)
+    if (processedParamsRef.current === paramsKey) {
       return
     }
-    hasStartedRef.current = true
+
+    // If no params available, wait briefly for router hydration then show error.
+    // If params arrive during hydration, deps change and effect re-runs (cleanup clears timeout).
+    if (!oauth_token && !oauth_verifier && !denied) {
+      const timer = setTimeout(() => {
+        processedParamsRef.current = paramsKey
+        setError('missing_params')
+        setStatus('error')
+      }, 50) // Brief delay for router hydration
+      return () => clearTimeout(timer)
+    }
+
+    processedParamsRef.current = paramsKey
 
     const exchangeTokens = async () => {
       // Check if user denied authorization
@@ -144,6 +160,7 @@ function OAuthCallbackPage() {
     }
 
     void exchangeTokens()
+    return undefined
   }, [
     denied,
     getAccessToken,
