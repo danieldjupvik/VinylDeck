@@ -2,7 +2,6 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import { THEME } from '@/lib/constants'
 import { setupCrossTabSync } from '@/lib/cross-tab-sync'
 import { AuthProvider } from '@/providers/auth-provider'
 import { PreferencesProvider } from '@/providers/preferences-provider'
@@ -29,7 +28,7 @@ setupCrossTabSync()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider defaultTheme={THEME.DEFAULT} storageKey={THEME.STORAGE_KEY}>
+    <ThemeProvider>
       <QueryProvider>
         <PreferencesProvider>
           <AuthProvider>

@@ -1,30 +1,30 @@
 // src/providers/theme-provider.tsx
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
 
-import type { ThemeProviderProps } from 'next-themes'
+import { THEME } from '@/lib/constants'
+
+import type { ReactNode } from 'react'
+
+interface ThemeProviderProps {
+  children: ReactNode
+}
 
 /**
  * Theme provider using next-themes.
  * Prevents FOUC (flash of unstyled content) and flickering during theme toggle.
  *
- * Benefits:
- * - No white flash on page load (inline script in index.html)
- * - No flickering on theme toggle (disableTransitionOnChange)
- * - Simpler implementation (~88 lines → ~15 lines)
- * - Battle-tested library (zero bundle impact, already installed)
+ * IMPORTANT: Keep THEME.DEFAULT in sync with index.html inline script.
  */
 export function ThemeProvider({
-  children,
-  ...props
+  children
 }: ThemeProviderProps): React.JSX.Element {
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="system"
-      storageKey="vinyldeck-theme"
+      defaultTheme={THEME.DEFAULT}
+      storageKey={THEME.STORAGE_KEY}
       enableSystem
       disableTransitionOnChange
-      {...props}
     >
       {children}
     </NextThemesProvider>

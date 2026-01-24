@@ -38,10 +38,17 @@ export function setupCrossTabSync(): void {
           if (newState.state) {
             const { tokens, sessionActive } = newState.state
 
-            // If session became inactive or tokens were cleared, update immediately
+            // Sync state directly to avoid duplicate side effects
+            // (disconnect() was already called by the originating tab)
             if (!sessionActive || !tokens) {
               if (!tokens) {
-                store.disconnect()
+                // Just sync state - cleanup already happened in originating tab
+                useAuthStore.setState({
+                  tokens: null,
+                  sessionActive: false,
+                  username: null,
+                  userId: null
+                })
               } else {
                 store.signOut()
               }
