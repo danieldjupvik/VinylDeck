@@ -26,3 +26,11 @@ export function setStoredUserProfile(profile: DiscogsUserProfile): void {
     // Ignore storage errors
   }
 }
+
+export function clearStoredUserProfile(): void {
+  try {
+    localStorage.removeItem('vinyldeck_user_profile')
+  } catch {
+    // Ignore storage errors
+  }
+}

@@ -10,6 +10,7 @@ import {
 import { usePreferences } from '@/hooks/use-preferences'
 import { trpc } from '@/lib/trpc'
 import {
+  clearStoredUserProfile,
   getStoredUserProfile,
   setStoredUserProfile
 } from '@/lib/user-profile-cache'
@@ -228,6 +229,9 @@ export function AuthProvider({
    */
   const disconnect = useCallback((): void => {
     disconnectStore()
+
+    // Clear cached user profile to prevent stale data on re-login
+    clearStoredUserProfile()
 
     // Clear sensitive caches on disconnect
     if ('caches' in window) {
