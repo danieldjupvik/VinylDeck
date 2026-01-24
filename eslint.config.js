@@ -107,6 +107,12 @@ export default defineConfig([
       // Catch array index as key which causes bugs on reorder/delete
       'react/no-array-index-key': 'warn',
       'no-nested-ternary': 'error',
+      // Detect circular dependencies (A imports B, B imports A)
+      'import-x/no-cycle': 'error',
+      // Prevent a module from importing itself
+      'import-x/no-self-import': 'error',
+      // Prevent exporting mutable variables (let)
+      'import-x/no-mutable-exports': 'error',
       'import-x/no-dynamic-require': 'warn',
       'import-x/no-nodejs-modules': 'error',
       'import-x/order': [
