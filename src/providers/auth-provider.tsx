@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query'
+import { useIsRestoring, useQueryClient } from '@tanstack/react-query'
 import {
   useCallback,
   useEffect,
@@ -8,9 +8,14 @@ import {
   type ReactNode
 } from 'react'
 
+import { useCrossTabAuthSync } from '@/hooks/use-cross-tab-auth-sync'
 import { useOnlineStatus } from '@/hooks/use-online-status'
 import { usePreferences } from '@/hooks/use-preferences'
-import { type UserProfile, useUserProfile } from '@/hooks/use-user-profile'
+import {
+  type UserProfile,
+  USER_PROFILE_QUERY_KEY,
+  useUserProfile
+} from '@/hooks/use-user-profile'
 import { queryPersister } from '@/lib/query-persister'
 import { trpc } from '@/lib/trpc'
 import { useAuthStore } from '@/stores/auth-store'
@@ -38,14 +43,20 @@ export function AuthProvider({
   // Online status
   const isOnline = useOnlineStatus()
 
+  // Track if IndexedDB cache is still being restored
+  const isRestoring = useIsRestoring()
+
   // User profile from TanStack Query
-  const { fetchProfile, clearProfile } = useUserProfile()
+  const { fetchProfile } = useUserProfile()
 
   // Query client for cache management
   const queryClient = useQueryClient()
 
   // Track previous tokens to detect changes (for cross-account leakage prevention)
   const prevTokensRef = useRef(authTokens)
+
+  // Track if we've completed initialization to avoid repeated network validation
+  const hasInitializedRef = useRef(false)
 
   const [state, setState] = useState<AuthState>({
     isAuthenticated: false,
@@ -81,8 +92,9 @@ export function AuthProvider({
         prevTokensRef.current.accessTokenSecret !==
           authTokens.accessTokenSecret)
     ) {
-      // Tokens changed without disconnect - clear stale profile
-      queryClient.removeQueries({ queryKey: ['userProfile'] })
+      // Tokens changed without disconnect - clear stale profile and require re-validation
+      queryClient.removeQueries({ queryKey: USER_PROFILE_QUERY_KEY })
+      hasInitializedRef.current = false
     }
     prevTokensRef.current = authTokens
   }, [authTokens, queryClient])
@@ -128,9 +140,9 @@ export function AuthProvider({
         const identity = await validateTokens(tokensToValidate)
 
         // Check if profile is cached - if not, fetch it
-        const cachedProfile = queryClient.getQueryData<UserProfile>([
-          'userProfile'
-        ])
+        const cachedProfile = queryClient.getQueryData<UserProfile>(
+          USER_PROFILE_QUERY_KEY
+        )
         if (!cachedProfile) {
           // Profile missing - fetch it now to avoid broken state
           // Pass tokens directly to avoid store timing issues
@@ -159,9 +171,28 @@ export function AuthProvider({
           oauthTokens: tokensToValidate
         }))
       } catch (error) {
-        // Tokens are invalid or expired - fully disconnect
+        // Tokens are invalid or expired - fully disconnect and clear all caches
         disconnectStore()
-        clearProfile()
+
+        // Clear TanStack Query in-memory cache
+        queryClient.clear()
+
+        // Clear IndexedDB via the persister
+        void queryPersister.removeClient()
+
+        // Clear browser caches for sensitive data
+        if ('caches' in window) {
+          const cacheNames = [
+            'discogs-api-cache',
+            'discogs-images-cache',
+            'gravatar-images-cache'
+          ]
+          cacheNames.forEach((name) => {
+            caches.delete(name).catch(() => {
+              // Ignore errors if cache doesn't exist
+            })
+          })
+        }
 
         setState({
           isAuthenticated: false,
@@ -182,7 +213,6 @@ export function AuthProvider({
       setTokens,
       setSessionActive,
       disconnectStore,
-      clearProfile,
       isOnline
     ]
   )
@@ -210,9 +240,9 @@ export function AuthProvider({
 
       // OFFLINE PATH: trust cached state if available
       if (!isOnline) {
-        const cachedProfile = queryClient.getQueryData<UserProfile>([
-          'userProfile'
-        ])
+        const cachedProfile = queryClient.getQueryData<UserProfile>(
+          USER_PROFILE_QUERY_KEY
+        )
         if (!cachedProfile) {
           setState((prev) => ({ ...prev, isLoading: false }))
           throw new Error('Cannot continue offline without cached profile')
@@ -256,9 +286,28 @@ export function AuthProvider({
           oauthTokens: tokensToUse
         }))
       } catch (error) {
-        // Tokens are invalid or expired - fully disconnect
+        // Tokens are invalid or expired - fully disconnect and clear all caches
         disconnectStore()
-        clearProfile()
+
+        // Clear TanStack Query in-memory cache
+        queryClient.clear()
+
+        // Clear IndexedDB via the persister
+        void queryPersister.removeClient()
+
+        // Clear browser caches for sensitive data
+        if ('caches' in window) {
+          const cacheNames = [
+            'discogs-api-cache',
+            'discogs-images-cache',
+            'gravatar-images-cache'
+          ]
+          cacheNames.forEach((name) => {
+            caches.delete(name).catch(() => {
+              // Ignore errors if cache doesn't exist
+            })
+          })
+        }
 
         setState({
           isAuthenticated: false,
@@ -279,16 +328,23 @@ export function AuthProvider({
       setGravatarEmail,
       setTokens,
       setSessionActive,
-      disconnectStore,
-      clearProfile
+      disconnectStore
     ]
   )
 
-  // Initialize auth on mount
+  // Initialize auth after both IndexedDB and Zustand hydration complete
+  // Dependencies include authTokens/sessionActive to handle Zustand hydrating after isRestoring
   useEffect(() => {
+    // Wait for IndexedDB restoration before making auth decisions
+    // This prevents false "Welcome back" flows when cached profile exists
+    if (isRestoring) {
+      return
+    }
+
     const initializeAuth = async () => {
       if (!authTokens) {
         // No OAuth tokens, user is not authenticated
+        hasInitializedRef.current = false
         setState({
           isAuthenticated: false,
           isLoading: false,
@@ -302,6 +358,7 @@ export function AuthProvider({
       // Only auto-login if session was active (user didn't sign out)
       if (!sessionActive) {
         // Tokens exist but user signed out - show "Welcome back" flow
+        hasInitializedRef.current = false
         setState({
           isAuthenticated: false,
           isLoading: false,
@@ -312,12 +369,18 @@ export function AuthProvider({
         return
       }
 
+      // Skip network validation if already initialized with these tokens
+      // This prevents repeated API calls when effect re-runs
+      if (hasInitializedRef.current && state.isAuthenticated) {
+        return
+      }
+
       // Session was active
       if (!isOnline) {
         // Offline with active session - check for cached profile before trusting
-        const cachedProfile = queryClient.getQueryData<UserProfile>([
-          'userProfile'
-        ])
+        const cachedProfile = queryClient.getQueryData<UserProfile>(
+          USER_PROFILE_QUERY_KEY
+        )
         if (!cachedProfile) {
           // No cached profile - fall back to "Welcome back" flow
           // User will need to go online to continue
@@ -332,6 +395,7 @@ export function AuthProvider({
         }
 
         // Offline with cached profile - trust cached state
+        hasInitializedRef.current = true
         setState({
           isAuthenticated: true,
           isLoading: false,
@@ -345,14 +409,49 @@ export function AuthProvider({
       // Online with active session - validate tokens
       try {
         await validateOAuthTokens(authTokens)
+        hasInitializedRef.current = true
       } catch {
         // Error already handled by validateOAuthTokens
+        hasInitializedRef.current = false
       }
     }
 
     void initializeAuth()
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only run on mount; dependencies would cause re-runs
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Includes auth state for Zustand hydration; network validation guarded by hasInitializedRef
+  }, [isRestoring, authTokens, sessionActive])
+
+  // Clear all caches (used by cross-tab disconnect)
+  const clearAllCaches = useCallback(() => {
+    // Clear TanStack Query in-memory cache
+    queryClient.clear()
+
+    // Clear IndexedDB via the persister
+    void queryPersister.removeClient()
+
+    // Clear browser caches for sensitive data
+    if ('caches' in window) {
+      const cacheNames = [
+        'discogs-api-cache',
+        'discogs-images-cache',
+        'gravatar-images-cache'
+      ]
+      cacheNames.forEach((name) => {
+        caches.delete(name).catch(() => {
+          // Ignore errors if cache doesn't exist
+        })
+      })
+    }
+  }, [queryClient])
+
+  // Sync derived auth state when Zustand store changes (cross-tab sync)
+  useCrossTabAuthSync({
+    authTokens,
+    sessionActive,
+    isRestoring,
+    state,
+    setState,
+    onCrossTabDisconnect: clearAllCaches
+  })
 
   // Revalidate tokens when coming back online
   useEffect(() => {

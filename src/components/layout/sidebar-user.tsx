@@ -140,6 +140,9 @@ export function SidebarUser(): React.JSX.Element {
                   ? 'bg-green-500 dark:bg-green-600'
                   : 'bg-muted-foreground/50'
               }
+              aria-label={t(
+                isOnline ? 'user.status.online' : 'user.status.offline'
+              )}
             />
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">

@@ -240,7 +240,7 @@ function LoginPage(): React.JSX.Element {
                 // Welcome back flow - user has existing tokens
                 <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-backwards space-y-4 delay-800 duration-500">
                   <div className="mb-4 flex flex-col items-center gap-3">
-                    <Avatar className="border-border h-16 w-16 border-2">
+                    <Avatar className="ring-border size-16 ring-2">
                       {cachedAvatarUrl?.trim() ? (
                         <AvatarImage
                           src={cachedAvatarUrl}
@@ -257,6 +257,11 @@ function LoginPage(): React.JSX.Element {
                         : t('auth.welcomeBackGeneric')}
                     </p>
                   </div>
+                  {cannotContinue ? (
+                    <p className="text-muted-foreground text-center text-xs">
+                      {t('auth.offlineCannotContinue')}
+                    </p>
+                  ) : null}
                   <Button
                     onClick={() => void handleContinue()}
                     className="w-full"
@@ -272,11 +277,6 @@ function LoginPage(): React.JSX.Element {
                       t('auth.continue')
                     )}
                   </Button>
-                  {cannotContinue ? (
-                    <p className="text-muted-foreground text-center text-xs">
-                      {t('auth.offlineCannotContinue')}
-                    </p>
-                  ) : null}
                   <AlertDialog
                     open={showSwitchDialog}
                     onOpenChange={setShowSwitchDialog}
@@ -323,14 +323,9 @@ function LoginPage(): React.JSX.Element {
               ) : (
                 // Fresh login - no existing tokens
                 <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-backwards space-y-4 delay-800 duration-500">
-                  <div className="space-y-1 text-center">
-                    <p className="text-muted-foreground text-sm">
-                      {t('login.connectAccount')}
-                    </p>
-                    <p className="text-muted-foreground/70 text-xs">
-                      {t('login.oauthNote')}
-                    </p>
-                  </div>
+                  <p className="text-muted-foreground text-center text-sm">
+                    {t('login.connectAccount')}
+                  </p>
                   <Button
                     onClick={() => void handleOAuthLogin()}
                     className="w-full"
@@ -346,11 +341,6 @@ function LoginPage(): React.JSX.Element {
                       t('auth.signInWithDiscogs')
                     )}
                   </Button>
-                  {isLoading ? (
-                    <p className="text-muted-foreground animate-pulse text-center text-xs">
-                      {t('login.redirectingHint')}
-                    </p>
-                  ) : null}
                   <p className="text-muted-foreground text-center text-xs">
                     {t('login.noAccount')}{' '}
                     <a

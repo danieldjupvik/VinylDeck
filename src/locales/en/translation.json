@@ -6,10 +6,8 @@
   "login": {
     "subtitle": "Your vinyl collection, beautifully organized",
     "connectAccount": "Sign in with your Discogs account",
-    "oauthNote": "You'll be redirected to Discogs to authorize access.",
     "noAccount": "Don't have an account?",
     "createAccount": "Create one on Discogs",
-    "redirectingHint": "You'll return here after authorizing",
     "publicBrowse": {
       "title": "Or browse a public collection",
       "placeholder": "Enter Discogs username",
@@ -225,6 +223,10 @@
     "notFound": "Page not found"
   },
   "user": {
-    "fallback": "User"
+    "fallback": "User",
+    "status": {
+      "online": "Online",
+      "offline": "Offline"
+    }
   }
 }

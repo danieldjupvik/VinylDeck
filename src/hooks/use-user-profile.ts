@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 
 import { trpc } from '@/lib/trpc'
@@ -10,22 +10,24 @@ export interface UserProfile {
   email?: string
 }
 
+/** Query key for user profile cache */
+export const USER_PROFILE_QUERY_KEY = ['userProfile'] as const
+
 /**
  * Manages user profile data via TanStack Query cache.
  * Profile is persisted to IndexedDB for offline access.
  *
- * - Data is set manually via fetchProfile(), not via useQuery
+ * - Data is set manually via fetchProfile(), not via useQuery's queryFn
  * - Call fetchProfile() on login/continue/reconnect
  * - Profile is cleared when disconnect() is called
  *
- * Note: We use queryClient directly instead of useQuery because:
- * 1. Profile should only be fetched explicitly, not via refetch()
- * 2. We need to pass tokens directly (not read from store) to avoid timing issues
- * 3. We want manual control over loading state
+ * Uses useQuery with enabled: false to subscribe to cache updates
+ * (including IndexedDB hydration) while preventing automatic fetches.
  */
 export function useUserProfile(): {
   profile: UserProfile | undefined
   isFetching: boolean
+  error: Error | null
   fetchProfile: (
     username: string,
     tokens: { accessToken: string; accessTokenSecret: string }
@@ -35,9 +37,17 @@ export function useUserProfile(): {
   const queryClient = useQueryClient()
   const trpcUtils = trpc.useUtils()
   const [isFetching, setIsFetching] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
 
-  // Read profile directly from query cache
-  const profile = queryClient.getQueryData<UserProfile>(['userProfile'])
+  // Subscribe to profile cache updates (including IndexedDB restoration)
+  // enabled: false prevents automatic fetching - we fetch manually via fetchProfile()
+  const { data: profileData } = useQuery<UserProfile | null>({
+    queryKey: USER_PROFILE_QUERY_KEY,
+    queryFn: () =>
+      queryClient.getQueryData<UserProfile>(USER_PROFILE_QUERY_KEY) ?? null,
+    enabled: false,
+    staleTime: Infinity
+  })
 
   /**
    * Fetches profile from API and caches it.
@@ -52,6 +62,7 @@ export function useUserProfile(): {
     tokens: { accessToken: string; accessTokenSecret: string }
   ): Promise<UserProfile> => {
     setIsFetching(true)
+    setError(null)
     try {
       const { profile } = await trpcUtils.client.discogs.getUserProfile.query({
         accessToken: tokens.accessToken,
@@ -67,8 +78,13 @@ export function useUserProfile(): {
         ...(profile.email !== undefined && { email: profile.email })
       }
 
-      queryClient.setQueryData(['userProfile'], userProfile)
+      queryClient.setQueryData(USER_PROFILE_QUERY_KEY, userProfile)
       return userProfile
+    } catch (err) {
+      const fetchError =
+        err instanceof Error ? err : new Error('Failed to fetch profile')
+      setError(fetchError)
+      throw fetchError
     } finally {
       setIsFetching(false)
     }
@@ -79,12 +95,13 @@ export function useUserProfile(): {
    * Called during disconnect flow.
    */
   const clearProfile = () => {
-    queryClient.removeQueries({ queryKey: ['userProfile'] })
+    queryClient.removeQueries({ queryKey: USER_PROFILE_QUERY_KEY })
   }
 
   return {
-    profile,
+    profile: profileData ?? undefined,
     isFetching,
+    error,
     fetchProfile,
     clearProfile
   }

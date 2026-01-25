@@ -28,21 +28,22 @@ export function useCollectionSync(): {
   const username = profile?.username
 
   // Fast metadata check (auto-refetches on window focus)
-  const { data: meta } = trpc.discogs.getCollectionMetadata.useQuery(
-    tokens && username
-      ? {
-          accessToken: tokens.accessToken,
-          accessTokenSecret: tokens.accessTokenSecret,
-          username
-        }
-      : { accessToken: '', accessTokenSecret: '', username: '' },
-    {
-      enabled: Boolean(tokens && username),
-      refetchOnWindowFocus: true,
-      refetchInterval: 60 * 1000,
-      staleTime: 10 * 1000 // 10 seconds - responsive tab-switch detection (metadata check is cheap)
-    }
-  )
+  const { data: meta, isSuccess: isMetaSuccess } =
+    trpc.discogs.getCollectionMetadata.useQuery(
+      tokens && username
+        ? {
+            accessToken: tokens.accessToken,
+            accessTokenSecret: tokens.accessTokenSecret,
+            username
+          }
+        : { accessToken: '', accessTokenSecret: '', username: '' },
+      {
+        enabled: Boolean(tokens && username),
+        refetchOnWindowFocus: true,
+        refetchInterval: 60 * 1000,
+        staleTime: 10 * 1000 // 10 seconds - responsive tab-switch detection (metadata check is cheap)
+      }
+    )
 
   // Critical: Must match on stable prefix ['collection', username] not ['collection', username, 'all']
   // because the query key varies based on filters (page number vs 'all'). The subscription ensures
@@ -82,14 +83,14 @@ export function useCollectionSync(): {
   const hasCachedData = hasCachedDataToken === '1'
   const cachedCount = Number(cachedCountToken)
 
-  // Calculate changes
-  const liveCount = meta?.totalCount ?? 0
+  const hasLiveCount = isMetaSuccess && typeof meta.totalCount === 'number'
+  const liveCount = hasLiveCount ? meta.totalCount : cachedCount
 
-  const hasChanges = hasCachedData && liveCount !== cachedCount
-  const newItemsCount = hasCachedData ? Math.max(0, liveCount - cachedCount) : 0
-  const deletedItemsCount = hasCachedData
-    ? Math.max(0, cachedCount - liveCount)
-    : 0
+  const hasChanges = hasCachedData && hasLiveCount && liveCount !== cachedCount
+  const newItemsCount =
+    hasCachedData && hasLiveCount ? Math.max(0, liveCount - cachedCount) : 0
+  const deletedItemsCount =
+    hasCachedData && hasLiveCount ? Math.max(0, cachedCount - liveCount) : 0
 
   return {
     hasChanges,

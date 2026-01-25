@@ -72,4 +72,4 @@ const AvatarBadge = React.forwardRef<
 })
 AvatarBadge.displayName = 'AvatarBadge'
 
-export { Avatar, AvatarImage, AvatarFallback, AvatarBadge }
+export { Avatar, AvatarBadge, AvatarFallback, AvatarImage }

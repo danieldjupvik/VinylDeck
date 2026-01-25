@@ -6,10 +6,8 @@
   "login": {
     "subtitle": "Din vinylsamling, vakkert organisert",
     "connectAccount": "Logg inn med Discogs-kontoen din",
-    "oauthNote": "Du blir omdirigert til Discogs for å gi tilgang.",
     "noAccount": "Har du ikke en konto?",
     "createAccount": "Opprett en på Discogs",
-    "redirectingHint": "Du kommer tilbake hit etter autorisering",
     "publicBrowse": {
       "title": "Eller bla gjennom en offentlig samling",
       "placeholder": "Skriv inn Discogs-brukernavn",
@@ -225,6 +223,10 @@
     "notFound": "Siden ble ikke funnet"
   },
   "user": {
-    "fallback": "Bruker"
+    "fallback": "Bruker",
+    "status": {
+      "online": "Tilkoblet",
+      "offline": "Frakoblet"
+    }
   }
 }
