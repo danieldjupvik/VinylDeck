@@ -69,7 +69,7 @@ export function useCollectionSync(): {
       const cachedCollection = latestQuery?.state.data as
         | DiscogsCollectionResponse
         | undefined
-      const cachedCount = cachedCollection?.pagination?.items ?? 0
+      const cachedCount = cachedCollection?.pagination.items ?? 0
       const hasCachedData = cachedCollection !== undefined
       return `${hasCachedData ? 1 : 0}|${cachedCount}`
     },

@@ -369,7 +369,7 @@ export function useCollection(
     let total = 0
 
     for (const release of releases) {
-      const formats = release.basic_information.formats ?? []
+      const formats = release.basic_information.formats
       if (isVinylRecord(formats)) continue
       total += 1
       const formatName =
@@ -397,13 +397,13 @@ export function useCollection(
 
     for (const release of vinylOnly) {
       const info = release.basic_information
-      for (const genre of info.genres ?? []) {
+      for (const genre of info.genres) {
         genreCounts.set(genre, (genreCounts.get(genre) ?? 0) + 1)
       }
-      for (const style of info.styles ?? []) {
+      for (const style of info.styles) {
         styleCounts.set(style, (styleCounts.get(style) ?? 0) + 1)
       }
-      for (const label of info.labels ?? []) {
+      for (const label of info.labels) {
         labelCounts.set(label.name, (labelCounts.get(label.name) ?? 0) + 1)
       }
       const { types: releaseTypes, sizes: releaseSizes } =
@@ -507,7 +507,7 @@ export function useCollection(
     const searchLower = search.toLowerCase()
     return vinylOnly.filter((release) => {
       const info = release.basic_information
-      const artistMatch = (info.artists ?? []).some((artist) =>
+      const artistMatch = info.artists.some((artist) =>
         artist.name.toLowerCase().includes(searchLower)
       )
       const titleMatch = info.title.toLowerCase().includes(searchLower)
@@ -523,14 +523,14 @@ export function useCollection(
 
       const matchesGenres =
         selectedGenres.length === 0 ||
-        selectedGenres.some((genre) => info.genres?.includes(genre))
+        selectedGenres.some((genre) => info.genres.includes(genre))
       const matchesStyles =
         selectedStyles.length === 0 ||
-        selectedStyles.some((style) => info.styles?.includes(style))
+        selectedStyles.some((style) => info.styles.includes(style))
       const matchesLabels =
         selectedLabels.length === 0 ||
         selectedLabels.some((label) =>
-          info.labels?.some((item) => item.name === label)
+          info.labels.some((item) => item.name === label)
         )
       const matchesTypes =
         selectedTypes.length === 0 ||
@@ -576,8 +576,8 @@ export function useCollection(
     if (sort === 'genre') {
       const order = sortOrder === 'asc' ? 1 : -1
       return [...filteredReleases].sort((a, b) => {
-        const aGenre = a.basic_information.genres?.[0] ?? ''
-        const bGenre = b.basic_information.genres?.[0] ?? ''
+        const aGenre = a.basic_information.genres[0] ?? ''
+        const bGenre = b.basic_information.genres[0] ?? ''
         const primaryCompare = aGenre.localeCompare(bGenre, undefined, {
           sensitivity: 'base'
         })
@@ -603,9 +603,12 @@ export function useCollection(
       const copy = [...filteredReleases]
       for (let i = copy.length - 1; i > 0; i -= 1) {
         const j = Math.floor(next() * (i + 1))
-        const temp = copy[i]!
-        copy[i] = copy[j]!
-        copy[j] = temp
+        const itemI = copy[i]
+        const itemJ = copy[j]
+        if (itemI !== undefined && itemJ !== undefined) {
+          copy[i] = itemJ
+          copy[j] = itemI
+        }
       }
       return copy
     }

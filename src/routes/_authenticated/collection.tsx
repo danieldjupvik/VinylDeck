@@ -98,17 +98,16 @@ function CollectionPage() {
 
     const getFormatter = (unit: Intl.RelativeTimeFormatUnit) => {
       const key = `${i18n.language}-${unit}`
-      if (!cache.has(key)) {
-        cache.set(
-          key,
-          new Intl.NumberFormat(i18n.language, {
-            style: 'unit',
-            unit,
-            unitDisplay: 'short'
-          })
-        )
+      let formatter = cache.get(key)
+      if (!formatter) {
+        formatter = new Intl.NumberFormat(i18n.language, {
+          style: 'unit',
+          unit,
+          unitDisplay: 'short'
+        })
+        cache.set(key, formatter)
       }
-      return cache.get(key)!
+      return formatter
     }
 
     return { getFormatter }

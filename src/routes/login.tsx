@@ -230,7 +230,7 @@ function LoginPage(): React.JSX.Element {
                       {cachedProfile?.avatar_url?.trim() ? (
                         <AvatarImage
                           src={cachedProfile.avatar_url}
-                          alt={storedUsername ?? ''}
+                          alt={storedUsername}
                         />
                       ) : null}
                       <AvatarFallback className="text-lg font-medium">

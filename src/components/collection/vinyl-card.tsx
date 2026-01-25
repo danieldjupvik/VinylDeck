@@ -224,9 +224,7 @@ export function VinylCard({
   const showCoverImage = Boolean(coverImage) && !imageErrored
   const year = info.year > 0 ? info.year : null
   const genreParts =
-    info.genres && info.genres.length > 0
-      ? getLimitedGenreParts(info.genres)
-      : []
+    info.genres.length > 0 ? getLimitedGenreParts(info.genres) : []
   const genreList = (() => {
     if (genreParts.length === 2) {
       return `${genreParts[0]} & ${genreParts[1]}`
