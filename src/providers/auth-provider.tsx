@@ -87,7 +87,8 @@ export function AuthProvider({
             ...(profile.email && { email: profile.email })
           })
 
-          avatarUrl = profile.avatar_url
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- defensive: Discogs API may omit avatar_url for some profiles despite library types
+          avatarUrl = profile.avatar_url ?? null
 
           // Update gravatar email from profile if not already set
           if (!latestGravatarEmailRef.current && profile.email) {

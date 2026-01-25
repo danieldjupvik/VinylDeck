@@ -303,7 +303,10 @@ export function useCollection(
         })
 
         // Update rate limiter from response
-        rateLimiter.updateFromRateLimit(result.rateLimit)
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- defensive: rateLimit headers may be absent in edge cases (proxies, maintenance) despite library types
+        if (result.rateLimit) {
+          rateLimiter.updateFromRateLimit(result.rateLimit)
+        }
 
         return result
       }
