@@ -139,6 +139,14 @@ export default defineConfig([
           ],
           pathGroupsExcludedImportTypes: ['builtin']
         }
+      ],
+      // Allow numbers and booleans in template literals (safe coercion)
+      '@typescript-eslint/restrict-template-expressions': [
+        'error',
+        {
+          allowNumber: true,
+          allowBoolean: true
+        }
       ]
     }
   },

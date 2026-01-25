@@ -149,7 +149,7 @@ export function CollectionToolbar({
           variant="outline"
           size="icon-sm"
           onClick={toggleSortOrder}
-          disabled={Boolean(isRandomSort && !canReshuffle)}
+          disabled={isRandomSort ? !canReshuffle : false}
           title={sortOrderLabel}
           aria-label={sortOrderLabel}
           className="transition-all duration-200 hover:scale-110"
