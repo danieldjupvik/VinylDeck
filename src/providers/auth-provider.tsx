@@ -87,7 +87,7 @@ export function AuthProvider({
             ...(profile.email && { email: profile.email })
           })
 
-          avatarUrl = profile.avatar_url ?? null
+          avatarUrl = profile.avatar_url
 
           // Update gravatar email from profile if not already set
           if (!latestGravatarEmailRef.current && profile.email) {

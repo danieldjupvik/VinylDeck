@@ -19,10 +19,7 @@ const normalizeLanguage = (value: string) => {
 
 const detectLanguage = () => {
   if (typeof navigator === 'undefined') return 'en'
-  const candidate =
-    (navigator.languages && navigator.languages[0]) ||
-    navigator.language ||
-    'en'
+  const candidate = navigator.languages[0] || navigator.language || 'en'
   return normalizeLanguage(candidate)
 }
 

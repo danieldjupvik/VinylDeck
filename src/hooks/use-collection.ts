@@ -303,9 +303,7 @@ export function useCollection(
         })
 
         // Update rate limiter from response
-        if (result.rateLimit) {
-          rateLimiter.updateFromRateLimit(result.rateLimit)
-        }
+        rateLimiter.updateFromRateLimit(result.rateLimit)
 
         return result
       }
