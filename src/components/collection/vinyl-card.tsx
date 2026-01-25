@@ -224,9 +224,7 @@ export function VinylCard({
   const showCoverImage = Boolean(coverImage) && !imageErrored
   const year = info.year > 0 ? info.year : null
   const genreParts =
-    info.genres && info.genres.length > 0
-      ? getLimitedGenreParts(info.genres)
-      : []
+    info.genres.length > 0 ? getLimitedGenreParts(info.genres) : []
   const genreList = (() => {
     if (genreParts.length === 2) {
       return `${genreParts[0]} & ${genreParts[1]}`
@@ -257,7 +255,9 @@ export function VinylCard({
             alt={`${artistName} - ${info.title}`}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
             loading="lazy"
-            onError={() => setImageErrored(true)}
+            onError={() => {
+              setImageErrored(true)
+            }}
           />
         ) : (
           <div className="bg-muted flex h-full w-full items-center justify-center">

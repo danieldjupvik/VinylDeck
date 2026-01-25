@@ -91,7 +91,9 @@ export function CollectionToolbar({
           placeholder={t('collection.search')}
           aria-label={t('collection.search')}
           value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={(e) => {
+            onSearchChange(e.target.value)
+          }}
           className="pl-9"
         />
       </div>
@@ -147,7 +149,7 @@ export function CollectionToolbar({
           variant="outline"
           size="icon-sm"
           onClick={toggleSortOrder}
-          disabled={Boolean(isRandomSort && !canReshuffle)}
+          disabled={isRandomSort ? !canReshuffle : false}
           title={sortOrderLabel}
           aria-label={sortOrderLabel}
           className="transition-all duration-200 hover:scale-110"

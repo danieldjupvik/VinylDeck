@@ -57,6 +57,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@hono/node-server": "^1.19.9",
+    "@tanstack/eslint-plugin-query": "^5.91.3",
     "@tanstack/router-devtools": "^1.150.0",
     "@tanstack/router-plugin": "^1.150.0",
     "@types/blueimp-md5": "^2.18.0",

@@ -26,7 +26,7 @@ interface VinylTableProps {
 
 const formatFormats = (formats: DiscogsFormat[]) => {
   const unique = Array.from(
-    new Set((formats ?? []).map((format) => format.name).filter(Boolean))
+    new Set(formats.map((format) => format.name).filter(Boolean))
   )
   return unique.join(', ')
 }
@@ -46,16 +46,14 @@ function VinylTableRow({
 }: VinylTableRowProps) {
   const [imageError, setImageError] = useState(false)
   const info = release.basic_information
-  const artistName = info.artists?.length
+  const artistName = info.artists.length
     ? info.artists.map((artist) => artist.name).join(', ')
     : t('collection.unknownArtist')
   const coverImage = info.cover_image || info.thumb
   const year = info.year > 0 ? info.year : null
-  const genreParts = info.genres?.length
-    ? getLimitedGenreParts(info.genres)
-    : []
+  const genreParts = info.genres.length ? getLimitedGenreParts(info.genres) : []
   const genreText = genreParts.length ? genreParts.join(', ') : null
-  const labelText = info.labels?.[0]?.name ?? null
+  const labelText = info.labels[0]?.name ?? null
   const formatText = formatFormats(info.formats)
   const animationDelay = Math.min(index * 30, 300)
   const showImage = Boolean(coverImage) && !imageError
@@ -76,7 +74,9 @@ function VinylTableRow({
             alt={`${artistName} - ${info.title}`}
             className="bg-muted/40 h-10 w-10 rounded-sm object-contain"
             loading="lazy"
-            onError={() => setImageError(true)}
+            onError={() => {
+              setImageError(true)
+            }}
           />
         ) : (
           <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-sm">

@@ -86,7 +86,7 @@ export const oauthRouter = router({
   getRequestToken: publicProcedure
     .input(
       z.object({
-        callbackUrl: z.string().url()
+        callbackUrl: z.url()
       })
     )
     .mutation(async ({ input }) => {

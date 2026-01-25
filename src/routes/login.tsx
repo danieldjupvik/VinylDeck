@@ -230,7 +230,7 @@ function LoginPage(): React.JSX.Element {
                       {cachedProfile?.avatar_url?.trim() ? (
                         <AvatarImage
                           src={cachedProfile.avatar_url}
-                          alt={storedUsername ?? ''}
+                          alt={storedUsername}
                         />
                       ) : null}
                       <AvatarFallback className="text-lg font-medium">
@@ -325,11 +325,11 @@ function LoginPage(): React.JSX.Element {
                       t('auth.signInWithDiscogs')
                     )}
                   </Button>
-                  {isLoading === true && (
+                  {isLoading ? (
                     <p className="text-muted-foreground animate-pulse text-center text-xs">
                       {t('login.redirectingHint')}
                     </p>
-                  )}
+                  ) : null}
                   <p className="text-muted-foreground text-center text-xs">
                     {t('login.noAccount')}{' '}
                     <a
