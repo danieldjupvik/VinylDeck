@@ -220,7 +220,9 @@ export function useCollection(
     }
 
     window.addEventListener('popstate', handlePopState)
-    return () => { window.removeEventListener('popstate', handlePopState); }
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
   }, [])
 
   const serverSort: DiscogsCollectionSortKey = isClientSort

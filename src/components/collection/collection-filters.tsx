@@ -99,9 +99,9 @@ function FilterGroup({
                 <Checkbox
                   id={id}
                   checked={isChecked}
-                  onCheckedChange={() =>
-                    { onChange(toggleValue(selected, option.value)); }
-                  }
+                  onCheckedChange={() => {
+                    onChange(toggleValue(selected, option.value))
+                  }}
                 />
                 <span className="line-clamp-1 flex-1">
                   <span className="text-muted-foreground text-xs tabular-nums">
