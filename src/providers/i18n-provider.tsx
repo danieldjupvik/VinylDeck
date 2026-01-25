@@ -19,7 +19,8 @@ const normalizeLanguage = (value: string) => {
 
 const detectLanguage = () => {
   if (typeof navigator === 'undefined') return 'en'
-  const candidate = navigator.languages[0] || navigator.language || 'en'
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- navigator.languages may be undefined in older browsers (pre-2017) or embedded WebViews despite TypeScript DOM types
+  const candidate = navigator.languages?.[0] ?? navigator.language ?? 'en'
   return normalizeLanguage(candidate)
 }
 
