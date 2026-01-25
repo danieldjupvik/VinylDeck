@@ -60,7 +60,8 @@ reviews:
         Review TypeScript and React code for conformity with best practices.
         Check: proper hook usage (dependency arrays in useEffect/useMemo/useCallback),
         accessibility (a11y), avoid `any` types (prefer `unknown`), explicit return types
-        on exported functions, proper error handling, and component composition patterns.
+        on exported functions returning values (omit `: void` - TypeScript infers it),
+        proper error handling, and component composition patterns.
         Ensure internationalization strings are externalized (i18next).
     - path: 'vite.config.ts'
       instructions: >-
@@ -110,7 +111,7 @@ reviews:
       mode: warning
     custom_checks:
       - name: 'Type Safety'
-        instructions: 'Verify no `any` types are introduced without justification. Check that exported functions have explicit return types.'
+        instructions: 'Verify no `any` types are introduced without justification. Check that exported functions returning values have explicit return types (omit `: void` for void-returning functions).'
         mode: warning
       - name: 'Debug Statements'
         instructions: 'Ensure no console.log/debugger statements are left in production code. console.warn/error are OK when justified.'
