@@ -116,9 +116,8 @@ function SettingsPage() {
   const { avatarSource, gravatarUrl, setAvatarSource } = usePreferences()
   const { theme, setTheme } = useTheme()
   const navigate = useNavigate()
-  const currentLanguage = normalizeLanguage(
-    i18n.resolvedLanguage ?? i18n.language ?? 'en'
-  )
+  // i18n.language is always defined as string, normalizeLanguage defaults unknown languages to 'en'
+  const currentLanguage = normalizeLanguage(i18n.language)
 
   const handleDisconnect = (): void => {
     disconnect()

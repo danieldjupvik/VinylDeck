@@ -54,9 +54,8 @@ export function LanguageToggle({
   className
 }: LanguageToggleProps): React.JSX.Element {
   const { i18n, t } = useTranslation()
-  const currentLanguage = normalizeLanguage(
-    i18n.resolvedLanguage ?? i18n.language ?? 'en'
-  )
+  // i18n.language is always defined as string, normalizeLanguage defaults unknown languages to 'en'
+  const currentLanguage = normalizeLanguage(i18n.language)
 
   return (
     <DropdownMenu>

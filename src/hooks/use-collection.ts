@@ -642,8 +642,10 @@ export function useCollection(
       [FILTER_PARAM_KEYS.types]: selectedTypes,
       [FILTER_PARAM_KEYS.sizes]: selectedSizes,
       [FILTER_PARAM_KEYS.countries]: selectedCountries,
-      [FILTER_PARAM_KEYS.yearRange]:
-        yearRangeActive && yearRange ? `${yearRange[0]}-${yearRange[1]}` : null
+      // yearRangeActive already implies yearRange is truthy (see its definition above)
+      [FILTER_PARAM_KEYS.yearRange]: yearRangeActive
+        ? `${yearRange[0]}-${yearRange[1]}`
+        : null
     })
   }, [
     selectedGenres,
