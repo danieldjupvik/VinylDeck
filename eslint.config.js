@@ -1,3 +1,4 @@
+import pluginQuery from '@tanstack/eslint-plugin-query'
 import js from '@eslint/js'
 import eslintConfigPrettier from 'eslint-config-prettier/flat'
 import i18next from 'eslint-plugin-i18next'
@@ -28,7 +29,8 @@ export default defineConfig([
       tseslint.configs.strictTypeChecked,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
-      i18next.configs['flat/recommended']
+      i18next.configs['flat/recommended'],
+      pluginQuery.configs['flat/recommended']
     ],
     languageOptions: {
       ecmaVersion: 'latest',

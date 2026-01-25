@@ -279,7 +279,9 @@ export function useCollection(
     queryKey: [
       'collection',
       username,
-      shouldFetchAllPages ? 'all' : page,
+      oauthTokens,
+      shouldFetchAllPages,
+      shouldFetchAllPages ? null : page,
       serverSort,
       serverSortOrder
     ],
