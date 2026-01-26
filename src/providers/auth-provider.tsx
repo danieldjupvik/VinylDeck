@@ -78,6 +78,9 @@ export function AuthProvider({
   // Track if we've completed initialization to avoid repeated network validation
   const hasInitializedRef = useRef(false)
 
+  // Track previous online state to detect offline→online transitions
+  const wasOnlineRef = useRef(isOnline)
+
   const [state, setState] = useState<AuthState>({
     isAuthenticated: false,
     isLoading: true,
@@ -591,18 +594,26 @@ export function AuthProvider({
 
   // Revalidate tokens when coming back online (background validation, no loader)
   useEffect(() => {
-    // Only trigger when:
-    // - We just came online (isOnline is true)
-    // - We have an active session
-    // - We're currently authenticated
-    // - We have tokens to validate
-    if (isOnline && sessionActive && state.isAuthenticated && authTokens) {
-      // Use background validation - user stays authenticated, no loader shown
-      // If tokens are invalid (401/403), they'll be disconnected silently
+    const wasOffline = !wasOnlineRef.current
+    wasOnlineRef.current = isOnline
+
+    // Only trigger on offline→online transition with active authenticated session
+    if (
+      wasOffline &&
+      isOnline &&
+      sessionActive &&
+      state.isAuthenticated &&
+      authTokens
+    ) {
       validateTokensInBackground(authTokens)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only trigger on isOnline change
-  }, [isOnline])
+  }, [
+    isOnline,
+    sessionActive,
+    state.isAuthenticated,
+    authTokens,
+    validateTokensInBackground
+  ])
 
   /**
    * Sign out - ends session but preserves OAuth tokens.
