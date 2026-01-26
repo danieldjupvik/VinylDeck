@@ -144,22 +144,29 @@ export function AuthProvider({
   /**
    * Clears all cached data: TanStack Query, IndexedDB, and browser caches.
    * Used during disconnect, auth errors, and cross-tab sync.
+   *
+   * Cache clearing is deferred to the next microtask to prevent React warnings
+   * about updating components (e.g., CollectionSyncBanner) while rendering
+   * another component (AuthProvider). This happens because queryClient.clear()
+   * synchronously notifies cache subscribers via useSyncExternalStore.
    */
   const clearAllCaches = useCallback(() => {
-    // Clear TanStack Query in-memory cache
-    queryClient.clear()
+    queueMicrotask(() => {
+      // Clear TanStack Query in-memory cache
+      queryClient.clear()
 
-    // Clear IndexedDB via the persister
-    void queryPersister.removeClient()
+      // Clear IndexedDB via the persister
+      void queryPersister.removeClient()
 
-    // Clear browser caches for sensitive data
-    if ('caches' in window) {
-      Object.values(CACHE_NAMES).forEach((name) => {
-        caches.delete(name).catch(() => {
-          // Ignore errors if cache doesn't exist
+      // Clear browser caches for sensitive data
+      if ('caches' in window) {
+        Object.values(CACHE_NAMES).forEach((name) => {
+          caches.delete(name).catch(() => {
+            // Ignore errors if cache doesn't exist
+          })
         })
-      })
-    }
+      }
+    })
   }, [queryClient])
 
   /**
