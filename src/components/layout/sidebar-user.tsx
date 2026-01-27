@@ -20,11 +20,17 @@ import {
   SidebarMenuItem,
   useSidebar
 } from '@/components/ui/sidebar'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import { useAuth } from '@/hooks/use-auth'
 import { useOnlineStatus } from '@/hooks/use-online-status'
 import { usePreferences } from '@/hooks/use-preferences'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { storeRedirectUrl } from '@/lib/redirect-utils'
+import { cn } from '@/lib/utils'
 
 import type { MouseEvent } from 'react'
 
@@ -37,7 +43,7 @@ export function SidebarUser(): React.JSX.Element {
   const navigate = useNavigate()
   const location = useRouterState({ select: (s) => s.location })
   const routeLocation = useLocation()
-  const { isMobile, setOpenMobile } = useSidebar()
+  const { isMobile, setOpenMobile, state } = useSidebar()
 
   const username = profile?.username
   const avatarUrl = profile?.avatar_url
@@ -125,26 +131,34 @@ export function SidebarUser(): React.JSX.Element {
       {/* User info row */}
       <SidebarMenuItem>
         <div className="flex h-12 w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0! [&>span:last-child]:truncate">
-          <Avatar className="h-8 w-8 rounded-lg group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5">
-            {resolvedAvatar ? (
-              <AvatarImage
-                src={resolvedAvatar}
-                alt={username ?? t('user.fallback')}
-                className="rounded-lg object-cover"
-              />
-            ) : null}
-            <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
-            <AvatarBadge
-              className={
-                isOnline
-                  ? 'bg-green-500 dark:bg-green-600'
-                  : 'bg-muted-foreground/50'
-              }
-              aria-label={t(
-                isOnline ? 'user.status.online' : 'user.status.offline'
-              )}
-            />
-          </Avatar>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Avatar className="ring-border h-8 w-8 overflow-visible ring-2 group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5">
+                {resolvedAvatar ? (
+                  <AvatarImage
+                    src={resolvedAvatar}
+                    alt={username ?? t('user.fallback')}
+                  />
+                ) : null}
+                <AvatarFallback>{initials}</AvatarFallback>
+                <AvatarBadge
+                  className={cn(
+                    isOnline ? 'bg-green-500 dark:bg-green-600' : 'bg-red-600',
+                    'group-data-[collapsible=icon]:!size-1.5'
+                  )}
+                  aria-label={t(
+                    isOnline ? 'user.status.online' : 'user.status.offline'
+                  )}
+                />
+              </Avatar>
+            </TooltipTrigger>
+            <TooltipContent
+              side={state === 'collapsed' && !isMobile ? 'right' : 'top'}
+              align="center"
+            >
+              {t(isOnline ? 'user.status.online' : 'user.status.offline')}
+            </TooltipContent>
+          </Tooltip>
           <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
             <span className="truncate font-medium">{username}</span>
           </div>

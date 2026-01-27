@@ -18,7 +18,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  Avatar,
+  AvatarBadge,
+  AvatarFallback,
+  AvatarImage
+} from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -240,7 +245,7 @@ function LoginPage(): React.JSX.Element {
                 // Welcome back flow - user has existing tokens
                 <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-backwards space-y-4 delay-800 duration-500">
                   <div className="mb-4 flex flex-col items-center gap-3">
-                    <Avatar className="ring-border size-16 ring-2">
+                    <Avatar className="ring-border size-12 overflow-visible ring-2">
                       {cachedAvatarUrl?.trim() ? (
                         <AvatarImage
                           src={cachedAvatarUrl}
@@ -250,6 +255,18 @@ function LoginPage(): React.JSX.Element {
                       <AvatarFallback className="text-lg font-medium">
                         {initials}
                       </AvatarFallback>
+                      <AvatarBadge
+                        className={
+                          isOnline
+                            ? 'bg-green-500 dark:bg-green-600'
+                            : 'bg-red-600'
+                        }
+                        aria-label={t(
+                          isOnline
+                            ? 'user.status.online'
+                            : 'user.status.offline'
+                        )}
+                      />
                     </Avatar>
                     <p className="text-lg font-medium">
                       {username
