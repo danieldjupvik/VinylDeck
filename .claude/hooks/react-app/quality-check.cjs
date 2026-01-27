@@ -865,7 +865,7 @@ class QualityChecker {
       } else {
         // Check allowed paths
         const allowedPaths = consoleRule.allowIn?.paths || [];
-        if (allowedPaths.some((path) => this.filePath.includes(path))) {
+        if (allowedPaths.some((allowedPath) => this.filePath.includes(allowedPath))) {
           allowConsole = true;
         }
 

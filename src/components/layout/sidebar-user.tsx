@@ -133,24 +133,30 @@ export function SidebarUser(): React.JSX.Element {
         <div className="flex h-12 w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0! [&>span:last-child]:truncate">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Avatar className="ring-border h-8 w-8 overflow-visible ring-2 group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5">
-                {resolvedAvatar ? (
-                  <AvatarImage
-                    src={resolvedAvatar}
-                    alt={username ?? t('user.fallback')}
+              <span
+                role="button"
+                tabIndex={0}
+                className="cursor-default"
+                aria-label={`${username ?? t('user.fallback')} - ${t(isOnline ? 'user.status.online' : 'user.status.offline')}`}
+              >
+                <Avatar className="ring-border h-8 w-8 overflow-visible ring-2 group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5">
+                  {resolvedAvatar ? (
+                    <AvatarImage
+                      src={resolvedAvatar}
+                      alt={username ?? t('user.fallback')}
+                    />
+                  ) : null}
+                  <AvatarFallback>{initials}</AvatarFallback>
+                  <AvatarBadge
+                    className={cn(
+                      isOnline
+                        ? 'bg-green-500 dark:bg-green-600'
+                        : 'bg-red-600',
+                      'group-data-[collapsible=icon]:!size-1.5'
+                    )}
                   />
-                ) : null}
-                <AvatarFallback>{initials}</AvatarFallback>
-                <AvatarBadge
-                  className={cn(
-                    isOnline ? 'bg-green-500 dark:bg-green-600' : 'bg-red-600',
-                    'group-data-[collapsible=icon]:!size-1.5'
-                  )}
-                  aria-label={t(
-                    isOnline ? 'user.status.online' : 'user.status.offline'
-                  )}
-                />
-              </Avatar>
+                </Avatar>
+              </span>
             </TooltipTrigger>
             <TooltipContent
               side={state === 'collapsed' && !isMobile ? 'right' : 'top'}

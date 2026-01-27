@@ -88,6 +88,21 @@ function QueryProviderInner({
   )
 }
 
+/**
+ * Provides TanStack Query client with tRPC integration and IndexedDB persistence.
+ * Composes HydrationProvider for tracking cache restoration state.
+ *
+ * @param props - Component props
+ * @param props.children - The app component tree
+ * @returns Provider wrapper with query client and persistence
+ *
+ * @example
+ * ```tsx
+ * <QueryProvider>
+ *   <App />
+ * </QueryProvider>
+ * ```
+ */
 export function QueryProvider({
   children
 }: QueryProviderProps): React.JSX.Element {

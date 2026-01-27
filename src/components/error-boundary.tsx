@@ -88,6 +88,17 @@ function ErrorFallback({
 /**
  * App-level error boundary with TanStack Query integration.
  * Catches unexpected React errors and provides a retry mechanism.
+ *
+ * @param props - Component props
+ * @param props.children - The component tree to wrap with error boundary
+ * @returns The wrapped children or error fallback UI
+ *
+ * @example
+ * ```tsx
+ * <AppErrorBoundary>
+ *   <App />
+ * </AppErrorBoundary>
+ * ```
  */
 export function AppErrorBoundary({
   children
