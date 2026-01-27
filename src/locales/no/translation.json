@@ -217,10 +217,17 @@
   },
   "errors": {
     "generic": "Noe gikk galt",
+    "oopsTitle": "Oops! Traff en feil tone",
+    "unexpectedErrorDescription": "Noe uventet skjedde.\nLa oss få deg tilbake på sporet.",
+    "collectionLoadFailed": "Vi kunne ikke laste samlingen din.\nSjekk tilkoblingen og prøv igjen.",
     "network": "Nettverksfeil. Prøv igjen.",
     "rateLimit": "For mange forespørsler. Vent litt.",
     "unauthorized": "Økten er utløpt. Logg inn på nytt.",
-    "notFound": "Siden ble ikke funnet"
+    "notFoundTitle": "Borte i platehyllene",
+    "notFoundDescription": "Denne siden har visst forsvunnet.\nLa oss ta deg tilbake til samlingen.",
+    "notFound": "Siden ble ikke funnet",
+    "tryAgain": "Prøv igjen",
+    "backHome": "Tilbake til samlingen"
   },
   "user": {
     "fallback": "Bruker",

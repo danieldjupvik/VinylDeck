@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { BrandMark } from '@/components/layout/brand-mark'
+import { GradientBackground } from '@/components/layout/gradient-background'
 import { LanguageToggle } from '@/components/layout/language-toggle'
 import { ModeToggle } from '@/components/layout/mode-toggle'
 import {
@@ -36,7 +37,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/use-auth'
 import { useUserProfile } from '@/hooks/use-user-profile'
-import { OfflineNoCacheError } from '@/lib/errors'
+import { isAuthError, OfflineNoCacheError } from '@/lib/errors'
 import { setOAuthRequestTokens } from '@/lib/oauth-session'
 import { getAndClearRedirectUrl } from '@/lib/redirect-utils'
 import { trpc } from '@/lib/trpc'
@@ -138,11 +139,18 @@ function LoginPage(): React.JSX.Element {
       await establishSession()
       // Navigation handled by isAuthenticated effect
     } catch (err) {
-      // Handle specific offline error with type-safe check
-      const errorMessage =
-        err instanceof OfflineNoCacheError
-          ? t('auth.offlineNoCachedData')
-          : t('auth.oauthSessionExpired')
+      // Determine appropriate error message:
+      // - Offline without cache: show offline message
+      // - Auth errors (401/403): session expired, tokens invalid
+      // - Transient errors (5xx, network): validation failed, try again
+      let errorMessage: string
+      if (err instanceof OfflineNoCacheError) {
+        errorMessage = t('auth.offlineNoCachedData')
+      } else if (isAuthError(err)) {
+        errorMessage = t('auth.oauthSessionExpired')
+      } else {
+        errorMessage = t('auth.oauthValidationFailed')
+      }
       setError(errorMessage)
       toast.error(errorMessage)
     } finally {
@@ -192,12 +200,7 @@ function LoginPage(): React.JSX.Element {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(1200px_circle_at_top,rgba(120,120,120,0.16),transparent_60%)]">
-      {/* Floating gradient orbs */}
-      <div className="bg-primary/15 animate-float-slow pointer-events-none absolute top-12 -left-24 h-64 w-64 rounded-full blur-3xl" />
-      <div className="bg-secondary/25 animate-float-slower pointer-events-none absolute top-1/3 right-[-6rem] h-72 w-72 rounded-full blur-3xl" />
-      <div className="bg-accent/20 animate-float-slowest pointer-events-none absolute bottom-[-6rem] left-1/2 h-72 w-72 -translate-x-1/2 rounded-full blur-3xl" />
-
+    <GradientBackground>
       {/* Theme and language toggles */}
       <div className="animate-in fade-in slide-in-from-top-2 absolute top-4 right-4 z-10 flex items-center gap-2 duration-500">
         <LanguageToggle />
@@ -401,6 +404,6 @@ function LoginPage(): React.JSX.Element {
           </Card>
         </div>
       </div>
-    </div>
+    </GradientBackground>
   )
 }
