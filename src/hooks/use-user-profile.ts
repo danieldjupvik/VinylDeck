@@ -98,11 +98,12 @@ export function useUserProfile(): {
   }
 
   /**
-   * Clears profile from cache.
+   * Clears profile from cache and resets error state.
    * Called during disconnect flow.
    */
   const clearProfile = () => {
     queryClient.removeQueries({ queryKey: USER_PROFILE_QUERY_KEY })
+    setError(null)
   }
 
   return {
