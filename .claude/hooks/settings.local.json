@@ -6,13 +6,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun $CLAUDE_PROJECT_DIR/.claude/hooks/react-app/quality-check.cjs"
+            "command": "node .claude/hooks/vscode-extension/quality-check.js"
           }
         ]
       }
     ]
-  },
-  "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true
   }
 }
