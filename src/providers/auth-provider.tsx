@@ -226,33 +226,27 @@ export function AuthProvider({
   )
 
   /**
-   * Validates OAuth tokens without fetching profile.
-   * Called on page load when online to verify tokens are still valid.
-   * If profile cache is missing after validation, fetches it.
+   * Core auth validation flow shared by validateOAuthTokens and establishSession.
+   * Validates tokens, handles errors, fetches profile, and updates session state.
+   *
+   * @param tokens - OAuth tokens to validate
+   * @param options.forceProfileRefresh - Always fetch profile even if cached
+   * @param options.storeTokens - Whether to persist tokens to store
    */
-  const validateOAuthTokens = useCallback(
-    async (tokens?: {
-      accessToken: string
-      accessTokenSecret: string
-    }): Promise<void> => {
-      const tokensToValidate = tokens ?? authTokens
-
-      if (!tokensToValidate) {
-        throw new Error('No OAuth tokens found')
-      }
-
-      setState((prev) => ({ ...prev, isLoading: true }))
-
+  const performAuthValidation = useCallback(
+    async (
+      tokens: { accessToken: string; accessTokenSecret: string },
+      options: { forceProfileRefresh: boolean; storeTokens: boolean }
+    ): Promise<void> => {
       // Step 1: Validate tokens
       let identity: { username: string; id: number }
       try {
-        identity = await validateTokens(tokensToValidate)
+        identity = await validateTokens(tokens)
       } catch (error) {
         // Only disconnect on auth errors (401/403) - tokens are definitively invalid
         if (isAuthError(error)) {
           disconnectStore()
           clearAllCaches()
-
           setState({
             isAuthenticated: false,
             isLoading: false,
@@ -272,19 +266,16 @@ export function AuthProvider({
             USER_PROFILE_QUERY_KEY
           )
           if (cachedProfile) {
-            // Store tokens if new ones were provided
-            if (tokens) {
-              setTokens(tokensToValidate)
+            if (options.storeTokens) {
+              setTokens(tokens)
             }
-
             setSessionActive(true)
             setState((prev) => ({
               ...prev,
               isAuthenticated: true,
               isLoading: false,
-              oauthTokens: tokensToValidate
+              oauthTokens: tokens
             }))
-            // Don't throw - we successfully recovered using cached state
             return
           }
 
@@ -298,28 +289,21 @@ export function AuthProvider({
         throw error
       }
 
-      // Step 2: Fetch profile if not cached - failure here is non-fatal
-      // (tokens are valid, profile can be fetched later)
+      // Step 2: Fetch profile (conditionally based on cache and forceRefresh)
       const cachedProfile = queryClient.getQueryData<UserProfile>(
         USER_PROFILE_QUERY_KEY
       )
-      if (!cachedProfile) {
+      if (options.forceProfileRefresh || !cachedProfile) {
         try {
-          const userProfile = await fetchProfile(
-            identity.username,
-            tokensToValidate
-          )
-
-          // Update gravatar email from profile if not already set
+          const userProfile = await fetchProfile(identity.username, tokens)
           if (!latestGravatarEmailRef.current && userProfile.email) {
             latestGravatarEmailRef.current = userProfile.email
             setGravatarEmail(userProfile.email)
           }
         } catch (profileError) {
-          // Profile fetch failed but tokens are valid - set minimal profile from identity
-          // This allows collection loading to work (requires username)
+          // Profile fetch failed but tokens are valid - set minimal profile
           console.warn(
-            'Profile fetch failed during token validation, using identity data:',
+            'Profile fetch failed, using identity data:',
             profileError
           )
           const minimalProfile: UserProfile = {
@@ -330,40 +314,62 @@ export function AuthProvider({
         }
       }
 
-      // Store tokens if new ones were provided
-      if (tokens) {
+      // Step 3: Finalize session
+      if (options.storeTokens) {
         setTokens(tokens)
       }
-
       setSessionActive(true)
       setState((prev) => ({
         ...prev,
         isAuthenticated: true,
         isLoading: false,
-        oauthTokens: tokensToValidate
+        oauthTokens: tokens
       }))
     },
     [
-      authTokens,
       validateTokens,
+      disconnectStore,
       clearAllCaches,
       queryClient,
       fetchProfile,
       setGravatarEmail,
       setTokens,
       setSessionActive,
-      disconnectStore,
       isOnline
     ]
   )
 
   /**
-   * Establishes a full session: validates tokens and fetches profile.
+   * Validates OAuth tokens in the background.
+   * Called on page load when online to verify tokens are still valid.
+   * Only fetches profile if not already cached.
+   */
+  const validateOAuthTokens = useCallback(
+    async (tokens?: {
+      accessToken: string
+      accessTokenSecret: string
+    }): Promise<void> => {
+      const tokensToValidate = tokens ?? authTokens
+      if (!tokensToValidate) {
+        throw new Error('No OAuth tokens found')
+      }
+
+      setState((prev) => ({ ...prev, isLoading: true }))
+      await performAuthValidation(tokensToValidate, {
+        forceProfileRefresh: false,
+        storeTokens: Boolean(tokens)
+      })
+    },
+    [authTokens, performAuthValidation]
+  )
+
+  /**
+   * Establishes a full session: validates tokens and fetches fresh profile.
    * Called on login, "Continue" click, and reconnect.
    *
    * OFFLINE BEHAVIOR: If offline and cached profile exists, trusts cached
    * state without network validation. If offline with no cached profile,
-   * throws an error (caller should handle this gracefully).
+   * throws OfflineNoCacheError.
    */
   const establishSession = useCallback(
     async (tokens?: {
@@ -371,7 +377,6 @@ export function AuthProvider({
       accessTokenSecret: string
     }): Promise<void> => {
       const tokensToUse = tokens ?? authTokens
-
       if (!tokensToUse) {
         throw new Error('No OAuth tokens found')
       }
@@ -388,7 +393,6 @@ export function AuthProvider({
           throw new OfflineNoCacheError()
         }
 
-        // Trust cached profile and tokens
         setSessionActive(true)
         setState((prev) => ({
           ...prev,
@@ -399,112 +403,13 @@ export function AuthProvider({
         return
       }
 
-      // ONLINE PATH: validate tokens and fetch profile
-
-      // Step 1: Validate tokens
-      let identity: { username: string; id: number }
-      try {
-        identity = await validateTokens(tokensToUse)
-      } catch (error) {
-        // Only disconnect on auth errors (401/403) - tokens are definitively invalid
-        if (isAuthError(error)) {
-          disconnectStore()
-          clearAllCaches()
-
-          setState({
-            isAuthenticated: false,
-            isLoading: false,
-            isOnline,
-            hasStoredTokens: false,
-            oauthTokens: null
-          })
-        } else {
-          // Transient error (network, 5xx) - keep tokens, try to use cached state
-          console.warn(
-            'Token validation failed due to transient error, will retry later:',
-            error
-          )
-
-          // If we have a cached profile, trust it and authenticate (like offline mode)
-          const cachedProfile = queryClient.getQueryData<UserProfile>(
-            USER_PROFILE_QUERY_KEY
-          )
-          if (cachedProfile) {
-            // Store tokens if new ones were provided
-            if (tokens) {
-              setTokens(tokensToUse)
-            }
-
-            setSessionActive(true)
-            setState((prev) => ({
-              ...prev,
-              isAuthenticated: true,
-              isLoading: false,
-              oauthTokens: tokensToUse
-            }))
-            // Don't throw - we successfully recovered using cached state
-            return
-          }
-
-          // No cached profile - can't authenticate, but keep tokens for retry
-          setState((prev) => ({
-            ...prev,
-            isLoading: false,
-            hasStoredTokens: true
-          }))
-        }
-        throw error
-      }
-
-      // Step 2: Fetch profile - failure here is non-fatal
-      // (tokens are valid, profile can be fetched later)
-      try {
-        const userProfile = await fetchProfile(identity.username, tokensToUse)
-
-        // Update gravatar email from profile if not already set
-        if (!latestGravatarEmailRef.current && userProfile.email) {
-          latestGravatarEmailRef.current = userProfile.email
-          setGravatarEmail(userProfile.email)
-        }
-      } catch (profileError) {
-        // Profile fetch failed but tokens are valid - set minimal profile from identity
-        // This allows collection loading to work (requires username)
-        console.warn(
-          'Profile fetch failed during session establishment, using identity data:',
-          profileError
-        )
-        const minimalProfile: UserProfile = {
-          id: identity.id,
-          username: identity.username
-        }
-        queryClient.setQueryData(USER_PROFILE_QUERY_KEY, minimalProfile)
-      }
-
-      // Store tokens if new ones were provided
-      if (tokens) {
-        setTokens(tokens)
-      }
-
-      setSessionActive(true)
-      setState((prev) => ({
-        ...prev,
-        isAuthenticated: true,
-        isLoading: false,
-        oauthTokens: tokensToUse
-      }))
+      // ONLINE PATH: validate and fetch fresh profile
+      await performAuthValidation(tokensToUse, {
+        forceProfileRefresh: true,
+        storeTokens: Boolean(tokens)
+      })
     },
-    [
-      authTokens,
-      isOnline,
-      clearAllCaches,
-      queryClient,
-      validateTokens,
-      fetchProfile,
-      setGravatarEmail,
-      setTokens,
-      setSessionActive,
-      disconnectStore
-    ]
+    [authTokens, isOnline, queryClient, setSessionActive, performAuthValidation]
   )
 
   // Initialize auth - Zustand hydrates synchronously from localStorage,
