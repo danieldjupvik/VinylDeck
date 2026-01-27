@@ -45,29 +45,18 @@ class ErrorBoundaryInner extends Component<
 
   override render(): ReactNode {
     if (this.state.hasError) {
-      return (
-        <ErrorFallback error={this.state.error} onReset={this.handleReset} />
-      )
+      return <ErrorFallback onReset={this.handleReset} />
     }
     return this.props.children
   }
 }
 
 interface ErrorFallbackProps {
-  error: Error | null
   onReset: () => void
 }
 
-function ErrorFallback({
-  error,
-  onReset
-}: ErrorFallbackProps): React.JSX.Element {
+function ErrorFallback({ onReset }: ErrorFallbackProps): React.JSX.Element {
   const { t } = useTranslation()
-
-  // Log the actual error for debugging (visible in DevTools console)
-  if (error) {
-    console.error('Application error:', error)
-  }
 
   return (
     <GradientBackground>

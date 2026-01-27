@@ -158,8 +158,9 @@ export function AuthProvider({
    */
   const validateTokensInBackground = useCallback(
     (tokens: { accessToken: string; accessTokenSecret: string }) => {
-      validateTokens(tokens)
-        .then(async (identity) => {
+      void (async () => {
+        try {
+          const identity = await validateTokens(tokens)
           // Tokens valid - ensure profile is cached
           const cachedProfile = queryClient.getQueryData<UserProfile>(
             USER_PROFILE_QUERY_KEY
@@ -180,8 +181,7 @@ export function AuthProvider({
               queryClient.setQueryData(USER_PROFILE_QUERY_KEY, minimalProfile)
             }
           }
-        })
-        .catch((error: unknown) => {
+        } catch (error: unknown) {
           // Only disconnect on auth errors (401/403) - tokens are definitively invalid
           if (isAuthError(error)) {
             disconnectStore()
@@ -196,7 +196,8 @@ export function AuthProvider({
           }
           // Transient errors are silently ignored - user stays authenticated
           // and we'll retry on next opportunity (window focus, etc.)
-        })
+        }
+      })()
     },
     [
       validateTokens,
