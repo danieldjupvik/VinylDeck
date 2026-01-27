@@ -611,10 +611,12 @@ class QualityChecker {
       // Dependencies will be type-checked with their own appropriate configs
       log.debug(`TypeScript checking edited file only`);
 
-      // Include declaration files (.d.ts) from the config so type declarations are available
+      // Include declaration files (.d.ts) and generated files (.gen.ts) from the config
+      // Generated files (like TanStack Router's routeTree.gen.ts) provide essential type context
       const declarationFiles = parsedConfig.fileNames.filter((f) => f.endsWith('.d.ts'));
-      const filesToCheck = [this.filePath, ...declarationFiles];
-      log.debug(`Including ${declarationFiles.length} declaration file(s)`);
+      const generatedFiles = parsedConfig.fileNames.filter((f) => f.endsWith('.gen.ts'));
+      const filesToCheck = [this.filePath, ...declarationFiles, ...generatedFiles];
+      log.debug(`Including ${declarationFiles.length} declaration file(s) and ${generatedFiles.length} generated file(s)`);
 
       // Create program with the edited file and declaration files
       const program = ts.createProgram(filesToCheck, parsedConfig.options);
