@@ -31,6 +31,7 @@ export interface AuthContextValue extends AuthState {
    * Use for page load validation when online.
    *
    * @param tokens - Optional tokens to validate. If not provided, reads from storage.
+   * @returns Promise that resolves when validation completes
    */
   validateOAuthTokens: (tokens?: OAuthTokens) => Promise<void>
   /**
@@ -38,6 +39,7 @@ export interface AuthContextValue extends AuthState {
    * Use for login, "Continue" click, and reconnect scenarios.
    *
    * @param tokens - Optional tokens to use. If not provided, reads from storage.
+   * @returns Promise that resolves when session is established
    */
   establishSession: (tokens?: OAuthTokens) => Promise<void>
   /**

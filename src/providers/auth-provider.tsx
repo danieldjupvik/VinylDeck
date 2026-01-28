@@ -207,13 +207,13 @@ export function AuthProvider({
           if (isAuthError(error)) {
             disconnectStore()
             clearAllCaches()
-            setState((prev) => ({
-              ...prev,
+            setState({
               isAuthenticated: false,
               isLoading: false,
+              isOnline: isOnlineRef.current,
               hasStoredTokens: false,
               oauthTokens: null
-            }))
+            })
           }
           // Transient errors are silently ignored - user stays authenticated
           // and we'll retry on next opportunity (window focus, etc.)
@@ -255,7 +255,7 @@ export function AuthProvider({
           setState({
             isAuthenticated: false,
             isLoading: false,
-            isOnline,
+            isOnline: isOnlineRef.current,
             hasStoredTokens: false,
             oauthTokens: null
           })
@@ -339,8 +339,7 @@ export function AuthProvider({
       fetchProfile,
       setGravatarEmail,
       setTokens,
-      setSessionActive,
-      isOnline
+      setSessionActive
     ]
   )
 
@@ -557,11 +556,11 @@ export function AuthProvider({
     setState({
       isAuthenticated: false,
       isLoading: false,
-      isOnline,
+      isOnline: isOnlineRef.current,
       hasStoredTokens: false,
       oauthTokens: null
     })
-  }, [disconnectStore, clearAllCaches, isOnline])
+  }, [disconnectStore, clearAllCaches])
 
   const value = useMemo(
     () => ({
