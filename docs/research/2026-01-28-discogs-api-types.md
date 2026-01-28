@@ -1,8 +1,8 @@
 # Discogs API TypeScript Types Research
 
-**Date:** 2026-01-28
-**Status:** Research complete, decision pending
-**Branch:** `feat/fully-support-offline-mode`
+**Date:** 2026-01-28 (updated 2026-01-28)
+**Status:** Research ongoing, discojs deep dive complete
+**Branch:** `chore/improve-api-types`
 
 ## Problem Statement
 
@@ -17,7 +17,7 @@ return {
 }
 ```
 
-We have manually created types in `src/types/discogs.ts` (739 lines) that are more complete than the library's types.
+We have manually created types in `src/types/discogs.ts` (738 lines) that are more complete than the library's types.
 
 ## Goals
 
@@ -26,9 +26,9 @@ We have manually created types in `src/types/discogs.ts` (739 lines) that are mo
 3. Ensure type accuracy matches actual API responses
 4. Not miss API features due to incomplete types
 
-## Verified API Response Structure
+## API Response Structure (Docs-Based, Not Fully Verified)
 
-Verified against real Discogs API response on 2026-01-28.
+**Correction (2026-01-28):** The custom types in `src/types/discogs.ts` were **AI‑generated** from Discogs docs and are **not verified** against live API responses. Any statement that they are “verified” is incorrect. Treat these types as **best‑effort** models derived from documentation, not as ground truth.
 
 ### Collection Release Fields
 
@@ -42,8 +42,8 @@ Verified against real Discogs API response on 2026-01-28.
   notes: Array<{ field_id: number; value: string }>
   basic_information: {
     id: number
-    master_id: number             // Present in API
-    master_url: string            // Present in API
+    master_id: number             // Documented field
+    master_url: string            // Documented field
     resource_url: string
     thumb: string
     cover_image: string
@@ -52,7 +52,7 @@ Verified against real Discogs API response on 2026-01-28.
     formats: Array<{
       name: string
       qty: string
-      text?: string               // Optional, present in API
+      text?: string               // Optional, documented field
       descriptions: string[]
     }>
     labels: Array<{
@@ -61,7 +61,7 @@ Verified against real Discogs API response on 2026-01-28.
       catno: string
       resource_url: string
       entity_type: string
-      entity_type_name: string    // Present in API
+      entity_type_name: string    // Documented field
     }>
     artists: Array<{...}>
     genres: string[]
@@ -117,24 +117,22 @@ Verified against real Discogs API response on 2026-01-28.
 - **npm:** https://www.npmjs.com/package/discojs
 - **GitHub:** https://github.com/aknorw/discojs
 - **Version:** 2.3.1
-- **Last Updated:** August 2024
+- **Last Updated:** (Unverified)
 
 **Pros:**
 
-- Complete types (all fields present)
-- Built-in rate limiting/throttling (configurable)
-- Runtime validation with io-ts
-- e2e test suite
-- 66 GitHub stars
+- Many collection fields present that @lionralfs lacks
+- Built-in rate limiting/throttling via Bottleneck (configurable)
+- io-ts validators defined for runtime validation (types inferred for compile-time)
+- e2e test suite exists (live API validation when run)
+- GitHub stars: (Unverified)
 
 **Cons:**
 
 - NO OAuth flow support - only accepts existing tokens
-- Open issues:
-  - #69: Build issue with Node 23+ (fix in PR #70)
-  - PR #60: Stale (~1 year) - pagination/browser improvements
+- See "Deep Dive Analysis (2026-01-29)" section below for additional issues discovered
 
-**Type Completeness:**
+**Type Completeness (Collection):**
 | Field | Status |
 |-------|--------|
 | `releases[].date_added` | ✅ Present |
@@ -145,6 +143,14 @@ Verified against real Discogs API response on 2026-01-28.
 | `pagination.urls.*` | ✅ All optional |
 | `notes` | ✅ Present (optional) |
 | `folder_id` | ✅ Present (optional) |
+
+**Type Differences vs VinylDeck (Identity):**
+| Field | discojs `IdentityIO` | VinylDeck `DiscogsIdentity` |
+|-------|---------------------|----------------------------|
+| `consumer_name` | Required | Optional |
+| `avatar_url` | Missing | Optional |
+
+_Note: Neither has been verified against actual API responses._
 
 ### 3. @crate.ai/discogs-sdk
 
@@ -171,15 +177,18 @@ Verified against real Discogs API response on 2026-01-28.
 
 **Verdict:** Request definitions only, no response examples. Not useful for type generation.
 
-## Our Custom Types Assessment
+## Our Custom Types Assessment (Unverified)
 
 **File:** `src/types/discogs.ts` (739 lines, 47 types)
 
-**Accuracy:** Verified against real API - most complete TypeScript types available.
+**Accuracy:** **Not verified**. AI‑generated from docs; requires validation against real API responses.
 
-**One Issue Found:**
+**Known Issues / Gaps (Examples):**
 
-- `DiscogsBasicInformation.country?: string` - This field is NOT in the collection API response. Should be removed from `DiscogsBasicInformation` (it exists on `DiscogsRelease` for detailed release endpoint, not basic_information).
+- `DiscogsBasicInformation.country?: string` - Confirmed NOT present in the collection API response. Should be removed from `DiscogsBasicInformation` (it exists on `DiscogsRelease` for detailed release endpoint, not basic_information).
+- User profile (`GET /users/{username}`) was modeled from docs examples. Real responses can differ and are scope‑dependent. Example: fields like `email`, `num_collection`, and `num_wantlist` vary by auth scope; some responses return only a subset of fields. Your current tRPC response shape (wrapping `data.profile` and `rateLimit`) also differs from raw Discogs payloads, so types must be validated against **actual** responses you consume.
+
+**Action needed:** Validate all endpoints used in VinylDeck against real responses and update types accordingly.
 
 ## Possible Solutions
 
@@ -262,3 +271,199 @@ The cast in the router propagates correctly to the frontend. The "ugly" part is 
 - [@lionralfs/discogs-client GitHub](https://github.com/lionralfs/discogs-client)
 - [discojs GitHub](https://github.com/aknorw/discojs)
 - [wyattowalsh/discogs-api-spec](https://github.com/wyattowalsh/discogs-api-spec)
+
+---
+
+## Deep Dive Analysis (2026-01-29)
+
+Downloaded discojs source to `discojs-master/` for detailed code review.
+
+### Architecture Overview
+
+**Build System:**
+
+- TypeScript 5.5.4 (strict mode)
+- Rollup → dual output (CJS + ESM)
+- Node >=20 requirement
+- 5 production deps: `bottleneck`, `cross-fetch`, `fp-ts`, `io-ts`, `oauth-1.0a`
+
+**Class Composition:**
+Uses mixin pattern — `Discojs` class is composed of: `Database`, `UserIdentity`, `UserCollection`, `UserWantlist`, `UserLists`, `Marketplace`, `InventoryExport`.
+
+### Type System (io-ts)
+
+Types are defined as io-ts runtime validators, then TypeScript types are derived:
+
+```typescript
+// models/user.ts
+export const UserIO = t.intersection([
+  ResourceURLIO,
+  t.partial({ email: t.string }), // optional
+  t.type({ id: t.Integer }) // required
+])
+export type UserProfileResponse = t.TypeOf<typeof UserIO>
+```
+
+**Important:** The io-ts validators exist but are NOT used at runtime in production code. The `fetch.ts:207-208` just returns raw JSON cast to the type:
+
+```typescript
+const data = await response.json()
+return data // No decode() call
+```
+
+Validation only happens in e2e tests via `t.exact(UserIO).is(response)`.
+
+### API Coverage
+
+80+ endpoints across 8 domains: User Identity, User Collection, User Wantlist, User Lists, Database, Marketplace, Inventory Export.
+
+**Pagination helpers:** Every paginated endpoint has `getAll*()` async generator version.
+
+### Rate Limiting
+
+Uses Bottleneck library with moving window:
+
+- Default: 25 req/min (unauth), 60 req/min (auth)
+- Reads `X-Discogs-Ratelimit` headers to adjust dynamically
+- **Does NOT expose rate limit metadata to consumers** — VinylDeck returns `{ data, rateLimit }` from tRPC which discojs cannot provide
+
+### OAuth Support
+
+Only supports signing requests with existing tokens:
+
+```typescript
+new Discojs({ consumerKey, consumerSecret, oAuthToken, oAuthTokenSecret })
+```
+
+**No support for:**
+
+- `getRequestToken()` — initiate OAuth flow
+- Authorization URL generation
+- `getAccessToken()` — exchange verifier for tokens
+
+This is why VinylDeck must keep @lionralfs for auth.
+
+### Issues Discovered
+
+#### 1. Query Param Casing Bug
+
+`fetch.ts:259-268` — Query params are NOT transformed to snake_case:
+
+```typescript
+static addQueryToUri(uri: string, query: Record<string, any>) {
+  const params = new URLSearchParams()
+  Object.entries(query).forEach(([key, value]) => {
+    params.append(key, value)  // No transformation!
+  })
+}
+```
+
+`transformData()` (line 279-287) only handles POST/PUT body, not GET query params.
+
+**Impact:** Search options like `releaseTitle` are sent as-is instead of `release_title`. Discogs ignores unknown params, so searches silently return broader results.
+
+#### 2. OrderMessageIO Intersection Bug
+
+`models/marketplace.ts:234-251`:
+
+```typescript
+export const OrderMessageIO = t.intersection([
+  t.type({ type, subject, message, timestamp, order }),
+  OrderMessageStatusIO, // requires status_id, actor
+  OrderMessageMessageIO, // requires from
+  OrderMessageShippingIO, // requires original, new
+  OrderMessageRefundIO // requires refund
+])
+```
+
+Uses intersection of ALL message variants. A valid type would require ALL fields from ALL variants, but these are mutually exclusive based on `type`. Should be a discriminated union.
+
+#### 3. Missing Endpoint Parameters
+
+`database.ts:161-164`:
+
+```typescript
+// @TODO: There are a lot of parameters not handled here
+async getMasterVersions(this: Discojs, masterId: number, pagination?: Pagination)
+```
+
+Discogs API supports: `format`, `label`, `released`, `country`, `sort`, `sort_order`. All missing.
+
+#### 4. Broken/Workaround Endpoints
+
+`database.ts:130-139` — `getReleaseStats` endpoint is broken, uses workaround:
+
+```typescript
+// Note: This endpoint is broken, see link below for a workaround.
+async getReleaseStats(this: Discojs, releaseId: number): Promise<ReleaseStatsResponse> {
+  const { community } = await this.getRelease(releaseId)  // Extra API call
+  return { num_have: community.have, num_want: community.want }
+}
+```
+
+#### 5. User Profile Types Overly Strict
+
+`models/user.ts:60-88` — Most profile fields marked required via `t.type({})`:
+
+```typescript
+t.type({
+  name: t.string, // Required
+  profile: t.string, // Required
+  home_page: t.string, // Required
+  location: t.string // Required
+  // ... many more
+})
+```
+
+Real API responses vary by auth scope and can be partial.
+
+#### 6. Browser Compatibility
+
+`fetch.ts:122-128`:
+
+```typescript
+const unsafeHeadersInit: HeadersInit = allowUnsafeHeaders
+  ? {
+      'Accept-Encoding': 'gzip,deflate',
+      Connection: 'close', // Browsers reject this
+      'User-Agent': userAgent
+    }
+  : {}
+```
+
+Default `allowUnsafeHeaders: true` causes browser failures. Must set `false` for browser usage.
+
+#### 7. No Retry-After Handling
+
+`fetch.ts:183-196` handles 401, 422, 5xx but no special handling for 429 with `Retry-After` header.
+
+### What discojs Does Well
+
+Despite the issues above, collection types are solid:
+
+- `FolderReleasesResponseIO` correctly types collection items with all fields VinylDeck needs
+- `ReleaseMinimalInfoIO` includes `master_id`, `master_url`, `genres`, `styles`
+- `PaginationIO` correctly marks all URL fields as optional
+- Rate limiting via Bottleneck works reliably for throttling
+
+### Key Files Reference
+
+| Purpose              | Path                        |
+| -------------------- | --------------------------- |
+| User/Identity types  | `models/user.ts`            |
+| Collection response  | `models/api.ts:82-100`      |
+| Release types        | `models/release.ts:107-132` |
+| Pagination           | `models/commons.ts:9-20`    |
+| Rate limiter         | `src/utils/limiter.ts`      |
+| Fetch/query handling | `src/utils/fetch.ts`        |
+| OAuth signing        | `src/utils/auth.ts`         |
+| Marketplace types    | `models/marketplace.ts`     |
+
+### Summary
+
+discojs collection types are well-structured and cover fields missing from @lionralfs. However, if extracting types for use in VinylDeck:
+
+1. Query param casing would need fixing if using discojs for API calls
+2. Some types (OrderMessage, user profile strictness) need adjustment
+3. Rate limit metadata would need to be added if needed in responses
+4. Identity type differs from VinylDeck's current definition
