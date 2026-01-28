@@ -397,6 +397,7 @@ export function AuthProvider({
           throw new OfflineNoCacheError()
         }
 
+        if (tokens) setTokens(tokens)
         setSessionActive(true)
         setState((prev) => ({
           ...prev,
@@ -413,7 +414,14 @@ export function AuthProvider({
         storeTokens: Boolean(tokens)
       })
     },
-    [authTokens, isOnline, queryClient, setSessionActive, performAuthValidation]
+    [
+      authTokens,
+      isOnline,
+      queryClient,
+      setTokens,
+      setSessionActive,
+      performAuthValidation
+    ]
   )
 
   // Initialize auth - Zustand hydrates synchronously from localStorage,
