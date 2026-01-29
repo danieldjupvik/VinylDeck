@@ -235,5 +235,24 @@
       "online": "Tilkoblet",
       "offline": "Frakoblet"
     }
+  },
+  "changelog": {
+    "header": {
+      "title": "Nytt i v{{version}}"
+    },
+    "categories": {
+      "features": "Nye funksjoner",
+      "fixes": "Feilrettinger",
+      "improvements": "Forbedringer"
+    },
+    "footer": {
+      "dismiss": "Skjønner"
+    },
+    "entry": {
+      "showMore": "Vis mer",
+      "showLess": "Vis mindre"
+    },
+    "olderVersions": "+ {{count}} eldre versjoner",
+    "versionDate": "v{{version}} — {{date}}"
   }
 }

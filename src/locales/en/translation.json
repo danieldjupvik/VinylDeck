@@ -235,5 +235,24 @@
       "online": "Online",
       "offline": "Offline"
     }
+  },
+  "changelog": {
+    "header": {
+      "title": "What's New in v{{version}}"
+    },
+    "categories": {
+      "features": "New Features",
+      "fixes": "Bug Fixes",
+      "improvements": "Improvements"
+    },
+    "footer": {
+      "dismiss": "Got it"
+    },
+    "entry": {
+      "showMore": "Show more",
+      "showLess": "Show less"
+    },
+    "olderVersions": "+ {{count}} older versions",
+    "versionDate": "v{{version}} — {{date}}"
   }
 }
