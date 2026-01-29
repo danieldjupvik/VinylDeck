@@ -45,15 +45,6 @@ export const usePreferencesStore = create<PreferencesStore>()(
       resetAvatarSettings: () =>
         set({ avatarSource: 'discogs', gravatarEmail: '' })
     }),
-    {
-      name: STORAGE_KEYS.PREFERENCES,
-      version: 1,
-      migrate: (persisted, version) => {
-        if (version === 0) {
-          return { ...(persisted as object), lastSeenVersion: null }
-        }
-        return persisted as PreferencesStore
-      }
-    }
+    { name: STORAGE_KEYS.PREFERENCES }
   )
 )
