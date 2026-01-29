@@ -31,11 +31,13 @@ Decimal phases appear between their surrounding integers in numeric order.
 3. preferences-store has lastSeenVersion field persisted to localStorage
 4. useChangelog hook returns entries newer than lastSeenVersion
 5. Hook returns empty array when no user-facing entries exist for new version
-   **Plans**: TBD
+
+**Plans:** 2 plans
 
 Plans:
 
-- [ ] 01-01: TBD
+- [ ] 01-01-PLAN.md - Types, data file, and compare-versions library
+- [ ] 01-02-PLAN.md - Preferences store extension and useChangelog hook
 
 ### Phase 2: Modal Components
 
@@ -49,7 +51,8 @@ Plans:
 3. Current version number displays in modal header
 4. Entries grouped by category (New Features, Bug Fixes, Improvements) with visual badges
 5. Multiple missed versions appear in accordion (latest expanded, older collapsed)
-   **Plans**: TBD
+
+**Plans:** TBD
 
 Plans:
 
@@ -66,7 +69,8 @@ Plans:
 2. "View Changelog" button in Settings > About opens modal manually
 3. Modal never triggers during hydration, OAuth flow, or loading states
 4. After dismissal, lastSeenVersion updates and modal does not reappear
-   **Plans**: TBD
+
+**Plans:** TBD
 
 Plans:
 
@@ -79,6 +83,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase               | Plans Complete | Status      | Completed |
 | ------------------- | -------------- | ----------- | --------- |
-| 1. Data & Detection | 0/TBD          | Not started | -         |
+| 1. Data & Detection | 0/2            | Not started | -         |
 | 2. Modal Components | 0/TBD          | Not started | -         |
 | 3. Integration      | 0/TBD          | Not started | -         |
