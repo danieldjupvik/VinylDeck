@@ -17,7 +17,6 @@ interface ChangelogEntryProps {
  * @param text - The entry text to display
  * @returns The entry component with optional expand/collapse toggle
  */
-// eslint-disable-next-line import-x/no-unused-modules -- Will be used by ChangelogContent
 export function ChangelogEntry({ text }: ChangelogEntryProps): React.ReactNode {
   const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
