@@ -9,19 +9,19 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Modal Component
 
-- [ ] **MODAL-01**: Responsive modal renders Dialog on desktop, Drawer on mobile
-- [ ] **MODAL-02**: Modal can be dismissed via X button
-- [ ] **MODAL-03**: Modal can be dismissed via Escape key
-- [ ] **MODAL-04**: Modal can be dismissed via backdrop/outside click
-- [ ] **MODAL-05**: Modal displays current version number in header
+- [x] **MODAL-01**: Responsive modal renders Dialog on desktop, Drawer on mobile
+- [x] **MODAL-02**: Modal can be dismissed via X button
+- [x] **MODAL-03**: Modal can be dismissed via Escape key
+- [x] **MODAL-04**: Modal can be dismissed via backdrop/outside click
+- [x] **MODAL-05**: Modal displays current version number in header
 
 ### Content Display
 
-- [ ] **CONT-01**: Changelog entries grouped by category (New Features, Bug Fixes, Improvements)
-- [ ] **CONT-02**: Entries ordered chronologically (newest first)
-- [ ] **CONT-03**: Categories display visual badges (no emojis)
-- [ ] **CONT-04**: Multiple missed versions shown in accordion (latest expanded, older collapsed)
-- [ ] **CONT-05**: Smooth entry animations on modal open
+- [x] **CONT-01**: Changelog entries grouped by category (New Features, Bug Fixes, Improvements)
+- [x] **CONT-02**: Entries ordered chronologically (newest first)
+- [x] **CONT-03**: Categories display visual badges (no emojis)
+- [x] **CONT-04**: Multiple missed versions shown in accordion (latest expanded, older collapsed)
+- [x] **CONT-05**: Smooth entry animations on modal open
 
 ### Version Detection
 
@@ -77,16 +77,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VERS-02     | 1     | Complete |
 | VERS-03     | 1     | Complete |
 | VERS-04     | 1     | Complete |
-| MODAL-01    | 2     | Pending  |
-| MODAL-02    | 2     | Pending  |
-| MODAL-03    | 2     | Pending  |
-| MODAL-04    | 2     | Pending  |
-| MODAL-05    | 2     | Pending  |
-| CONT-01     | 2     | Pending  |
-| CONT-02     | 2     | Pending  |
-| CONT-03     | 2     | Pending  |
-| CONT-04     | 2     | Pending  |
-| CONT-05     | 2     | Pending  |
+| MODAL-01    | 2     | Complete |
+| MODAL-02    | 2     | Complete |
+| MODAL-03    | 2     | Complete |
+| MODAL-04    | 2     | Complete |
+| MODAL-05    | 2     | Complete |
+| CONT-01     | 2     | Complete |
+| CONT-02     | 2     | Complete |
+| CONT-03     | 2     | Complete |
+| CONT-04     | 2     | Complete |
+| CONT-05     | 2     | Complete |
 | TRIG-01     | 3     | Pending  |
 | TRIG-02     | 3     | Pending  |
 | TRIG-03     | 3     | Pending  |
@@ -100,4 +100,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 ---
 
 _Requirements defined: 2026-01-29_
-_Last updated: 2026-01-29 after Phase 1 completion_
+_Last updated: 2026-01-29 after Phase 2 completion_

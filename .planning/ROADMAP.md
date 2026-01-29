@@ -14,7 +14,7 @@ Three-phase delivery: establish data format and version detection infrastructure
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Data & Detection** - Changelog data format, version comparison, preferences store extension
-- [ ] **Phase 2: Modal Components** - Responsive Dialog/Drawer, content display with categories and animations
+- [x] **Phase 2: Modal Components** - Responsive Dialog/Drawer, content display with categories and animations
 - [ ] **Phase 3: Integration** - Auto-trigger on version change, settings access, hydration gating
 
 ## Phase Details
@@ -56,9 +56,9 @@ Plans:
 
 Plans:
 
-- [ ] 02-01-PLAN.md - Install shadcn components, Badge variants, date formatter
-- [ ] 02-02-PLAN.md - Responsive modal wrapper and content components
-- [ ] 02-03-PLAN.md - Multi-version accordion and i18n translations
+- [x] 02-01-PLAN.md - Install shadcn components, Badge variants, date formatter
+- [x] 02-02-PLAN.md - Responsive modal wrapper and content components
+- [x] 02-03-PLAN.md - Multi-version accordion and i18n translations
 
 ### Phase 3: Integration
 
@@ -87,5 +87,5 @@ Phases execute in numeric order: 1 -> 2 -> 3
 | Phase               | Plans Complete | Status      | Completed  |
 | ------------------- | -------------- | ----------- | ---------- |
 | 1. Data & Detection | 2/2            | Complete    | 2026-01-29 |
-| 2. Modal Components | 0/3            | Not started | -          |
+| 2. Modal Components | 3/3            | Complete    | 2026-01-29 |
 | 3. Integration      | 0/2            | Not started | -          |
