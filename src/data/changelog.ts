@@ -10,7 +10,6 @@ import type { ChangelogData } from '@/types/changelog'
  *
  * Translation key pattern: `changelog.{version_underscored}.{category}_{index}`
  */
-// eslint-disable-next-line import-x/no-unused-modules -- Consumed by useChangelog hook in plan 01-02
 export const changelog: ChangelogData = [
   {
     version: '0.3.0-beta',
