@@ -13,7 +13,7 @@ Three-phase delivery: establish data format and version detection infrastructure
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Data & Detection** - Changelog data format, version comparison, preferences store extension
+- [x] **Phase 1: Data & Detection** - Changelog data format, version comparison, preferences store extension
 - [ ] **Phase 2: Modal Components** - Responsive Dialog/Drawer, content display with categories and animations
 - [ ] **Phase 3: Integration** - Auto-trigger on version change, settings access, hydration gating
 
@@ -36,8 +36,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 
-- [ ] 01-01-PLAN.md - Types, data file, and compare-versions library
-- [ ] 01-02-PLAN.md - Preferences store extension and useChangelog hook
+- [x] 01-01-PLAN.md - Types, data file, and compare-versions library
+- [x] 01-02-PLAN.md - Preferences store extension and useChangelog hook
 
 ### Phase 2: Modal Components
 
@@ -84,8 +84,8 @@ Plans:
 **Execution Order:**
 Phases execute in numeric order: 1 -> 2 -> 3
 
-| Phase               | Plans Complete | Status      | Completed |
-| ------------------- | -------------- | ----------- | --------- |
-| 1. Data & Detection | 0/2            | Not started | -         |
-| 2. Modal Components | 0/3            | Not started | -         |
-| 3. Integration      | 0/2            | Not started | -         |
+| Phase               | Plans Complete | Status      | Completed  |
+| ------------------- | -------------- | ----------- | ---------- |
+| 1. Data & Detection | 2/2            | Complete    | 2026-01-29 |
+| 2. Modal Components | 0/3            | Not started | -          |
+| 3. Integration      | 0/2            | Not started | -          |
