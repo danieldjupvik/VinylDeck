@@ -72,11 +72,12 @@ Plans:
 3. Modal never triggers during hydration, OAuth flow, or loading states
 4. After dismissal, lastSeenVersion updates and modal does not reappear
 
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
 
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md - Auto-trigger hook and layout integration
+- [ ] 03-02-PLAN.md - Settings "What's New" button and i18n
 
 ## Progress
 
@@ -87,4 +88,4 @@ Phases execute in numeric order: 1 -> 2 -> 3
 | ------------------- | -------------- | ----------- | --------- |
 | 1. Data & Detection | 0/2            | Not started | -         |
 | 2. Modal Components | 0/3            | Not started | -         |
-| 3. Integration      | 0/TBD          | Not started | -         |
+| 3. Integration      | 0/2            | Not started | -         |
