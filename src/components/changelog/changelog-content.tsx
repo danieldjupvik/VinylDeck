@@ -51,7 +51,6 @@ interface ChangelogContentProps {
  * @param onDismiss - Callback when dismiss button is clicked
  * @returns The content component for use inside ChangelogModal
  */
-// eslint-disable-next-line import-x/no-unused-modules -- Will be used in Phase 3 integration
 export function ChangelogContent({
   version,
   date,
