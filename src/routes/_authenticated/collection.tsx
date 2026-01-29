@@ -7,6 +7,7 @@ import { CollectionToolbar } from '@/components/collection/collection-toolbar'
 import { PaginationControls } from '@/components/collection/pagination-controls'
 import { VinylGrid } from '@/components/collection/vinyl-grid'
 import { VinylTable } from '@/components/collection/vinyl-table'
+import { EmptyState } from '@/components/common/empty-state'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useCollection } from '@/hooks/use-collection'
@@ -219,22 +220,22 @@ function CollectionPage() {
 
   if (isError) {
     return (
-      <div className="animate-in fade-in zoom-in-95 flex h-[calc(100svh-3.5rem)] flex-col items-center justify-center p-6 text-center duration-300">
-        <h1 className="text-7xl font-bold tracking-tighter opacity-20">!</h1>
-        <h2 className="mt-4 text-xl font-semibold">{t('errors.generic')}</h2>
-        <p className="text-muted-foreground mt-3 max-w-md text-sm whitespace-pre-line">
-          {t('errors.collectionLoadFailed')}
-        </p>
-        <Button
-          variant="outline"
-          className="mt-8"
-          onClick={() => void refetch()}
-          disabled={isFetching}
-        >
-          <RotateCw className={isFetching ? 'animate-spin' : ''} />
-          {t('errors.tryAgain')}
-        </Button>
-      </div>
+      <EmptyState
+        iconText="!"
+        title={t('errors.generic')}
+        description={t('errors.collectionLoadFailed')}
+        className="h-[calc(100svh-3.5rem)]"
+        action={
+          <Button
+            variant="outline"
+            onClick={() => void refetch()}
+            disabled={isFetching}
+          >
+            <RotateCw className={isFetching ? 'animate-spin' : ''} />
+            {t('errors.tryAgain')}
+          </Button>
+        }
+      />
     )
   }
 

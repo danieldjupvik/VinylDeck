@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
 
+import { ResponsiveDialog } from '@/components/common/responsive-dialog'
 import { useChangelogTrigger } from '@/hooks/use-changelog-trigger'
 import type { ChangelogEntry, ChangelogVersion } from '@/types/changelog'
 
 import { ChangelogContent } from './changelog-content'
-import { ChangelogModal } from './changelog-modal'
 import { VersionAccordion } from './version-accordion'
 
 /**
@@ -73,7 +73,13 @@ export function ChangelogAutoTrigger(): React.ReactNode {
   const showAccordion = triggeredVersions.length > 1
 
   return (
-    <ChangelogModal open={isOpen} onOpenChange={handleOpenChange}>
+    <ResponsiveDialog
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+      title={t('changelog.modal.title')}
+      description={t('changelog.modal.description')}
+      maxHeight="85vh"
+    >
       {showAccordion ? (
         <VersionAccordion
           versions={buildVersionData(triggeredVersions, t)}
@@ -87,6 +93,6 @@ export function ChangelogAutoTrigger(): React.ReactNode {
           onDismiss={onDismiss}
         />
       )}
-    </ChangelogModal>
+    </ResponsiveDialog>
   )
 }

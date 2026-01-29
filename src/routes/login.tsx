@@ -1,30 +1,16 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { AlertCircle, Loader2 } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
+import { ConfirmDialog } from '@/components/common/confirm-dialog'
+import { LoadingButton } from '@/components/common/loading-button'
+import { UserAvatar } from '@/components/common/user-avatar'
 import { BrandMark } from '@/components/layout/brand-mark'
 import { GradientBackground } from '@/components/layout/gradient-background'
 import { LanguageToggle } from '@/components/layout/language-toggle'
 import { ModeToggle } from '@/components/layout/mode-toggle'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from '@/components/ui/alert-dialog'
-import {
-  Avatar,
-  AvatarBadge,
-  AvatarFallback,
-  AvatarImage
-} from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -115,8 +101,6 @@ function LoginPage(): React.JSX.Element {
 
   // Can only continue offline if we have cached profile data
   const cannotContinue = !isOnline && profile === undefined
-
-  const initials = username ? username.slice(0, 2).toUpperCase() : '?'
 
   const getRequestToken = trpc.oauth.getRequestToken.useMutation()
 
@@ -248,29 +232,11 @@ function LoginPage(): React.JSX.Element {
                 // Welcome back flow - user has existing tokens
                 <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-backwards space-y-4 delay-800 duration-500">
                   <div className="mb-4 flex flex-col items-center gap-3">
-                    <Avatar className="ring-border size-12 overflow-visible ring-2">
-                      {cachedAvatarUrl?.trim() ? (
-                        <AvatarImage
-                          src={cachedAvatarUrl}
-                          alt={username ?? t('user.fallback')}
-                        />
-                      ) : null}
-                      <AvatarFallback className="text-lg font-medium">
-                        {initials}
-                      </AvatarFallback>
-                      <AvatarBadge
-                        className={
-                          isOnline
-                            ? 'bg-green-500 dark:bg-green-600'
-                            : 'bg-red-600'
-                        }
-                        aria-label={t(
-                          isOnline
-                            ? 'user.status.online'
-                            : 'user.status.offline'
-                        )}
-                      />
-                    </Avatar>
+                    <UserAvatar
+                      username={username}
+                      avatarUrl={cachedAvatarUrl}
+                      isOnline={isOnline}
+                    />
                     <p className="text-lg font-medium">
                       {username
                         ? t('auth.welcomeBack', { username })
@@ -282,63 +248,35 @@ function LoginPage(): React.JSX.Element {
                       {t('auth.offlineCannotContinue')}
                     </p>
                   ) : null}
-                  <Button
+                  <LoadingButton
                     onClick={() => void handleContinue()}
                     className="w-full"
                     size="lg"
-                    disabled={isValidating || isLoading || cannotContinue}
+                    disabled={isLoading || cannotContinue}
+                    isLoading={isValidating}
+                    loadingText={t('auth.loggingIn')}
                   >
-                    {isValidating ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {t('auth.loggingIn')}
-                      </>
-                    ) : (
-                      t('auth.continue')
-                    )}
-                  </Button>
-                  <AlertDialog
+                    {t('auth.continue')}
+                  </LoadingButton>
+                  <ConfirmDialog
                     open={showSwitchDialog}
                     onOpenChange={setShowSwitchDialog}
-                  >
-                    <AlertDialogTrigger asChild>
-                      <Button
+                    trigger={
+                      <LoadingButton
                         variant="outline"
                         className="w-full"
-                        disabled={isValidating || isLoading}
+                        disabled={isValidating}
+                        isLoading={isLoading}
+                        loadingText={t('auth.redirecting')}
                       >
-                        {isLoading ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            {t('auth.redirecting')}
-                          </>
-                        ) : (
-                          t('auth.useDifferentAccount')
-                        )}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          {t('auth.switchAccount.title')}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          {t('auth.switchAccount.description')}
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>
-                          {t('common.cancel')}
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={handleUseDifferentAccount}
-                          className="bg-destructive hover:bg-destructive/90 text-white"
-                        >
-                          {t('auth.switchAccount.confirm')}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                        {t('auth.useDifferentAccount')}
+                      </LoadingButton>
+                    }
+                    title={t('auth.switchAccount.title')}
+                    description={t('auth.switchAccount.description')}
+                    confirmText={t('auth.switchAccount.confirm')}
+                    onConfirm={handleUseDifferentAccount}
+                  />
                 </div>
               ) : (
                 // Fresh login - no existing tokens
@@ -346,21 +284,15 @@ function LoginPage(): React.JSX.Element {
                   <p className="text-muted-foreground text-center text-sm">
                     {t('login.connectAccount')}
                   </p>
-                  <Button
+                  <LoadingButton
                     onClick={() => void handleOAuthLogin()}
                     className="w-full"
                     size="lg"
-                    disabled={isLoading}
+                    isLoading={isLoading}
+                    loadingText={t('auth.redirecting')}
                   >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {t('auth.redirecting')}
-                      </>
-                    ) : (
-                      t('auth.signInWithDiscogs')
-                    )}
-                  </Button>
+                    {t('auth.signInWithDiscogs')}
+                  </LoadingButton>
                   <p className="text-muted-foreground text-center text-xs">
                     {t('login.noAccount')}{' '}
                     <a

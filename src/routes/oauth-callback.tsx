@@ -5,7 +5,6 @@ import {
   useNavigate,
   useRouterState
 } from '@tanstack/react-router'
-import { Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -18,6 +17,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
+import { Spinner } from '@/components/ui/spinner'
 import { useAuth } from '@/hooks/use-auth'
 import {
   clearOAuthRequestTokens,
@@ -218,7 +218,7 @@ function OAuthCallbackPage() {
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
           {effectiveStatus === 'loading' && (
-            <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+            <Spinner className="text-muted-foreground size-8" />
           )}
           {effectiveStatus === 'error' && (
             <Button asChild variant="outline">

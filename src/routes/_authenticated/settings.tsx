@@ -14,20 +14,10 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
-import { ChangelogModal } from '@/components/changelog/changelog-modal'
 import { VersionAccordion } from '@/components/changelog/version-accordion'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from '@/components/ui/alert-dialog'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { ConfirmDialog } from '@/components/common/confirm-dialog'
+import { ResponsiveDialog } from '@/components/common/responsive-dialog'
+import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -166,15 +156,6 @@ function SettingsPage() {
     void navigate({ to: '/login' })
   }
 
-  const initials = username
-    ? username
-        .split(/[\s_-]/)
-        .map((part) => part[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    : '?'
-
   const allVersions = changelog.map((v) => ({
     version: v.version,
     date: v.date,
@@ -223,14 +204,11 @@ function SettingsPage() {
                         : 'border-border'
                     )}
                   >
-                    <Avatar className="ring-border size-10 ring-2">
-                      {avatarUrl ? (
-                        <AvatarImage src={avatarUrl} alt={username ?? 'User'} />
-                      ) : null}
-                      <AvatarFallback className="text-lg font-medium">
-                        {initials}
-                      </AvatarFallback>
-                    </Avatar>
+                    <UserAvatar
+                      username={username}
+                      avatarUrl={avatarUrl}
+                      size="md"
+                    />
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium">
                         {t('settings.profile.avatar.discogs')}
@@ -252,17 +230,11 @@ function SettingsPage() {
                         : 'border-border'
                     )}
                   >
-                    <Avatar className="ring-border size-10 ring-2">
-                      {gravatarUrl ? (
-                        <AvatarImage
-                          src={gravatarUrl}
-                          alt={username ?? 'User'}
-                        />
-                      ) : null}
-                      <AvatarFallback className="text-lg font-medium">
-                        {initials}
-                      </AvatarFallback>
-                    </Avatar>
+                    <UserAvatar
+                      username={username}
+                      avatarUrl={gravatarUrl ?? undefined}
+                      size="md"
+                    />
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium">
                         {t('settings.profile.avatar.gravatar')}
@@ -287,35 +259,20 @@ function SettingsPage() {
                     {t('settings.account.disconnect.description')}
                   </p>
                 </div>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
+                <ConfirmDialog
+                  trigger={
                     <Button variant="destructive" className="w-full sm:w-auto">
                       <LogOut className="mr-2 size-4" />
                       {t('settings.account.disconnect.button')}
                     </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        {t('settings.account.disconnect.confirmTitle')}
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {t('settings.account.disconnect.confirmDescription')}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>
-                        {t('common.cancel')}
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleDisconnect}
-                        className="bg-destructive hover:bg-destructive/90 text-white"
-                      >
-                        {t('settings.account.disconnect.button')}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                  }
+                  title={t('settings.account.disconnect.confirmTitle')}
+                  description={t(
+                    'settings.account.disconnect.confirmDescription'
+                  )}
+                  confirmText={t('settings.account.disconnect.button')}
+                  onConfirm={handleDisconnect}
+                />
               </div>
             </CardContent>
           </Card>
@@ -479,14 +436,20 @@ function SettingsPage() {
       </div>
 
       {allVersions.length > 0 ? (
-        <ChangelogModal open={changelogOpen} onOpenChange={setChangelogOpen}>
+        <ResponsiveDialog
+          open={changelogOpen}
+          onOpenChange={setChangelogOpen}
+          title={t('changelog.modal.title')}
+          description={t('changelog.modal.description')}
+          maxHeight="85vh"
+        >
           <VersionAccordion
             versions={allVersions}
             onDismiss={() => {
               setChangelogOpen(false)
             }}
           />
-        </ChangelogModal>
+        </ResponsiveDialog>
       ) : null}
     </>
   )
