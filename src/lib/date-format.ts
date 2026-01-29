@@ -18,6 +18,7 @@ export function formatChangelogDate(dateString: string): string {
   return new Intl.DateTimeFormat(locale, {
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
+    timeZone: 'UTC'
   }).format(date)
 }

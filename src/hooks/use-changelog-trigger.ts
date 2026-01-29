@@ -43,6 +43,14 @@ export function useChangelogTrigger(): ChangelogTriggerState {
     setLastSeenVersion(APP_VERSION)
   }, [setLastSeenVersion])
 
+  // Initialize lastSeenVersion for first-time users (sets baseline without showing modal)
+  useEffect(() => {
+    if (!hasHydrated) return
+    if (!changelog.hasEntries && changelog.reason === 'first-install') {
+      setLastSeenVersion(APP_VERSION)
+    }
+  }, [hasHydrated, changelog, setLastSeenVersion])
+
   useEffect(() => {
     if (hasTriggeredRef.current) return
 
