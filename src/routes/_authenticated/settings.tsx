@@ -272,6 +272,7 @@ function SettingsPage() {
                   )}
                   confirmText={t('settings.account.disconnect.button')}
                   onConfirm={handleDisconnect}
+                  variant="destructive"
                 />
               </div>
             </CardContent>

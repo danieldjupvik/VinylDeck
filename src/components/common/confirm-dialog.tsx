@@ -11,7 +11,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
-import { cn } from '@/lib/utils'
 
 interface ConfirmDialogProps {
   /** Trigger element (typically a Button) */
@@ -26,7 +25,7 @@ interface ConfirmDialogProps {
   onConfirm: () => void
   /** Text for the cancel button. Defaults to common.cancel translation */
   cancelText?: string
-  /** Style variant for confirm button. Default: 'destructive' */
+  /** Style variant for confirm button. Default: 'default' */
   variant?: 'destructive' | 'default'
   /** Controlled open state */
   open?: boolean
@@ -46,7 +45,7 @@ interface ConfirmDialogProps {
  * @param confirmText - Confirm button text
  * @param onConfirm - Callback when confirmed
  * @param cancelText - Cancel button text (default: translated 'common.cancel')
- * @param variant - Confirm button variant (default: 'destructive')
+ * @param variant - Confirm button variant (default: 'default')
  * @param open - Controlled open state
  * @param onOpenChange - Controlled state handler
  */
@@ -57,7 +56,7 @@ export function ConfirmDialog({
   confirmText,
   onConfirm,
   cancelText,
-  variant = 'destructive',
+  variant = 'default',
   open,
   onOpenChange
 }: ConfirmDialogProps): React.ReactNode {
@@ -70,7 +69,7 @@ export function ConfirmDialog({
   return (
     <AlertDialog {...controlledProps}>
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className="bg-card">
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
@@ -79,13 +78,7 @@ export function ConfirmDialog({
           <AlertDialogCancel>
             {cancelText ?? t('common.cancel')}
           </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={onConfirm}
-            className={cn(
-              variant === 'destructive' &&
-                'bg-destructive hover:bg-destructive/90 text-white'
-            )}
-          >
+          <AlertDialogAction onClick={onConfirm} variant={variant}>
             {confirmText}
           </AlertDialogAction>
         </AlertDialogFooter>

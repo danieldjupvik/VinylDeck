@@ -79,7 +79,10 @@ export function ResponsiveDialog({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className={cn('p-0', className)} style={{ maxHeight }}>
+        <DrawerContent
+          className={cn('bg-card p-0', className)}
+          style={{ maxHeight }}
+        >
           <DrawerTitle className="sr-only">{title}</DrawerTitle>
           <DrawerDescription className="sr-only">
             {description}
@@ -93,7 +96,7 @@ export function ResponsiveDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={cn('p-0', MAX_WIDTH_CLASSES[maxWidth], className)}
+        className={cn('bg-card p-0', MAX_WIDTH_CLASSES[maxWidth], className)}
         onOpenAutoFocus={(e) => {
           e.preventDefault()
         }}

@@ -92,7 +92,11 @@ export function UserAvatar({
       )}
     >
       {avatarUrl?.trim() ? (
-        <AvatarImage src={avatarUrl} alt={username ?? t('user.fallback')} />
+        <AvatarImage
+          src={avatarUrl}
+          alt={username ?? t('user.fallback')}
+          className="rounded-full object-cover"
+        />
       ) : null}
       <AvatarFallback className={cn('font-medium', fallbackTextClasses[size])}>
         {initials}

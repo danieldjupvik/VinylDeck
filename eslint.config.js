@@ -16,7 +16,7 @@ import tseslint from 'typescript-eslint'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'src/components/ui']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -150,18 +150,6 @@ export default defineConfig([
           allowBoolean: true
         }
       ]
-    }
-  },
-  {
-    files: ['src/components/ui/**/*.{ts,tsx}'],
-    rules: {
-      // Allow shadcn/ui components to keep literal strings and exports.
-      'i18next/no-literal-string': 'off',
-      'react-refresh/only-export-components': 'off',
-      // shadcn/ui components are generated, don't require explicit return types
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
-      // shadcn/ui exports are consumed by app code, not internal
-      'import-x/no-unused-modules': 'off'
     }
   },
   {

@@ -1128,6 +1128,17 @@ async function main() {
     process.exit(0);
   }
 
+  // Skip shadcn/ui components - these are third-party generated and shouldn't be linted
+  const relativePath = path.relative(projectRoot, filePath);
+  if (relativePath.startsWith('src/components/ui/') || relativePath.startsWith('src\\components\\ui\\')) {
+    log.info(`Skipping shadcn/ui component: ${filePath}`);
+    console.error(`\n${colors.yellow}👉 File skipped - shadcn/ui component (ignored).${colors.reset}`);
+    console.error(
+      `\n${colors.green}✅ No checks needed for ${path.basename(filePath)}${colors.reset}`
+    );
+    process.exit(0);
+  }
+
   // Update header with file name
   console.error('');
   console.error(`🔍 Validating: ${path.basename(filePath)}`);

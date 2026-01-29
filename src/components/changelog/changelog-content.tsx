@@ -1,7 +1,7 @@
 import { Bug, Sparkles, Zap } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge } from '@/components/ui/badge'
+import { ColorBadge } from '@/components/common/color-badge'
 import { Button } from '@/components/ui/button'
 import { formatChangelogDate } from '@/lib/date-format'
 import { cn } from '@/lib/utils'
@@ -11,17 +11,17 @@ import { ChangelogEntry } from './changelog-entry'
 const CATEGORY_CONFIG = {
   features: {
     icon: Sparkles,
-    variant: 'feature' as const,
+    color: 'green' as const,
     labelKey: 'changelog.categories.features'
   },
   improvements: {
     icon: Zap,
-    variant: 'improvement' as const,
+    color: 'blue' as const,
     labelKey: 'changelog.categories.improvements'
   },
   fixes: {
     icon: Bug,
-    variant: 'fix' as const,
+    color: 'amber' as const,
     labelKey: 'changelog.categories.fixes'
   }
 } as const
@@ -95,10 +95,10 @@ export function ChangelogContent({
 
           return (
             <section key={categoryKey} className="flex flex-col gap-2">
-              <Badge variant={config.variant} className="w-fit">
+              <ColorBadge color={config.color} className="w-fit">
                 <Icon className="size-3" />
                 {t(config.labelKey)}
-              </Badge>
+              </ColorBadge>
               <ul className="list-disc space-y-2">
                 {categoryEntries.map((entry, index) => (
                   // eslint-disable-next-line react/no-array-index-key -- Entries have no stable ID
