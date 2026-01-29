@@ -1,27 +1,33 @@
 import { useLocation } from '@tanstack/react-router'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useAuth } from '@/hooks/use-auth'
 import { useChangelog } from '@/hooks/use-changelog'
 import { APP_VERSION } from '@/lib/constants'
 import { useHydrationState } from '@/providers/hydration-context'
 import { usePreferencesStore } from '@/stores/preferences-store'
+import type { ChangelogVersion } from '@/types/changelog'
 
 const TRIGGER_DELAY_MS = 750
 
 interface ChangelogTriggerState {
   isOpen: boolean
-  setIsOpen: (open: boolean) => void
+  onDismiss: () => void
+  triggeredVersions: ChangelogVersion[]
 }
 
 /**
  * Coordinates changelog modal auto-trigger with hydration, auth, route, and version gates.
  * Fires once per session after a 750ms delay when all conditions pass.
+ * Updates lastSeenVersion only when the modal is dismissed.
  *
- * @returns Modal open state and setter for controlled modal
+ * @returns Modal open state, dismiss handler, and all versions that triggered the modal
  */
 export function useChangelogTrigger(): ChangelogTriggerState {
   const [isOpen, setIsOpen] = useState(false)
+  const [triggeredVersions, setTriggeredVersions] = useState<
+    ChangelogVersion[]
+  >([])
   const hasTriggeredRef = useRef(false)
 
   const { hasHydrated } = useHydrationState()
@@ -31,6 +37,11 @@ export function useChangelogTrigger(): ChangelogTriggerState {
   const setLastSeenVersion = usePreferencesStore(
     (state) => state.setLastSeenVersion
   )
+
+  const onDismiss = useCallback(() => {
+    setIsOpen(false)
+    setLastSeenVersion(APP_VERSION)
+  }, [setLastSeenVersion])
 
   useEffect(() => {
     if (hasTriggeredRef.current) return
@@ -45,24 +56,14 @@ export function useChangelogTrigger(): ChangelogTriggerState {
     hasTriggeredRef.current = true
 
     const timerId = setTimeout(() => {
+      setTriggeredVersions(changelog.versions)
       setIsOpen(true)
-      setLastSeenVersion(APP_VERSION)
-      if ('vibrate' in navigator) {
-        navigator.vibrate(10)
-      }
     }, TRIGGER_DELAY_MS)
 
     return () => {
       clearTimeout(timerId)
     }
-  }, [
-    hasHydrated,
-    isLoading,
-    isAuthenticated,
-    location.pathname,
-    changelog.hasEntries,
-    setLastSeenVersion
-  ])
+  }, [hasHydrated, isLoading, isAuthenticated, location.pathname, changelog])
 
-  return { isOpen, setIsOpen }
+  return { isOpen, onDismiss, triggeredVersions }
 }

@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
 
-import { useChangelog } from '@/hooks/use-changelog'
 import { useChangelogTrigger } from '@/hooks/use-changelog-trigger'
-import type { ChangelogEntry } from '@/types/changelog'
+import type { ChangelogEntry, ChangelogVersion } from '@/types/changelog'
 
 import { ChangelogContent } from './changelog-content'
 import { ChangelogModal } from './changelog-modal'
+import { VersionAccordion } from './version-accordion'
 
 /**
  * Builds entries object with only defined categories (for exactOptionalPropertyTypes).
@@ -38,33 +38,55 @@ function buildEntries(
 }
 
 /**
+ * Transforms ChangelogVersion array to translated version data for accordion.
+ */
+function buildVersionData(
+  versions: ChangelogVersion[],
+  t: (key: string) => string
+) {
+  return versions.map((v) => ({
+    version: v.version,
+    date: v.date,
+    entries: buildEntries(v, t)
+  }))
+}
+
+/**
  * Auto-triggers changelog modal on new version detection.
- * Renders nothing if no new entries. Placed in authenticated layout.
+ * Renders nothing if modal not open. Placed in authenticated layout.
  */
 export function ChangelogAutoTrigger(): React.ReactNode {
   const { t } = useTranslation()
-  const { isOpen, setIsOpen } = useChangelogTrigger()
-  const changelog = useChangelog()
+  const { isOpen, onDismiss, triggeredVersions } = useChangelogTrigger()
 
-  if (!changelog.hasEntries) {
+  const firstVersion = triggeredVersions[0]
+  if (!isOpen || !firstVersion) {
     return null
   }
 
-  const latestVersion = changelog.versions[0]
-  if (!latestVersion) {
-    return null
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      onDismiss()
+    }
   }
+
+  const showAccordion = triggeredVersions.length > 1
 
   return (
-    <ChangelogModal open={isOpen} onOpenChange={setIsOpen}>
-      <ChangelogContent
-        version={latestVersion.version}
-        date={latestVersion.date}
-        entries={buildEntries(latestVersion, t)}
-        onDismiss={() => {
-          setIsOpen(false)
-        }}
-      />
+    <ChangelogModal open={isOpen} onOpenChange={handleOpenChange}>
+      {showAccordion ? (
+        <VersionAccordion
+          versions={buildVersionData(triggeredVersions, t)}
+          onDismiss={onDismiss}
+        />
+      ) : (
+        <ChangelogContent
+          version={firstVersion.version}
+          date={firstVersion.date}
+          entries={buildEntries(firstVersion, t)}
+          onDismiss={onDismiss}
+        />
+      )}
     </ChangelogModal>
   )
 }
