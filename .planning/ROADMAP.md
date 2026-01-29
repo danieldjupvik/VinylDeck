@@ -52,11 +52,13 @@ Plans:
 4. Entries grouped by category (New Features, Bug Fixes, Improvements) with visual badges
 5. Multiple missed versions appear in accordion (latest expanded, older collapsed)
 
-**Plans:** TBD
+**Plans:** 3 plans
 
 Plans:
 
-- [ ] 02-01: TBD
+- [ ] 02-01-PLAN.md - Install shadcn components, Badge variants, date formatter
+- [ ] 02-02-PLAN.md - Responsive modal wrapper and content components
+- [ ] 02-03-PLAN.md - Multi-version accordion and i18n translations
 
 ### Phase 3: Integration
 
@@ -84,5 +86,5 @@ Phases execute in numeric order: 1 -> 2 -> 3
 | Phase               | Plans Complete | Status      | Completed |
 | ------------------- | -------------- | ----------- | --------- |
 | 1. Data & Detection | 0/2            | Not started | -         |
-| 2. Modal Components | 0/TBD          | Not started | -         |
+| 2. Modal Components | 0/3            | Not started | -         |
 | 3. Integration      | 0/TBD          | Not started | -         |
