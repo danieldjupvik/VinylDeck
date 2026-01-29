@@ -110,7 +110,9 @@ feat: add collection search functionality
 - `src/components/ui/` - shadcn/ui components
 - `src/components/layout/` - Sidebar, brand mark, toggles
 - `src/components/collection/` - Collection view components
-- `src/hooks/` - Custom hooks (auth, collection, preferences, online status, hydration, mobile detection, user profile)
+- `src/components/changelog/` - Changelog modal and version display
+- `src/data/` - Static data (changelog entries)
+- `src/hooks/` - Custom hooks (auth, collection, preferences, online status, hydration, mobile detection, user profile, changelog)
 - `src/lib/` - Utilities, constants, tRPC client, query persister, errors
 - `src/providers/` - React providers (auth, theme, query/tRPC, hydration, i18n)
 - `src/routes/` - TanStack Router file-based routes
@@ -375,7 +377,7 @@ const { data } = useQuery({
 ### Zustand Stores (`src/stores/`)
 
 - **auth-store.ts** - OAuth tokens, sessionActive flag
-- **preferences-store.ts** - View mode, avatar source, Gravatar email
+- **preferences-store.ts** - View mode, avatar source, Gravatar email, lastSeenVersion
 
 ```typescript
 const tokens = useAuthStore((state) => state.tokens)
@@ -403,12 +405,12 @@ const { data } = useQuery({
 
 **localStorage (`src/lib/storage-keys.ts`):**
 
-| Key                  | Managed By  | Contents                              |
-| -------------------- | ----------- | ------------------------------------- |
-| `vinyldeck-auth`     | Zustand     | OAuth tokens, sessionActive           |
-| `vinyldeck-prefs`    | Zustand     | viewMode, avatarSource, gravatarEmail |
-| `vinyldeck-theme`    | next-themes | Theme preference                      |
-| `vinyldeck-language` | i18next     | Language preference                   |
+| Key                  | Managed By  | Contents                                               |
+| -------------------- | ----------- | ------------------------------------------------------ |
+| `vinyldeck-auth`     | Zustand     | OAuth tokens, sessionActive                            |
+| `vinyldeck-prefs`    | Zustand     | viewMode, avatarSource, gravatarEmail, lastSeenVersion |
+| `vinyldeck-theme`    | next-themes | Theme preference                                       |
+| `vinyldeck-language` | i18next     | Language preference                                    |
 
 **sessionStorage:**
 

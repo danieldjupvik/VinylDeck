@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -38,6 +39,13 @@ export function ChangelogModal({
 }: ChangelogModalProps): React.ReactNode {
   const { t } = useTranslation()
   const isMobile = useIsMobile()
+
+  // Blur trigger element on mobile to prevent aria-hidden focus conflict
+  useEffect(() => {
+    if (open && isMobile && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur()
+    }
+  }, [open, isMobile])
 
   if (isMobile) {
     return (
