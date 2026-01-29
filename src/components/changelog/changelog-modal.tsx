@@ -32,7 +32,6 @@ interface ChangelogModalProps {
  * @param children - Content to render inside the modal (typically ChangelogContent)
  * @returns The modal component (Dialog on desktop, Drawer on mobile)
  */
-// eslint-disable-next-line import-x/no-unused-modules -- Will be used in Phase 3 integration
 export function ChangelogModal({
   open,
   onOpenChange,

@@ -17,7 +17,6 @@ export type ChangelogResult =
  *
  * @returns ChangelogResult - either versions to display or a reason why there are none
  */
-// eslint-disable-next-line import-x/no-unused-modules -- Consumed by ChangelogModal in Phase 2
 export function useChangelog(): ChangelogResult {
   const lastSeenVersion = usePreferencesStore((state) => state.lastSeenVersion)
 

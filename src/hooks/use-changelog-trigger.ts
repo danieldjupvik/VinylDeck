@@ -20,7 +20,6 @@ interface ChangelogTriggerState {
  *
  * @returns Modal open state and setter for controlled modal
  */
-// eslint-disable-next-line import-x/no-unused-modules -- Consumed by ChangelogAutoTrigger
 export function useChangelogTrigger(): ChangelogTriggerState {
   const [isOpen, setIsOpen] = useState(false)
   const hasTriggeredRef = useRef(false)

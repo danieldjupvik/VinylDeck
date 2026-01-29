@@ -41,7 +41,6 @@ function buildEntries(
  * Auto-triggers changelog modal on new version detection.
  * Renders nothing if no new entries. Placed in authenticated layout.
  */
-// eslint-disable-next-line import-x/no-unused-modules -- Consumed by _authenticated.tsx layout
 export function ChangelogAutoTrigger(): React.ReactNode {
   const { t } = useTranslation()
   const { isOpen, setIsOpen } = useChangelogTrigger()
