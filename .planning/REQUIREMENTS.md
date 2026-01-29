@@ -25,22 +25,22 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Version Detection
 
-- [ ] **VERS-01**: App detects version change on load by comparing current vs last-seen
-- [ ] **VERS-02**: Last-seen version persisted to localStorage via preferences store
-- [ ] **VERS-03**: Modal only triggers if new version has user-facing changelog entries
-- [ ] **VERS-04**: Version comparison handles semver correctly (0.9 < 0.10)
+- [x] **VERS-01**: App detects version change on load by comparing current vs last-seen
+- [x] **VERS-02**: Last-seen version persisted to localStorage via preferences store
+- [x] **VERS-03**: Modal only triggers if new version has user-facing changelog entries
+- [x] **VERS-04**: Version comparison handles semver correctly (0.9 < 0.10)
 
 ### Triggers & Access
 
-- [ ] **TRIG-01**: Modal appears automatically on app load when new version with entries detected
-- [ ] **TRIG-02**: Changelog button in Settings > About opens modal manually
-- [ ] **TRIG-03**: Modal gated behind hydration to prevent false triggers on refresh
+- [x] **TRIG-01**: Modal appears automatically on app load when new version with entries detected
+- [x] **TRIG-02**: Changelog button in Settings > About opens modal manually
+- [x] **TRIG-03**: Modal gated behind hydration to prevent false triggers on refresh
 
 ### Data & Infrastructure
 
-- [ ] **DATA-01**: Curated changelog data stored in TypeScript/JSON format
-- [ ] **DATA-02**: Changelog entries support i18n via translation keys
-- [ ] **DATA-03**: Data structure supports version, date, and categorized entries
+- [x] **DATA-01**: Curated changelog data stored in TypeScript/JSON format
+- [x] **DATA-02**: Changelog entries support i18n via translation keys
+- [x] **DATA-03**: Data structure supports version, date, and categorized entries
 
 ## v2 Requirements
 
@@ -87,9 +87,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONT-03     | 2     | Complete |
 | CONT-04     | 2     | Complete |
 | CONT-05     | 2     | Complete |
-| TRIG-01     | 3     | Pending  |
-| TRIG-02     | 3     | Pending  |
-| TRIG-03     | 3     | Pending  |
+| TRIG-01     | 3     | Complete |
+| TRIG-02     | 3     | Complete |
+| TRIG-03     | 3     | Complete |
 
 **Coverage:**
 
@@ -100,4 +100,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 ---
 
 _Requirements defined: 2026-01-29_
-_Last updated: 2026-01-29 after Phase 2 completion_
+_Last updated: 2026-01-29 after Phase 3 completion_
