@@ -237,6 +237,10 @@
     }
   },
   "changelog": {
+    "modal": {
+      "title": "What's New",
+      "description": "Recent updates and improvements"
+    },
     "header": {
       "title": "What's New in v{{version}}"
     },

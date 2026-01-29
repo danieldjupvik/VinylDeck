@@ -237,6 +237,10 @@
     }
   },
   "changelog": {
+    "modal": {
+      "title": "Hva er nytt",
+      "description": "Siste oppdateringer og forbedringer"
+    },
     "header": {
       "title": "Nytt i v{{version}}"
     },
