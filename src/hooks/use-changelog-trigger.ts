@@ -61,9 +61,8 @@ export function useChangelogTrigger(): ChangelogTriggerState {
 
     if (!hydrationGate || !authGate || !routeGate || !versionGate) return
 
-    hasTriggeredRef.current = true
-
     const timerId = setTimeout(() => {
+      hasTriggeredRef.current = true
       setTriggeredVersions(changelog.versions)
       setIsOpen(true)
     }, TRIGGER_DELAY_MS)
