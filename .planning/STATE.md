@@ -5,20 +5,20 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Users know what's new without deciphering technical changelogs
-**Current focus:** Phase 3 - Integration (COMPLETE)
+**Current focus:** v1.0 milestone complete — ready to merge
 
 ## Current Position
 
-Phase: 3 of 3 (Integration)
-Plan: 2 of 2 in current phase (COMPLETE)
-Status: All phases complete
-Last activity: 2026-01-29 - Completed 03-02-PLAN.md
+Phase: v1.0 COMPLETE
+Plan: All 7 plans complete
+Status: Milestone shipped
+Last activity: 2026-01-29 — v1.0 milestone archived
 
 Progress: [██████████] 100% (7/7 plans)
 
 ## Performance Metrics
 
-**Velocity:**
+**v1.0 Milestone:**
 
 - Total plans completed: 7
 - Average duration: 5.9 min
@@ -32,49 +32,28 @@ Progress: [██████████] 100% (7/7 plans)
 | 02    | 3     | 20 min | 6.7 min  |
 | 03    | 2     | 16 min | 8 min    |
 
-**Recent Trend:**
-
-- Last 5 plans: 02-01 (2 min), 02-02 (3 min), 02-03 (15 min), 03-01 (7 min), 03-02 (9 min)
-- Trend: Integration phase involved cleanup of partial implementations
-
-_Updated after each plan completion_
-
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
-
-- [Roadmap]: 3-phase structure derived from research recommendations and requirement clustering
-- [01-01]: Translation key pattern uses underscores: `changelog.{version_underscored}.{category}_{index}`
-- [01-01]: ChangelogVersion category arrays optional (omit rather than empty)
-- [01-02]: lastSeenVersion null means first install (no modal shown)
-- [01-02]: ChangelogResult uses discriminated union with reason codes
-- [01-02]: Zustand persist version incremented to 1 with migration function
-- [02-01]: Badge color variants follow existing CVA pattern with opacity backgrounds
-- [02-01]: Date locale map uses i18n.language (en -> en-US, no -> nb-NO)
-- [02-02]: Responsive modal uses useIsMobile + conditional Dialog/Drawer rendering
-- [02-02]: Category order: features, improvements, fixes (positive first)
-- [02-02]: Entry truncation uses line-clamp-2 with useLayoutEffect measurement
-- [02-03]: ChangelogContent flexible with showHeader/showFooter/compact props for accordion reuse
-- [02-03]: Modal bg changed from bg-background to bg-card for visual separation
-- [02-03]: Auto-focus disabled on modal open for better UX
-- [03-01]: 750ms delay before modal appears (allows UI to settle)
-- [03-01]: Ref guard set BEFORE timer starts to prevent StrictMode double-trigger
-- [03-01]: buildEntries helper for exactOptionalPropertyTypes compatibility
-- [03-02]: Reused buildEntries pattern in Settings page for consistency
+All decisions logged in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-None - feature complete.
+None — milestone complete.
 
 ### Blockers/Concerns
 
-None - all phases executed successfully.
+None — ready to merge to main.
 
 ## Session Continuity
 
 Last session: 2026-01-29
-Stopped at: Completed 03-02-PLAN.md (all plans complete)
+Stopped at: v1.0 milestone archived
 Resume file: None
+
+## Next Steps
+
+1. Merge feat/user-friendly-changelog to main
+2. Release as part of next VinylDeck version
+3. For future changelog work, run `/gsd:new-milestone`
