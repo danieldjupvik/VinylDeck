@@ -44,7 +44,7 @@ export function ChangelogModal({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="max-h-[85vh]">
+        <DrawerContent className="max-h-[85vh] p-0">
           <VisuallyHidden>
             <DrawerTitle>{t('changelog.modal.title')}</DrawerTitle>
             <DrawerDescription>
@@ -59,7 +59,12 @@ export function ChangelogModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg" showCloseButton={false}>
+      <DialogContent
+        className="max-w-lg p-0"
+        onOpenAutoFocus={(e) => {
+          e.preventDefault()
+        }}
+      >
         <VisuallyHidden>
           <DialogTitle>{t('changelog.modal.title')}</DialogTitle>
           <DialogDescription>

@@ -8,6 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
+import { Button } from '@/components/ui/button'
 import { formatChangelogDate } from '@/lib/date-format'
 
 interface VersionData {
@@ -39,7 +40,7 @@ const INITIAL_VISIBLE_COUNT = 3
  * @param onDismiss - Callback when dismiss button is clicked in any version
  * @returns Accordion display of changelog versions
  */
-// eslint-disable-next-line import-x/no-unused-modules -- Will be used in Phase 3 integration
+// eslint-disable-next-line import-x/no-unused-modules -- Used in Phase 3 integration
 export function VersionAccordion({
   versions,
   onDismiss
@@ -55,40 +56,62 @@ export function VersionAccordion({
       : versions
 
   return (
-    <div className="flex flex-col">
-      <Accordion type="single" collapsible defaultValue="item-0">
-        {visibleVersions.map((version, index) => (
-          <AccordionItem key={version.version} value={`item-${index}`}>
-            <AccordionTrigger className="px-6">
-              <span className="text-sm font-medium">
-                {t('changelog.versionDate', {
-                  version: version.version,
-                  date: formatChangelogDate(version.date)
-                })}
-              </span>
-            </AccordionTrigger>
-            <AccordionContent>
-              <ChangelogContent
-                version={version.version}
-                date={version.date}
-                entries={version.entries}
-                onDismiss={onDismiss}
-              />
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+    <div className="flex flex-col gap-4 p-6">
+      <header>
+        <h2 className="text-lg font-semibold">{t('changelog.modal.title')}</h2>
+        <p className="text-muted-foreground text-sm">
+          {t('changelog.modal.description')}
+        </p>
+      </header>
 
-      {shouldCollapse && !showAll ? (
-        <button
-          onClick={() => {
-            setShowAll(true)
-          }}
-          className="text-muted-foreground hover:text-foreground w-full py-4 text-sm transition-colors"
+      <div className="-mx-2 max-h-[50vh] overflow-y-auto px-2">
+        <Accordion
+          type="single"
+          collapsible
+          defaultValue="item-0"
+          className="pt-2"
         >
-          {t('changelog.olderVersions', { count: olderCount })}
-        </button>
-      ) : null}
+          {visibleVersions.map((version, index) => (
+            <AccordionItem key={version.version} value={`item-${index}`}>
+              <AccordionTrigger>
+                <span className="text-sm font-medium">
+                  {t('changelog.versionDate', {
+                    version: version.version,
+                    date: formatChangelogDate(version.date)
+                  })}
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="px-4">
+                <ChangelogContent
+                  version={version.version}
+                  date={version.date}
+                  entries={version.entries}
+                  showHeader={false}
+                  showFooter={false}
+                  compact
+                />
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+
+        {shouldCollapse && !showAll ? (
+          <button
+            onClick={() => {
+              setShowAll(true)
+            }}
+            className="text-muted-foreground hover:text-foreground w-full py-4 text-sm transition-colors"
+          >
+            {t('changelog.olderVersions', { count: olderCount })}
+          </button>
+        ) : null}
+      </div>
+
+      <footer>
+        <Button onClick={onDismiss} className="w-full">
+          {t('changelog.footer.dismiss')}
+        </Button>
+      </footer>
     </div>
   )
 }
