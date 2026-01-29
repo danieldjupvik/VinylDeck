@@ -1,6 +1,6 @@
 # Phase 2: Modal Components - Context
 
-**Gathered:** 2026-01-29
+**Gathered:** 2026-01-29 (updated)
 **Status:** Ready for planning
 
 <domain>
@@ -41,6 +41,15 @@ Responsive changelog modal with categorized content display. Dialog on desktop (
 - Long entries: truncate after ~2 lines with "Show more" to expand
 - Dismiss button text: "Got it"
 
+### Modal reusability
+
+- Create a reusable `ResponsiveModal` component (Dialog on desktop, Drawer on mobile)
+- Follow shadcn's DrawerDialogDemo pattern: `useMediaQuery` hook + conditional rendering, abstracted into a single component
+- Location: `src/components/responsive-modal.tsx` (not in `ui/` — keep shadcn primitives separate from composed components)
+- Check codebase for existing `useMediaQuery` hook before creating a new one
+- Fresh API design — not constrained by existing Dialog prop patterns
+- This component should be usable for future modals beyond changelog
+
 ### Claude's Discretion
 
 - Exact badge colors per category (New Features, Bug Fixes, Improvements)
@@ -48,6 +57,7 @@ Responsive changelog modal with categorized content display. Dialog on desktop (
 - Exact spacing values and typography scale
 - "Show more" implementation details for long entries
 - How the "+ N older versions" expansion works in the accordion
+- ResponsiveModal API design (unified props vs slot-based for header/footer)
 
 </decisions>
 
@@ -57,6 +67,7 @@ Responsive changelog modal with categorized content display. Dialog on desktop (
 - Use shadcn Dialog and Drawer components — leverage their built-in animations
 - Use shadcn Accordion for multiple versions display
 - Date formatting should use the app's existing i18n infrastructure
+- Reference: shadcn's DrawerDialogDemo pattern for the responsive modal approach
 
 </specifics>
 
