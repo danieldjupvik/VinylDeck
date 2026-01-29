@@ -40,12 +40,12 @@ export function ChangelogModal({
   const { t } = useTranslation()
   const isMobile = useIsMobile()
 
-  // Blur trigger element on mobile to prevent aria-hidden focus conflict
+  // Blur trigger element to prevent aria-hidden focus conflict
   useEffect(() => {
-    if (open && isMobile && document.activeElement instanceof HTMLElement) {
+    if (open && document.activeElement instanceof HTMLElement) {
       document.activeElement.blur()
     }
-  }, [open, isMobile])
+  }, [open])
 
   if (isMobile) {
     return (
