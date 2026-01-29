@@ -11,11 +11,13 @@ interface PreferencesStore {
   viewMode: ViewMode
   avatarSource: AvatarSource
   gravatarEmail: string
+  lastSeenVersion: string | null
 
   // Actions
   setViewMode: (mode: ViewMode) => void
   setAvatarSource: (source: AvatarSource) => void
   setGravatarEmail: (email: string) => void
+  setLastSeenVersion: (version: string) => void
   resetAvatarSettings: () => void
 }
 
@@ -34,13 +36,24 @@ export const usePreferencesStore = create<PreferencesStore>()(
       viewMode: 'grid',
       avatarSource: 'discogs',
       gravatarEmail: '',
+      lastSeenVersion: null,
 
       setViewMode: (mode) => set({ viewMode: mode }),
       setAvatarSource: (source) => set({ avatarSource: source }),
       setGravatarEmail: (email) => set({ gravatarEmail: email }),
+      setLastSeenVersion: (version) => set({ lastSeenVersion: version }),
       resetAvatarSettings: () =>
         set({ avatarSource: 'discogs', gravatarEmail: '' })
     }),
-    { name: STORAGE_KEYS.PREFERENCES }
+    {
+      name: STORAGE_KEYS.PREFERENCES,
+      version: 1,
+      migrate: (persisted, version) => {
+        if (version === 0) {
+          return { ...(persisted as object), lastSeenVersion: null }
+        }
+        return persisted as PreferencesStore
+      }
+    }
   )
 )
