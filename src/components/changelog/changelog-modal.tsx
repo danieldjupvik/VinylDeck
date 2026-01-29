@@ -1,4 +1,3 @@
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -44,12 +43,12 @@ export function ChangelogModal({
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
         <DrawerContent className="max-h-[85vh] p-0">
-          <VisuallyHidden>
-            <DrawerTitle>{t('changelog.modal.title')}</DrawerTitle>
-            <DrawerDescription>
-              {t('changelog.modal.description')}
-            </DrawerDescription>
-          </VisuallyHidden>
+          <DrawerTitle className="sr-only">
+            {t('changelog.modal.title')}
+          </DrawerTitle>
+          <DrawerDescription className="sr-only">
+            {t('changelog.modal.description')}
+          </DrawerDescription>
           {children}
         </DrawerContent>
       </Drawer>
@@ -64,12 +63,12 @@ export function ChangelogModal({
           e.preventDefault()
         }}
       >
-        <VisuallyHidden>
-          <DialogTitle>{t('changelog.modal.title')}</DialogTitle>
-          <DialogDescription>
-            {t('changelog.modal.description')}
-          </DialogDescription>
-        </VisuallyHidden>
+        <DialogTitle className="sr-only">
+          {t('changelog.modal.title')}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          {t('changelog.modal.description')}
+        </DialogDescription>
         {children}
       </DialogContent>
     </Dialog>
