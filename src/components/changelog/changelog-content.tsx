@@ -112,7 +112,7 @@ export function ChangelogContent({
 
       {showFooter && onDismiss ? (
         <footer className="pt-2">
-          <Button onClick={onDismiss} className="w-full">
+          <Button variant="secondary" onClick={onDismiss} className="w-full">
             {t('changelog.footer.dismiss')}
           </Button>
         </footer>

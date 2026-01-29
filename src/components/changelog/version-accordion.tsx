@@ -40,7 +40,7 @@ const INITIAL_VISIBLE_COUNT = 3
  * @param onDismiss - Callback when dismiss button is clicked in any version
  * @returns Accordion display of changelog versions
  */
-// eslint-disable-next-line import-x/no-unused-modules -- Used in Phase 3 integration
+
 export function VersionAccordion({
   versions,
   onDismiss
@@ -74,11 +74,13 @@ export function VersionAccordion({
           {visibleVersions.map((version, index) => (
             <AccordionItem key={version.version} value={`item-${index}`}>
               <AccordionTrigger>
+                {/* eslint-disable-next-line i18next/no-literal-string -- Separator dot is language-agnostic */}
                 <span className="text-sm font-medium">
-                  {t('changelog.versionDate', {
-                    version: version.version,
-                    date: formatChangelogDate(version.date)
-                  })}
+                  v{version.version.replace(/-beta\.\d+$/, '')}
+                  <span className="text-muted-foreground font-normal">
+                    {' · '}
+                    {formatChangelogDate(version.date)}
+                  </span>
                 </span>
               </AccordionTrigger>
               <AccordionContent className="px-4">
@@ -108,7 +110,7 @@ export function VersionAccordion({
       </div>
 
       <footer>
-        <Button onClick={onDismiss} className="w-full">
+        <Button variant="secondary" onClick={onDismiss} className="w-full">
           {t('changelog.footer.dismiss')}
         </Button>
       </footer>

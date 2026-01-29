@@ -14,8 +14,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
-import { ChangelogContent } from '@/components/changelog/changelog-content'
 import { ChangelogModal } from '@/components/changelog/changelog-modal'
+import { VersionAccordion } from '@/components/changelog/version-accordion'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -175,7 +175,11 @@ function SettingsPage() {
         .slice(0, 2)
     : '?'
 
-  const latestVersion = changelog[0]
+  const allVersions = changelog.map((v) => ({
+    version: v.version,
+    date: v.date,
+    entries: buildEntries(v, t)
+  }))
 
   return (
     <>
@@ -474,12 +478,10 @@ function SettingsPage() {
         </div>
       </div>
 
-      {latestVersion ? (
+      {allVersions.length > 0 ? (
         <ChangelogModal open={changelogOpen} onOpenChange={setChangelogOpen}>
-          <ChangelogContent
-            version={latestVersion.version}
-            date={latestVersion.date}
-            entries={buildEntries(latestVersion, t)}
+          <VersionAccordion
+            versions={allVersions}
             onDismiss={() => {
               setChangelogOpen(false)
             }}
