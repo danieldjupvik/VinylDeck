@@ -258,6 +258,23 @@
       "showLess": "Show less"
     },
     "olderVersions": "+ {{count}} older versions",
-    "versionDate": "v{{version}} — {{date}}"
+    "versionDate": "v{{version}} — {{date}}",
+    "0_3_1_beta": {
+      "feature_1": "Redesigned login page with animations and public browsing preview",
+      "feature_2": "Updated color palette with new accent colors",
+      "improvement_1": "Improved sidebar button design and spacing"
+    },
+    "0_3_0_beta": {
+      "feature_1": "Secure OAuth login with your Discogs account",
+      "feature_2": "Return to your last page after signing in"
+    },
+    "0_2_0_beta": {
+      "feature_1": "Browse your vinyl collection in grid or table view",
+      "feature_2": "Search, filter, and sort by artist, genre, label, and more",
+      "feature_3": "Dark and light themes with system preference detection",
+      "feature_4": "Works offline as a Progressive Web App",
+      "feature_5": "Customizable avatar with Gravatar support",
+      "fix_1": "Various UI and accessibility improvements"
+    }
   }
 }
