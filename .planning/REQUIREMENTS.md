@@ -70,34 +70,34 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status  |
 | ----------- | ----- | ------- |
-| MODAL-01    | TBD   | Pending |
-| MODAL-02    | TBD   | Pending |
-| MODAL-03    | TBD   | Pending |
-| MODAL-04    | TBD   | Pending |
-| MODAL-05    | TBD   | Pending |
-| CONT-01     | TBD   | Pending |
-| CONT-02     | TBD   | Pending |
-| CONT-03     | TBD   | Pending |
-| CONT-04     | TBD   | Pending |
-| CONT-05     | TBD   | Pending |
-| VERS-01     | TBD   | Pending |
-| VERS-02     | TBD   | Pending |
-| VERS-03     | TBD   | Pending |
-| VERS-04     | TBD   | Pending |
-| TRIG-01     | TBD   | Pending |
-| TRIG-02     | TBD   | Pending |
-| TRIG-03     | TBD   | Pending |
-| DATA-01     | TBD   | Pending |
-| DATA-02     | TBD   | Pending |
-| DATA-03     | TBD   | Pending |
+| DATA-01     | 1     | Pending |
+| DATA-02     | 1     | Pending |
+| DATA-03     | 1     | Pending |
+| VERS-01     | 1     | Pending |
+| VERS-02     | 1     | Pending |
+| VERS-03     | 1     | Pending |
+| VERS-04     | 1     | Pending |
+| MODAL-01    | 2     | Pending |
+| MODAL-02    | 2     | Pending |
+| MODAL-03    | 2     | Pending |
+| MODAL-04    | 2     | Pending |
+| MODAL-05    | 2     | Pending |
+| CONT-01     | 2     | Pending |
+| CONT-02     | 2     | Pending |
+| CONT-03     | 2     | Pending |
+| CONT-04     | 2     | Pending |
+| CONT-05     | 2     | Pending |
+| TRIG-01     | 3     | Pending |
+| TRIG-02     | 3     | Pending |
+| TRIG-03     | 3     | Pending |
 
 **Coverage:**
 
 - v1 requirements: 20 total
-- Mapped to phases: 0
-- Unmapped: 20
+- Mapped to phases: 20
+- Unmapped: 0
 
 ---
 
 _Requirements defined: 2026-01-29_
-_Last updated: 2026-01-29 after initial definition_
+_Last updated: 2026-01-29 after roadmap creation_
