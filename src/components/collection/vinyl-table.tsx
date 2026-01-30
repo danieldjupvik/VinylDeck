@@ -18,10 +18,17 @@ import { VinylTableSkeleton } from './vinyl-table-skeleton'
 
 import type { TFunction } from 'i18next'
 
+interface NonVinylBreakdownItem {
+  format: string
+  count: number
+}
+
 interface VinylTableProps {
   releases: DiscogsCollectionRelease[]
   isLoading: boolean
   shouldAnimate: boolean
+  nonVinylCount?: number
+  nonVinylBreakdown?: NonVinylBreakdownItem[]
 }
 
 const formatFormats = (formats: DiscogsFormat[]) => {
@@ -126,7 +133,9 @@ function VinylTableRow({
 export function VinylTable({
   releases,
   isLoading,
-  shouldAnimate
+  shouldAnimate,
+  nonVinylCount,
+  nonVinylBreakdown
 }: VinylTableProps): React.JSX.Element {
   const { t } = useTranslation()
 
@@ -139,7 +148,12 @@ export function VinylTable({
   }
 
   if (releases.length === 0) {
-    return <CollectionEmptyState />
+    return (
+      <CollectionEmptyState
+        nonVinylCount={nonVinylCount}
+        nonVinylBreakdown={nonVinylBreakdown}
+      />
+    )
   }
 
   return (

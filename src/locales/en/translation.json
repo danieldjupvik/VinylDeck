@@ -68,6 +68,12 @@
   "collection": {
     "title": "My Collection",
     "empty": "No vinyl records found",
+    "emptyState": {
+      "title": "Your vinyl shelf is empty",
+      "description": "Start building your collection by adding your first record.",
+      "descriptionWithOther": "We found {{formats}}, but this deck spins vinyl only.",
+      "addVinyl": "Browse vinyl on Discogs"
+    },
     "loading": "Loading collection...",
     "search": "Search by artist or title...",
     "sort": {

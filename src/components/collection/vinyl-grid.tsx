@@ -4,18 +4,27 @@ import { CollectionEmptyState } from './collection-empty-state'
 import { VinylCard } from './vinyl-card'
 import { VinylCardSkeleton } from './vinyl-card-skeleton'
 
+interface NonVinylBreakdownItem {
+  format: string
+  count: number
+}
+
 interface VinylGridProps {
   releases: DiscogsCollectionRelease[]
   isLoading: boolean
   shouldAnimate: boolean
   animationClassName?: string
+  nonVinylCount?: number
+  nonVinylBreakdown?: NonVinylBreakdownItem[]
 }
 
 export function VinylGrid({
   releases,
   isLoading,
   shouldAnimate,
-  animationClassName
+  animationClassName,
+  nonVinylCount,
+  nonVinylBreakdown
 }: VinylGridProps): React.JSX.Element {
   if (isLoading) {
     return (
@@ -29,7 +38,12 @@ export function VinylGrid({
   }
 
   if (releases.length === 0) {
-    return <CollectionEmptyState />
+    return (
+      <CollectionEmptyState
+        nonVinylCount={nonVinylCount}
+        nonVinylBreakdown={nonVinylBreakdown}
+      />
+    )
   }
 
   return (

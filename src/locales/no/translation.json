@@ -68,6 +68,12 @@
   "collection": {
     "title": "Min samling",
     "empty": "Ingen vinylplater funnet",
+    "emptyState": {
+      "title": "Vinylhyllen din er tom",
+      "description": "Begynn å bygge samlingen din ved å legge til din første plate.",
+      "descriptionWithOther": "Vi fant {{formats}}, men denne spilleren er kun for vinyl.",
+      "addVinyl": "Bla gjennom vinyl på Discogs"
+    },
     "loading": "Laster samlingen...",
     "search": "Søk etter artist eller tittel...",
     "sort": {

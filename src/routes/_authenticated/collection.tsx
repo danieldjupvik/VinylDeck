@@ -316,12 +316,16 @@ function CollectionPage() {
           isLoading={isLoading || isFetching}
           shouldAnimate={shouldAnimateItems}
           animationClassName={gridAnimationClassName}
+          nonVinylCount={nonVinylCount}
+          nonVinylBreakdown={nonVinylBreakdown}
         />
       ) : (
         <VinylTable
           releases={filteredReleases}
           isLoading={isLoading || isFetching}
           shouldAnimate={shouldAnimateItems}
+          nonVinylCount={nonVinylCount}
+          nonVinylBreakdown={nonVinylBreakdown}
         />
       )}
 
