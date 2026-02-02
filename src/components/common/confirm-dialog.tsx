@@ -48,6 +48,7 @@ interface ConfirmDialogProps {
  * @param variant - Confirm button variant (default: 'default')
  * @param open - Controlled open state
  * @param onOpenChange - Controlled state handler
+ * @returns The rendered confirmation AlertDialog component
  */
 export function ConfirmDialog({
   trigger,

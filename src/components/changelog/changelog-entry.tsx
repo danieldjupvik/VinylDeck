@@ -43,6 +43,7 @@ export function ChangelogEntry({ text }: ChangelogEntryProps): React.ReactNode {
       </p>
       {isTruncated ? (
         <button
+          type="button"
           onClick={() => {
             setIsExpanded(!isExpanded)
           }}

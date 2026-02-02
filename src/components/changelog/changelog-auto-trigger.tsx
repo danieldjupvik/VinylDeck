@@ -2,54 +2,13 @@ import { useTranslation } from 'react-i18next'
 
 import { ResponsiveDialog } from '@/components/common/responsive-dialog'
 import { useChangelogTrigger } from '@/hooks/use-changelog-trigger'
-import type { ChangelogEntry, ChangelogVersion } from '@/types/changelog'
+import {
+  buildTranslatedEntries,
+  buildTranslatedVersions
+} from '@/lib/changelog-utils'
 
 import { ChangelogContent } from './changelog-content'
 import { VersionAccordion } from './version-accordion'
-
-/**
- * Builds entries object with only defined categories (for exactOptionalPropertyTypes).
- */
-function buildEntries(
-  version: {
-    features?: ChangelogEntry[]
-    improvements?: ChangelogEntry[]
-    fixes?: ChangelogEntry[]
-  },
-  t: (key: string) => string
-): { features?: string[]; improvements?: string[]; fixes?: string[] } {
-  const entries: {
-    features?: string[]
-    improvements?: string[]
-    fixes?: string[]
-  } = {}
-
-  if (version.features && version.features.length > 0) {
-    entries.features = version.features.map((e) => t(e.key))
-  }
-  if (version.improvements && version.improvements.length > 0) {
-    entries.improvements = version.improvements.map((e) => t(e.key))
-  }
-  if (version.fixes && version.fixes.length > 0) {
-    entries.fixes = version.fixes.map((e) => t(e.key))
-  }
-
-  return entries
-}
-
-/**
- * Transforms ChangelogVersion array to translated version data for accordion.
- */
-function buildVersionData(
-  versions: ChangelogVersion[],
-  t: (key: string) => string
-) {
-  return versions.map((v) => ({
-    version: v.version,
-    date: v.date,
-    entries: buildEntries(v, t)
-  }))
-}
 
 /**
  * Auto-triggers changelog modal on new version detection.
@@ -82,14 +41,14 @@ export function ChangelogAutoTrigger(): React.ReactNode {
     >
       {showAccordion ? (
         <VersionAccordion
-          versions={buildVersionData(triggeredVersions, t)}
+          versions={buildTranslatedVersions(triggeredVersions, t)}
           onDismiss={onDismiss}
         />
       ) : (
         <ChangelogContent
           version={firstVersion.version}
           date={firstVersion.date}
-          entries={buildEntries(firstVersion, t)}
+          entries={buildTranslatedEntries(firstVersion, t)}
           onDismiss={onDismiss}
         />
       )}

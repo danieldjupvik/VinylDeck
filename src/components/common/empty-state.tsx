@@ -36,6 +36,7 @@ const sizeClasses = {
  * @param action - Optional action element (Button, Link, etc.)
  * @param size - Height variant: 'default' (py-20), 'fullScreen', or 'fullHeight'
  * @param className - Additional container classes
+ * @returns The rendered empty state component
  */
 export function EmptyState({
   icon,

@@ -26,9 +26,10 @@ interface PreferencesStore {
  * Automatically persists to localStorage (via Zustand) under 'vinyldeck-prefs' key.
  *
  * Consolidates:
- * - vinyldeck_view_mode
- * - vinyldeck_avatar_source
- * - vinyldeck_gravatar_email
+ * - viewMode
+ * - avatarSource
+ * - gravatarEmail
+ * - lastSeenVersion
  */
 export const usePreferencesStore = create<PreferencesStore>()(
   persist(

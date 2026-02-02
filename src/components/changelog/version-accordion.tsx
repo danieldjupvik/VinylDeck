@@ -99,6 +99,7 @@ export function VersionAccordion({
 
         {shouldCollapse && !showAll ? (
           <button
+            type="button"
             onClick={() => {
               setShowAll(true)
             }}

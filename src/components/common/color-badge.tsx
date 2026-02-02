@@ -33,7 +33,10 @@ type ColorBadgeProps = React.ComponentProps<'span'> &
  * Use this for color-coded labels like changelog categories, status indicators, or tags.
  * For standard badge variants (default, secondary, destructive, outline), use the base Badge component.
  *
- * @param color - Color variant: green, amber, blue, red, purple, gray
+ * @param props - ColorBadgeProps
+ * @param props.className - Additional CSS classes
+ * @param props.color - Color variant: green, amber, blue, red, purple, gray
+ * @returns The rendered color badge span element
  */
 function ColorBadge({
   className,

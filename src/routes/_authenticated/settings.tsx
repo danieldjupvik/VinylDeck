@@ -38,9 +38,9 @@ import { changelog } from '@/data/changelog'
 import { useAuth } from '@/hooks/use-auth'
 import { usePreferences } from '@/hooks/use-preferences'
 import { useUserProfile } from '@/hooks/use-user-profile'
+import { buildTranslatedEntries } from '@/lib/changelog-utils'
 import { APP_VERSION } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import type { ChangelogEntry } from '@/types/changelog'
 
 export const Route = createFileRoute('/_authenticated/settings')({
   component: SettingsPage
@@ -107,36 +107,6 @@ function LanguageFlag({ lang }: { lang: 'en' | 'no' }) {
   )
 }
 
-/**
- * Builds entries object with only defined categories (for exactOptionalPropertyTypes).
- */
-function buildEntries(
-  version: {
-    features?: ChangelogEntry[]
-    improvements?: ChangelogEntry[]
-    fixes?: ChangelogEntry[]
-  },
-  t: (key: string) => string
-): { features?: string[]; improvements?: string[]; fixes?: string[] } {
-  const entries: {
-    features?: string[]
-    improvements?: string[]
-    fixes?: string[]
-  } = {}
-
-  if (version.features && version.features.length > 0) {
-    entries.features = version.features.map((e) => t(e.key))
-  }
-  if (version.improvements && version.improvements.length > 0) {
-    entries.improvements = version.improvements.map((e) => t(e.key))
-  }
-  if (version.fixes && version.fixes.length > 0) {
-    entries.fixes = version.fixes.map((e) => t(e.key))
-  }
-
-  return entries
-}
-
 function SettingsPage() {
   const { t, i18n } = useTranslation()
   const { disconnect } = useAuth()
@@ -159,7 +129,7 @@ function SettingsPage() {
   const allVersions = changelog.map((v) => ({
     version: v.version,
     date: v.date,
-    entries: buildEntries(v, t)
+    entries: buildTranslatedEntries(v, t)
   }))
 
   return (
