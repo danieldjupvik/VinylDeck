@@ -7,6 +7,7 @@ import {
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { ChangelogAutoTrigger } from '@/components/changelog/changelog-auto-trigger'
 import { CollectionSyncBanner } from '@/components/collection/collection-sync-banner'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { BrandMark } from '@/components/layout/brand-mark'
@@ -84,6 +85,7 @@ function AuthenticatedLayout() {
           </header>
           {/* Global collection sync banner - shows on all authenticated pages */}
           <CollectionSyncBanner />
+          <ChangelogAutoTrigger />
           <div className="flex-1">
             <Outlet />
           </div>

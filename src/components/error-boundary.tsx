@@ -2,6 +2,7 @@ import { QueryErrorResetBoundary } from '@tanstack/react-query'
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { EmptyState } from '@/components/common/empty-state'
 import { GradientBackground } from '@/components/layout/gradient-background'
 import { Button } from '@/components/ui/button'
 
@@ -60,21 +61,17 @@ function ErrorFallback({ onReset }: ErrorFallbackProps): React.JSX.Element {
 
   return (
     <GradientBackground>
-      <div className="animate-in fade-in zoom-in-95 flex min-h-screen flex-col items-center justify-center p-6 text-center duration-300">
-        <span
-          className="text-8xl font-bold tracking-tighter opacity-20"
-          aria-hidden="true"
-        >
-          !
-        </span>
-        <h1 className="mt-4 text-2xl font-semibold">{t('errors.oopsTitle')}</h1>
-        <p className="text-muted-foreground mt-3 text-base whitespace-pre-line">
-          {t('errors.unexpectedErrorDescription')}
-        </p>
-        <Button variant="outline" className="mt-8" onClick={onReset}>
-          {t('errors.tryAgain')}
-        </Button>
-      </div>
+      <EmptyState
+        iconText="!"
+        title={t('errors.oopsTitle')}
+        description={t('errors.unexpectedErrorDescription')}
+        size="fullScreen"
+        action={
+          <Button variant="outline" onClick={onReset}>
+            {t('errors.tryAgain')}
+          </Button>
+        }
+      />
     </GradientBackground>
   )
 }

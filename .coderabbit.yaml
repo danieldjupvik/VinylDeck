@@ -44,6 +44,7 @@ reviews:
   enable_prompt_for_ai_agents: true
   path_filters:
     - '!docs/**'
+    - '!.planning/**'
     - '!CLAUDE.md'
     - '!GEMINI.md'
     - '!dist/**'

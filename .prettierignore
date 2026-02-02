@@ -5,6 +5,8 @@ yarn-error.log
 package-lock.json
 dist
 coverage
+src/components/ui
 pnpm-lock.yaml
 src/routeTree.gen.ts
 CHANGELOG.md
+.claude/hooks/react-app/quality-check.cjs
