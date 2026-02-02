@@ -8,12 +8,7 @@ import { LogOut, Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
-import {
-  Avatar,
-  AvatarBadge,
-  AvatarFallback,
-  AvatarImage
-} from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/common/user-avatar'
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -30,7 +25,6 @@ import { useOnlineStatus } from '@/hooks/use-online-status'
 import { usePreferences } from '@/hooks/use-preferences'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { storeRedirectUrl } from '@/lib/redirect-utils'
-import { cn } from '@/lib/utils'
 
 import type { MouseEvent } from 'react'
 
@@ -86,19 +80,9 @@ export function SidebarUser(): React.JSX.Element {
     }
   }
 
-  const initials = username
-    ? username
-        .split(/[\s_-]/)
-        .filter(Boolean)
-        .map((part: string) => part.charAt(0))
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    : '?'
-
   const preferredAvatar = avatarSource === 'gravatar' ? gravatarUrl : avatarUrl
   const fallbackAvatar = avatarSource === 'gravatar' ? avatarUrl : gravatarUrl
-  const resolvedAvatar = preferredAvatar || fallbackAvatar
+  const resolvedAvatar = preferredAvatar ?? fallbackAvatar ?? undefined
 
   return (
     <SidebarMenu>
@@ -139,23 +123,14 @@ export function SidebarUser(): React.JSX.Element {
                 className="cursor-default"
                 aria-label={`${username ?? t('user.fallback')} - ${t(isOnline ? 'user.status.online' : 'user.status.offline')}`}
               >
-                <Avatar className="ring-border h-8 w-8 overflow-visible ring-2 group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5">
-                  {resolvedAvatar ? (
-                    <AvatarImage
-                      src={resolvedAvatar}
-                      alt={username ?? t('user.fallback')}
-                    />
-                  ) : null}
-                  <AvatarFallback>{initials}</AvatarFallback>
-                  <AvatarBadge
-                    className={cn(
-                      isOnline
-                        ? 'bg-green-500 dark:bg-green-600'
-                        : 'bg-red-600',
-                      'group-data-[collapsible=icon]:!size-1.5'
-                    )}
-                  />
-                </Avatar>
+                <UserAvatar
+                  username={username}
+                  avatarUrl={resolvedAvatar}
+                  isOnline={isOnline}
+                  size="sm"
+                  className="group-data-[collapsible=icon]:size-5"
+                  badgeClassName="group-data-[collapsible=icon]:!size-1.5"
+                />
               </span>
             </TooltipTrigger>
             <TooltipContent

@@ -23,7 +23,8 @@
   "common": {
     "comingSoon": "(Coming soon)",
     "soon": "Soon",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "nav": {
     "collection": "Collection",
@@ -68,6 +69,12 @@
   "collection": {
     "title": "My Collection",
     "empty": "No vinyl records found",
+    "emptyState": {
+      "title": "Your vinyl shelf is empty",
+      "description": "Start building your collection by adding your first record.",
+      "descriptionWithOther": "We found {{formats}}, but this deck spins vinyl only.",
+      "addVinyl": "Browse vinyl on Discogs"
+    },
     "loading": "Loading collection...",
     "search": "Search by artist or title...",
     "sort": {
@@ -193,6 +200,7 @@
       "title": "About",
       "description": "Information about the app",
       "changelog": "Changelog",
+      "whatsNew": "What's New",
       "privacy": "Privacy Policy",
       "terms": "Terms of Service"
     },
@@ -234,6 +242,46 @@
     "status": {
       "online": "Online",
       "offline": "Offline"
+    }
+  },
+  "changelog": {
+    "modal": {
+      "title": "What's New",
+      "description": "Recent updates and improvements"
+    },
+    "header": {
+      "title": "What's New in v{{version}}"
+    },
+    "categories": {
+      "features": "New Features",
+      "fixes": "Bug Fixes",
+      "improvements": "Improvements"
+    },
+    "footer": {
+      "dismiss": "Got it"
+    },
+    "entry": {
+      "showMore": "Show more",
+      "showLess": "Show less"
+    },
+    "olderVersions": "+ {{count}} older versions",
+    "versionDate": "v{{version}} — {{date}}",
+    "0_3_1_beta": {
+      "feature_1": "Redesigned login page with animations and public browsing preview",
+      "feature_2": "Updated color palette with new accent colors",
+      "improvement_1": "Improved sidebar button design and spacing"
+    },
+    "0_3_0_beta": {
+      "feature_1": "Secure OAuth login with your Discogs account",
+      "feature_2": "Return to your last page after signing in"
+    },
+    "0_2_0_beta": {
+      "feature_1": "Browse your vinyl collection in grid or table view",
+      "feature_2": "Search, filter, and sort by artist, genre, label, and more",
+      "feature_3": "Dark and light themes with system preference detection",
+      "feature_4": "Works offline as a Progressive Web App",
+      "feature_5": "Customizable avatar with Gravatar support",
+      "fix_1": "Various UI and accessibility improvements"
     }
   }
 }

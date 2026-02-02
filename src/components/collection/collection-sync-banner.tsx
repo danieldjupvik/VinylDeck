@@ -1,10 +1,11 @@
 // src/components/collection/collection-sync-banner.tsx
 import { useIsFetching } from '@tanstack/react-query'
-import { Loader2, RefreshCw } from 'lucide-react'
+import { RefreshCw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
 import { useCollectionSync } from '@/hooks/use-collection-sync'
 import { useUserProfile } from '@/hooks/use-user-profile'
 
@@ -51,11 +52,7 @@ export function CollectionSyncBanner(): React.JSX.Element | null {
   return (
     <div className="px-6 pt-6">
       <Alert className="mb-4">
-        {isFetching ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <RefreshCw className="h-4 w-4" />
-        )}
+        {isFetching ? <Spinner /> : <RefreshCw className="h-4 w-4" />}
         <AlertDescription className="flex items-center justify-between">
           <span>{getMessage()}</span>
           <Button

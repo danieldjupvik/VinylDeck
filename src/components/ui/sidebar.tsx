@@ -25,7 +25,7 @@ import { cn } from '@/lib/utils'
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = '14.45rem'
+const SIDEBAR_WIDTH = '14rem'
 const SIDEBAR_WIDTH_MOBILE = '18rem'
 const SIDEBAR_WIDTH_ICON = '3rem'
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b'
@@ -90,7 +90,7 @@ function SidebarProvider({
         _setOpen(openState)
       }
 
-      // Save state to cookie
+      // This sets the cookie to keep the sidebar state.
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
     },
     [setOpenProp, open]
@@ -98,11 +98,7 @@ function SidebarProvider({
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    if (isMobile) {
-      setOpenMobile((open) => !open)
-    } else {
-      setOpen((open) => !open)
-    }
+    isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
   }, [isMobile, setOpen, setOpenMobile])
 
   // Adds a keyboard shortcut to toggle the sidebar.
@@ -189,7 +185,6 @@ function Sidebar({
   collapsible?: 'offcanvas' | 'icon' | 'none'
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
-  const { style, ...rest } = props
 
   if (collapsible === 'none') {
     return (
@@ -208,20 +203,15 @@ function Sidebar({
 
   if (isMobile) {
     return (
-      <Sheet open={openMobile} onOpenChange={setOpenMobile}>
+      <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
         <SheetContent
-          {...rest}
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className={cn(
-            'bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden',
-            className
-          )}
+          className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
           style={
             {
-              '--sidebar-width': SIDEBAR_WIDTH_MOBILE,
-              ...style
+              '--sidebar-width': SIDEBAR_WIDTH_MOBILE
             } as React.CSSProperties
           }
           side={side}
@@ -270,8 +260,7 @@ function Sidebar({
             : 'group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l',
           className
         )}
-        style={style}
-        {...rest}
+        {...props}
       >
         <div
           data-sidebar="sidebar"
@@ -303,11 +292,10 @@ function SidebarTrigger({
         onClick?.(event)
         toggleSidebar()
       }}
-      title="Toggle Sidebar"
-      aria-label="Toggle Sidebar"
       {...props}
     >
       <PanelLeftIcon />
+      <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )
 }
@@ -635,12 +623,15 @@ function SidebarMenuBadge({
 function SidebarMenuSkeleton({
   className,
   showIcon = false,
-  width = '70%',
   ...props
 }: React.ComponentProps<'div'> & {
   showIcon?: boolean
-  width?: string
 }) {
+  // Random width between 50 to 90%.
+  const width = React.useMemo(() => {
+    return `${Math.floor(Math.random() * 40) + 50}%`
+  }, [])
+
   return (
     <div
       data-slot="sidebar-menu-skeleton"

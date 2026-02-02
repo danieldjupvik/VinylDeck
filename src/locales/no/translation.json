@@ -23,7 +23,8 @@
   "common": {
     "comingSoon": "(Kommer snart)",
     "soon": "Snart",
-    "cancel": "Avbryt"
+    "cancel": "Avbryt",
+    "close": "Lukk"
   },
   "nav": {
     "collection": "Samling",
@@ -68,6 +69,12 @@
   "collection": {
     "title": "Min samling",
     "empty": "Ingen vinylplater funnet",
+    "emptyState": {
+      "title": "Vinylhyllen din er tom",
+      "description": "Begynn å bygge samlingen din ved å legge til din første plate.",
+      "descriptionWithOther": "Vi fant {{formats}}, men denne spilleren er kun for vinyl.",
+      "addVinyl": "Bla gjennom vinyl på Discogs"
+    },
     "loading": "Laster samlingen...",
     "search": "Søk etter artist eller tittel...",
     "sort": {
@@ -193,6 +200,7 @@
       "title": "Om",
       "description": "Informasjon om appen",
       "changelog": "Endringslogg",
+      "whatsNew": "Hva er nytt",
       "privacy": "Personvernerklæring",
       "terms": "Vilkår for bruk"
     },
@@ -234,6 +242,46 @@
     "status": {
       "online": "Tilkoblet",
       "offline": "Frakoblet"
+    }
+  },
+  "changelog": {
+    "modal": {
+      "title": "Hva er nytt",
+      "description": "Siste oppdateringer og forbedringer"
+    },
+    "header": {
+      "title": "Nytt i v{{version}}"
+    },
+    "categories": {
+      "features": "Nye funksjoner",
+      "fixes": "Feilrettinger",
+      "improvements": "Forbedringer"
+    },
+    "footer": {
+      "dismiss": "Skjønner"
+    },
+    "entry": {
+      "showMore": "Vis mer",
+      "showLess": "Vis mindre"
+    },
+    "olderVersions": "+ {{count}} eldre versjoner",
+    "versionDate": "v{{version}} — {{date}}",
+    "0_3_1_beta": {
+      "feature_1": "Redesignet innloggingsside med animasjoner og forhåndsvisning av offentlig surfing",
+      "feature_2": "Oppdatert fargepalett med nye aksentfarger",
+      "improvement_1": "Forbedret design og mellomrom på sidepanelknapper"
+    },
+    "0_3_0_beta": {
+      "feature_1": "Sikker OAuth-innlogging med Discogs-kontoen din",
+      "feature_2": "Gå tilbake til siste side etter innlogging"
+    },
+    "0_2_0_beta": {
+      "feature_1": "Bla gjennom vinylsamlingen din i rutenett- eller tabellvisning",
+      "feature_2": "Søk, filtrer og sorter etter artist, sjanger, label og mer",
+      "feature_3": "Mørkt og lyst tema med systeminnstillingsdeteksjon",
+      "feature_4": "Fungerer offline som en progressiv webapp",
+      "feature_5": "Tilpassbar avatar med Gravatar-støtte",
+      "fix_1": "Diverse UI- og tilgjengelighetsforbedringer"
     }
   }
 }

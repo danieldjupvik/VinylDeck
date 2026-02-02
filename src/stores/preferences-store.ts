@@ -11,11 +11,18 @@ interface PreferencesStore {
   viewMode: ViewMode
   avatarSource: AvatarSource
   gravatarEmail: string
+  lastSeenVersion: string | null
 
   // Actions
   setViewMode: (mode: ViewMode) => void
   setAvatarSource: (source: AvatarSource) => void
   setGravatarEmail: (email: string) => void
+  /**
+   * Records the last changelog version the user has seen.
+   *
+   * @param version - Semver string (e.g., "0.3.0-beta.1")
+   */
+  setLastSeenVersion: (version: string) => void
   resetAvatarSettings: () => void
 }
 
@@ -24,9 +31,10 @@ interface PreferencesStore {
  * Automatically persists to localStorage (via Zustand) under 'vinyldeck-prefs' key.
  *
  * Consolidates:
- * - vinyldeck_view_mode
- * - vinyldeck_avatar_source
- * - vinyldeck_gravatar_email
+ * - viewMode
+ * - avatarSource
+ * - gravatarEmail
+ * - lastSeenVersion
  */
 export const usePreferencesStore = create<PreferencesStore>()(
   persist(
@@ -34,10 +42,12 @@ export const usePreferencesStore = create<PreferencesStore>()(
       viewMode: 'grid',
       avatarSource: 'discogs',
       gravatarEmail: '',
+      lastSeenVersion: null,
 
       setViewMode: (mode) => set({ viewMode: mode }),
       setAvatarSource: (source) => set({ avatarSource: source }),
       setGravatarEmail: (email) => set({ gravatarEmail: email }),
+      setLastSeenVersion: (version) => set({ lastSeenVersion: version }),
       resetAvatarSettings: () =>
         set({ avatarSource: 'discogs', gravatarEmail: '' })
     }),
