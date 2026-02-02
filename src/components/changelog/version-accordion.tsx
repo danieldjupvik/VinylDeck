@@ -74,9 +74,11 @@ export function VersionAccordion({
           {visibleVersions.map((version, index) => (
             <AccordionItem key={version.version} value={`item-${index}`}>
               <AccordionTrigger>
-                {/* eslint-disable-next-line i18next/no-literal-string -- Separator dot is language-agnostic */}
+                {/* eslint-disable-next-line i18next/no-literal-string -- Version prefix and separator are language-agnostic */}
                 <span className="text-sm font-medium">
-                  v{version.version.replace(/-beta\.\d+$/, '')}
+                  v
+                  {/* Strip "-beta.N" suffix for cleaner user-facing display */}
+                  {version.version.replace(/-beta\.\d+$/, '')}
                   <span className="text-muted-foreground font-normal">
                     {' · '}
                     {formatChangelogDate(version.date)}

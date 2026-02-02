@@ -23,7 +23,8 @@
   "common": {
     "comingSoon": "(Kommer snart)",
     "soon": "Snart",
-    "cancel": "Avbryt"
+    "cancel": "Avbryt",
+    "close": "Lukk"
   },
   "nav": {
     "collection": "Samling",

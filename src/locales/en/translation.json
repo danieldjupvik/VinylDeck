@@ -23,7 +23,8 @@
   "common": {
     "comingSoon": "(Coming soon)",
     "soon": "Soon",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "nav": {
     "collection": "Collection",
