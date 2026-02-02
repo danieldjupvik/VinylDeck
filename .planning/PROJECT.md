@@ -1,12 +1,25 @@
-# User-Friendly Changelog
+# Discogs API Types Architecture
 
 ## What This Is
 
-A changelog system for VinylDeck that presents version updates in a user-friendly format. When users open the app after a new release, they see a responsive modal (Dialog on desktop, Drawer on mobile) with what changed — written in plain language, not commit messages. The modal supports multiple missed versions in an accordion view and can be revisited from Settings.
+A hybrid API architecture for VinylDeck that combines @lionralfs/discogs-client (OAuth) with discojs (typed data calls). Replaces 739 lines of AI-generated unverified types with imports from a maintained library, adds proper server-side rate limiting via Bottleneck, and creates a facade layer that hides library complexity while enabling future features like aggregation and unauthenticated browsing.
 
 ## Core Value
 
-Users know what's new without deciphering technical changelogs.
+Type-safe, maintainable Discogs API integration that scales with the app.
+
+## Current Milestone: v1.1 Improve API Types
+
+**Goal:** Replace custom types with discojs imports + facade architecture
+
+**Target features:**
+
+- Facade layer hiding @lionralfs + discojs behind single interface
+- Types imported from discojs (auto-sync on dependency updates)
+- Module augmentation for missing fields (avatar_url, banner_url)
+- Bottleneck-based server-side throttling
+- Retry-After handling for 429 errors
+- Support for optional authentication (enables future unauth browsing)
 
 ## Requirements
 
@@ -23,51 +36,63 @@ Users know what's new without deciphering technical changelogs.
 
 ### Active
 
-- [ ] Cross-tab dismissal sync (dismiss in one tab updates all tabs) — deferred from v1.0
+- [ ] Facade layer with single `createDiscogsClient()` entry point
+- [ ] Import types from discojs (collection, pagination, user, identity)
+- [ ] Module augmentation for missing discojs fields
+- [ ] OAuth types from @lionralfs (separate file)
+- [ ] Bottleneck rate limiting (60/min auth, 25/min unauth)
+- [ ] Retry-After handling for rate limit errors
+- [ ] Update tRPC router to use facade
+- [ ] Delete old custom types (src/types/discogs.ts)
+- [ ] Remove `as unknown as` casts from tRPC router
 
 ### Out of Scope
 
-- AI-generated changelog — deferred, manual curation for now
-- Push notifications for new versions — not requested
-- Changelog search/filter — overkill for this use case
-- Auto-dismiss timer — hostile UX
-- Blocking modal (no backdrop click) — 43% abandonment rate
+- Cross-tab dismissal sync — deferred from v1.0, not this milestone
+- Aggregation endpoints with progress streaming — future milestone
+- Unauthenticated collection browsing UI — future milestone (architecture supports it)
+- Runtime validation with io-ts — types only, no runtime overhead
+- Contributing upstream to @lionralfs — maintenance burden
 
 ## Context
 
-Shipped v1.0 with ~1,400 LOC TypeScript across 17 source files.
+**Current pain:**
 
-Tech stack additions:
+- 739 lines of AI-generated types in `src/types/discogs.ts` (unverified)
+- `as unknown as` casts in tRPC router (lines 99-105)
+- @lionralfs types missing 7+ fields (date_added, master_id, etc.)
+- No proactive rate limiting (passive tracking only)
 
-- compare-versions ^6.1.1 for semver comparison
-- vaul (Drawer component via shadcn)
-- @radix-ui/react-accordion
+**Research completed:**
 
-Integration points:
+- Evaluated: @lionralfs, discojs, @crate.ai/discogs-sdk, OpenAPI specs
+- discojs has best collection types, io-ts tested
+- discojs lacks OAuth flow (need @lionralfs)
+- Bottleneck is industry standard for rate limiting
 
-- Zustand preferences-store with lastSeenVersion persistence
-- Authenticated layout with ChangelogAutoTrigger
-- Settings page with "What's New" button
+**Tech stack additions (planned):**
+
+- discojs (data calls + types)
+- bottleneck (rate limiting)
 
 ## Constraints
 
-- **UI Pattern**: Uses responsive Dialog/Drawer pattern from shadcn
-- **Storage**: Uses existing Zustand patterns with localStorage persistence
-- **Styling**: No emojis in categories, matches existing VinylDeck design
-- **i18n**: All user-facing text translatable (EN + NO complete)
+- **OAuth**: Must keep @lionralfs — discojs cannot do OAuth flow
+- **Rate limits**: Must expose to UI — discojs keeps internal, facade must extract
+- **Types**: No io-ts runtime dependency — extract TypeScript types only
+- **Compatibility**: Token format identical between libraries (OAuth 1.0a strings)
 
 ## Key Decisions
 
-| Decision                          | Rationale                                                | Outcome |
-| --------------------------------- | -------------------------------------------------------- | ------- |
-| Manual curation over AI-generated | Simpler to start, full control over messaging            | ✓ Good  |
-| Collapsed missed versions         | Prevents overwhelming users who missed multiple releases | ✓ Good  |
-| Responsive Dialog/Drawer          | shadcn best practice for mobile UX                       | ✓ Good  |
-| 750ms delay before modal          | Allows UI to settle after auth completes                 | ✓ Good  |
-| Ref guard before timer            | Prevents StrictMode double-trigger                       | ✓ Good  |
-| buildEntries helper               | TypeScript exactOptionalPropertyTypes compliance         | ✓ Good  |
-| lastSeenVersion null for first    | Distinguishes first-install from "saw version X"         | ✓ Good  |
+| Decision                           | Rationale                                              | Outcome   |
+| ---------------------------------- | ------------------------------------------------------ | --------- |
+| Hybrid @lionralfs + discojs        | Best of both: OAuth flow + proper types                | — Pending |
+| Import types, don't copy           | Auto-sync on discojs updates, less maintenance         | — Pending |
+| Module augmentation for extensions | Add missing fields without forking                     | — Pending |
+| Facade pattern                     | Hide library complexity, easy to swap/extend           | — Pending |
+| Bottleneck for throttling          | Industry standard, supports clustering, dynamic limits | — Pending |
+| Option D type strictness           | Strict types + `?.` access, adjust later if needed     | — Pending |
 
 ---
 
-_Last updated: 2026-01-29 after v1.0 milestone_
+_Last updated: 2026-02-03 after v1.1 milestone start_
