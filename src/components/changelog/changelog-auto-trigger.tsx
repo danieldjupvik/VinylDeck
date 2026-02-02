@@ -13,6 +13,8 @@ import { VersionAccordion } from './version-accordion'
 /**
  * Auto-triggers changelog modal on new version detection.
  * Renders nothing if modal not open. Placed in authenticated layout.
+ *
+ * @returns Modal element when open, null otherwise
  */
 export function ChangelogAutoTrigger(): React.ReactNode {
   const { t } = useTranslation()

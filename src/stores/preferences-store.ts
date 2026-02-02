@@ -17,6 +17,11 @@ interface PreferencesStore {
   setViewMode: (mode: ViewMode) => void
   setAvatarSource: (source: AvatarSource) => void
   setGravatarEmail: (email: string) => void
+  /**
+   * Records the last changelog version the user has seen.
+   *
+   * @param version - Semver string (e.g., "0.3.0-beta.1")
+   */
   setLastSeenVersion: (version: string) => void
   resetAvatarSettings: () => void
 }

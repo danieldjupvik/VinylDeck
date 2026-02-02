@@ -143,7 +143,6 @@ function SettingsPage() {
         </div>
 
         <div className="mt-6 space-y-6">
-          {/* Profile Section */}
           <Card className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards delay-100 duration-500">
             <CardHeader>
               <CardTitle>{t('settings.profile.title')}</CardTitle>
@@ -167,6 +166,7 @@ function SettingsPage() {
                     onClick={() => {
                       setAvatarSource('discogs')
                     }}
+                    aria-pressed={avatarSource === 'discogs'}
                     className={cn(
                       'hover:bg-accent/50 flex w-full items-center gap-3 rounded-md border p-3 text-left transition-all duration-200 hover:scale-[1.02] hover:shadow-md',
                       avatarSource === 'discogs'
@@ -193,6 +193,7 @@ function SettingsPage() {
                     onClick={() => {
                       setAvatarSource('gravatar')
                     }}
+                    aria-pressed={avatarSource === 'gravatar'}
                     className={cn(
                       'hover:bg-accent/50 flex w-full items-center gap-3 rounded-md border p-3 text-left transition-all duration-200 hover:scale-[1.02] hover:shadow-md',
                       avatarSource === 'gravatar'
@@ -219,7 +220,6 @@ function SettingsPage() {
 
               <Separator />
 
-              {/* Disconnect Discogs */}
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h3 className="text-sm font-medium">
@@ -248,7 +248,6 @@ function SettingsPage() {
             </CardContent>
           </Card>
 
-          {/* Appearance Section */}
           <Card className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards delay-150 duration-500">
             <CardHeader>
               <CardTitle>{t('settings.appearance.title')}</CardTitle>
@@ -257,7 +256,6 @@ function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Language Selection */}
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h3 className="text-sm font-medium">
@@ -306,7 +304,6 @@ function SettingsPage() {
 
               <Separator />
 
-              {/* Theme Selection */}
               <div className="space-y-3">
                 <div>
                   <h3 className="text-sm font-medium">
@@ -349,7 +346,6 @@ function SettingsPage() {
             </CardContent>
           </Card>
 
-          {/* About Section */}
           <Card className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards delay-200 duration-500">
             <CardHeader>
               <CardTitle>{t('settings.about.title')}</CardTitle>

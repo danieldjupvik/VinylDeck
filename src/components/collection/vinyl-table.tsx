@@ -11,17 +11,13 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { getLimitedGenreParts } from '@/lib/formatters'
+import type { NonVinylBreakdownItem } from '@/types/collection'
 import type { DiscogsCollectionRelease, DiscogsFormat } from '@/types/discogs'
 
 import { CollectionEmptyState } from './collection-empty-state'
 import { VinylTableSkeleton } from './vinyl-table-skeleton'
 
 import type { TFunction } from 'i18next'
-
-interface NonVinylBreakdownItem {
-  format: string
-  count: number
-}
 
 interface VinylTableProps {
   releases: DiscogsCollectionRelease[]

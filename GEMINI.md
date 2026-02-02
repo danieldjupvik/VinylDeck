@@ -200,6 +200,27 @@ Routes in `src/routes/` using TanStack Router's file-based routing:
 
 ## Code Quality & Linting
 
+### TypeScript Strict Mode
+
+This project uses `exactOptionalPropertyTypes: true`. This means:
+
+- `prop?: T` → property can be **omitted** (not provided at all)
+- `prop?: T | undefined` → property can be omitted **OR** explicitly passed as `undefined`
+
+**Do NOT remove `| undefined` from optional props.** When callers pass `prop={value}` where `value` might be `undefined`, the type must include `| undefined` or TypeScript will error with TS2375.
+
+```typescript
+// ✅ Correct - allows callers to pass undefined values
+interface Props {
+  count?: number | undefined
+}
+
+// ❌ Wrong - will error if caller passes count={maybeUndefined}
+interface Props {
+  count?: number
+}
+```
+
 ### Code Formatting (Prettier)
 
 - Single quotes, no semicolons, no trailing commas

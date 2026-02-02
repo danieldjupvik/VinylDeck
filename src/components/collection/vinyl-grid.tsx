@@ -1,13 +1,9 @@
+import type { NonVinylBreakdownItem } from '@/types/collection'
 import type { DiscogsCollectionRelease } from '@/types/discogs'
 
 import { CollectionEmptyState } from './collection-empty-state'
 import { VinylCard } from './vinyl-card'
 import { VinylCardSkeleton } from './vinyl-card-skeleton'
-
-interface NonVinylBreakdownItem {
-  format: string
-  count: number
-}
 
 interface VinylGridProps {
   releases: DiscogsCollectionRelease[]

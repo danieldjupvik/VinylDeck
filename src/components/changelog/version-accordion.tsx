@@ -40,7 +40,6 @@ const INITIAL_VISIBLE_COUNT = 3
  * @param onDismiss - Callback when dismiss button is clicked in any version
  * @returns Accordion display of changelog versions
  */
-
 export function VersionAccordion({
   versions,
   onDismiss

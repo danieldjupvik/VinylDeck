@@ -3,11 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { EmptyState } from '@/components/common/empty-state'
 import { Button } from '@/components/ui/button'
-
-interface NonVinylBreakdownItem {
-  format: string
-  count: number
-}
+import type { NonVinylBreakdownItem } from '@/types/collection'
 
 interface CollectionEmptyStateProps {
   nonVinylCount?: number | undefined
