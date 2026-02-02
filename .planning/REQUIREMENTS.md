@@ -74,31 +74,31 @@ Explicitly excluded from v1.1. Documented to prevent scope creep.
 
 ## Traceability
 
-| Requirement | Phase   | Status  |
-| ----------- | ------- | ------- |
-| TYPE-01     | Phase 1 | Pending |
-| TYPE-02     | Phase 1 | Pending |
-| TYPE-03     | Phase 1 | Pending |
-| TYPE-04     | Phase 1 | Pending |
-| TYPE-05     | Phase 1 | Pending |
-| TYPE-06     | Phase 5 | Pending |
-| TYPE-07     | Phase 4 | Pending |
-| FACADE-01   | Phase 3 | Pending |
-| FACADE-02   | Phase 2 | Pending |
-| FACADE-03   | Phase 3 | Pending |
-| FACADE-04   | Phase 3 | Pending |
-| FACADE-05   | Phase 4 | Pending |
-| FACADE-06   | Phase 4 | Pending |
-| FACADE-07   | Phase 3 | Pending |
-| RATE-01     | Phase 2 | Pending |
-| RATE-02     | Phase 2 | Pending |
-| RATE-03     | Phase 2 | Pending |
-| RATE-04     | Phase 2 | Pending |
-| RATE-05     | Phase 3 | Pending |
-| RATE-06     | Phase 3 | Pending |
-| CLEAN-01    | Phase 5 | Pending |
-| CLEAN-02    | Phase 5 | Pending |
-| CLEAN-03    | Phase 5 | Pending |
+| Requirement | Phase | Status  |
+| ----------- | ----- | ------- |
+| TYPE-01     | 4     | Pending |
+| TYPE-02     | 4     | Pending |
+| TYPE-03     | 4     | Pending |
+| TYPE-04     | 4     | Pending |
+| TYPE-05     | 4     | Pending |
+| TYPE-06     | 8     | Pending |
+| TYPE-07     | 7     | Pending |
+| FACADE-01   | 6     | Pending |
+| FACADE-02   | 6     | Pending |
+| FACADE-03   | 6     | Pending |
+| FACADE-04   | 6     | Pending |
+| FACADE-05   | 7     | Pending |
+| FACADE-06   | 7     | Pending |
+| FACADE-07   | 6     | Pending |
+| RATE-01     | 5     | Pending |
+| RATE-02     | 5     | Pending |
+| RATE-03     | 5     | Pending |
+| RATE-04     | 5     | Pending |
+| RATE-05     | 5     | Pending |
+| RATE-06     | 5     | Pending |
+| CLEAN-01    | 8     | Pending |
+| CLEAN-02    | 8     | Pending |
+| CLEAN-03    | 8     | Pending |
 
 **Coverage:**
 
@@ -109,4 +109,4 @@ Explicitly excluded from v1.1. Documented to prevent scope creep.
 ---
 
 _Requirements defined: 2026-02-03_
-_Last updated: 2026-02-03 after initial definition_
+_Last updated: 2026-02-03 after roadmap creation_
