@@ -6,7 +6,7 @@ import { importX } from 'eslint-plugin-import-x'
 import jsxA11y from 'eslint-plugin-jsx-a11y'
 import reactPlugin from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
+import { reactRefresh } from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 import globals from 'globals'
 import path from 'node:path'
@@ -28,7 +28,7 @@ export default defineConfig([
       reactPlugin.configs.flat['jsx-runtime'],
       tseslint.configs.strictTypeChecked,
       reactHooks.configs.flat.recommended,
-      reactRefresh.configs.vite,
+      reactRefresh.configs.vite(),
       i18next.configs['flat/recommended'],
       pluginQuery.configs['flat/recommended']
     ],
@@ -150,6 +150,15 @@ export default defineConfig([
           allowBoolean: true
         }
       ]
+    }
+  },
+  {
+    files: ['src/routes/**/*.tsx'],
+    rules: {
+      // TanStack Router exports only Route objects with local component functions.
+      // HMR for routes is handled by TanStack's Vite plugin, not react-refresh.
+      // See: https://github.com/ArnaudBarre/eslint-plugin-react-refresh/releases/tag/v0.5.0
+      'react-refresh/only-export-components': 'off'
     }
   },
   {
