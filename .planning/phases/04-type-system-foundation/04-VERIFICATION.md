@@ -22,7 +22,7 @@ re_verification: false
 | 1   | discojs is installed as a dependency                 | ✓ VERIFIED | package.json contains discojs@^2.3.1, node_modules/discojs exists                   |
 | 2   | Old discogs.ts renamed to discogs-legacy.ts          | ✓ VERIFIED | src/types/discogs.ts does not exist, src/types/discogs-legacy.ts exists (738 lines) |
 | 3   | OAuth types extracted from @lionralfs via ReturnType | ✓ VERIFIED | oauth.ts uses `Awaited<ReturnType<OAuthInstance['getRequestToken']>>` pattern       |
-| 4   | Missing User fields augmented type-safe              | ✓ VERIFIED | User type extends with avatar_url and banner_url as optional strings                |
+| 4   | Missing User fields augmented type-safe              | ✓ VERIFIED | User type extends with banner_url as optional string                                |
 | 5   | All Discogs types accessible from single import      | ✓ VERIFIED | 8 files import from @/types/discogs, server uses relative path to barrel            |
 
 **Score:** 5/5 truths verified
@@ -95,7 +95,7 @@ None. All checks passed:
 - Side-effect import of augment.ts (line 6)
 - Type extraction via `Awaited<ReturnType<Discojs['methodName']>>` pattern
 - Five core types extracted from discojs: Identity, User, Pagination, CollectionRelease, BasicInformation
-- Module augmentation via type intersection (User extends with banner_url/avatar_url)
+- Module augmentation via type intersection (User extends with banner_url)
 - Type-only re-exports from oauth.ts prevent runtime imports
 - App-specific types (CollectionSortKey, DiscogsFormat) with TSDoc
 - Backwards-compatibility aliases (DiscogsCollectionRelease, etc.)
@@ -148,7 +148,7 @@ $ bunx tsc --noEmit
 Evidence:
 
 ```typescript
-// src/types/discogs/index.ts lines 43-46
+// src/types/discogs/index.ts lines 38-58
 type CollectionResponseBase = Awaited<
   ReturnType<Discojs['listItemsByReleaseForUser']>
 >
@@ -157,9 +157,7 @@ export type CollectionRelease = CollectionResponseBase['releases'][number] & {
   basic_information: BasicInformation
 }
 export type BasicInformation =
-  CollectionResponseBase['releases'][number]['basic_information'] & {
-    country?: string | undefined
-  }
+  CollectionResponseBase['releases'][number]['basic_information']
 ```
 
 Types are extracted via ReturnType from discojs.Discojs class methods, not manually defined.
@@ -182,18 +180,13 @@ Types are extracted via ReturnType from discojs.Discojs class methods, not manua
 Evidence:
 
 ```typescript
-// src/types/discogs/index.ts lines 27-38
+// src/types/discogs/index.ts lines 27-33
 export type User = DiscogsUserProfileBase & {
   /**
    * User's banner image URL
    * @optional Users without custom banners may not have this field
    */
   banner_url?: string
-  /**
-   * User's avatar image URL
-   * NOTE: discojs types this as required string, but API may omit for users without avatars
-   */
-  avatar_url?: string
 }
 ```
 
@@ -257,9 +250,9 @@ All types accessible from single barrel at src/types/discogs/index.ts. Server us
    - Impact: augment.ts exists but is minimal placeholder
    - Result: Plan requirement satisfied (augment.ts exists), extensions work correctly
 
-2. Added country field extension to BasicInformation
-   - Reason: discojs omits country but API returns it
-   - Impact: Existing country filtering continues working
+2. ~~Added country field extension to BasicInformation~~ (REMOVED - post-execution cleanup)
+   - Country filter feature was removed from the app
+   - No longer needed in type system
 
 3. Added full CollectionSortKey set including genre, random, releaseYear
    - Reason: Client-side features not in discojs

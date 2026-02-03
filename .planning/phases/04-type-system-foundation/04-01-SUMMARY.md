@@ -12,7 +12,7 @@ provides:
   - discojs-based type system with auto-sync capability
   - OAuth types extracted from @lionralfs via ReturnType
   - Single barrel export for all Discogs types
-  - Type extensions for missing API fields (banner_url, country)
+  - Type extension for missing banner_url field
 affects: [05-facade-layer, 06-discojs-integration, 08-cleanup]
 
 # Tech tracking
@@ -34,7 +34,6 @@ key-files:
 key-decisions:
   - 'Use ReturnType extraction instead of module augmentation due to discojs inline types'
   - 'Keep DiscogsFormat separate - not from discojs due to exactOptionalPropertyTypes requirements'
-  - 'Extend BasicInformation with country field (missing from discojs)'
   - 'Preserve full CollectionSortKey set including genre, random, releaseYear'
 
 patterns-established:
@@ -64,7 +63,7 @@ completed: 2026-02-03
 - Installed discojs@2.3.1 for comprehensive Discogs API types
 - Created barrel export pattern at src/types/discogs/ for single import point
 - Extracted OAuth types from @lionralfs/discogs-client using ReturnType inference
-- Extended discojs types with missing fields (banner_url, country)
+- Extended discojs User type with missing banner_url field
 - All codebase imports migrated to new barrel with zero breaking changes
 
 ## Task Commits
@@ -99,13 +98,7 @@ Each task was committed atomically:
 - DiscogsFormat needs explicit `| undefined` for exactOptionalPropertyTypes compliance
 - Impact: Barrel is single source of truth for all Discogs-related types
 
-**3. Extend BasicInformation with country field**
-
-- Rationale: Discogs API returns country but discojs omits it from basic_information type
-- Implementation: Type intersection on extracted BasicInformation
-- Impact: Existing filter logic continues working without changes
-
-**4. Use type aliases for backwards compatibility**
+**3. Use type aliases for backwards compatibility**
 
 - Examples: DiscogsCollectionRelease, DiscogsPagination, DiscogsUserProfile
 - Rationale: Allows migration without changing consumer code
@@ -133,16 +126,7 @@ Each task was committed atomically:
 - **Verification:** All sort logic compiles without type errors
 - **Committed in:** 41a6013 (Task 3 commit)
 
-**3. [Rule 2 - Missing Critical] Added country field to BasicInformation**
-
-- **Found during:** Task 3 (TypeScript compilation)
-- **Issue:** discojs omits country field from basic_information, but codebase uses it for filtering
-- **Fix:** Extended BasicInformation type with `country?: string | undefined`
-- **Files modified:** src/types/discogs/index.ts
-- **Verification:** Country filtering logic compiles and works
-- **Committed in:** 41a6013 (Task 3 commit)
-
-**4. [Rule 2 - Missing Critical] Added explicit undefined to DiscogsFormat fields**
+**3. [Rule 2 - Missing Critical] Added explicit undefined to DiscogsFormat fields**
 
 - **Found during:** Task 3 (TypeScript compilation)
 - **Issue:** exactOptionalPropertyTypes requires explicit `| undefined` on optional fields
@@ -153,7 +137,7 @@ Each task was committed atomically:
 
 ---
 
-**Total deviations:** 4 auto-fixed (4 missing critical)
+**Total deviations:** 3 auto-fixed (3 missing critical)
 **Impact on plan:** All auto-fixes required for type correctness and TypeScript strictness compliance. No scope creep - all changes directly support plan objective of establishing working type foundation.
 
 ## Issues Encountered
@@ -189,8 +173,7 @@ None - no external service configuration required.
 
 **Concerns:**
 
-- avatar_url is typed as required string in discojs but API sometimes omits it (Phase 5 facade should handle this)
-- banner_url completely missing from discojs (will need to file upstream PR or maintain extension)
+- banner_url missing from discojs - extended in User type via type intersection (may need upstream PR or maintain extension long-term)
 
 ---
 

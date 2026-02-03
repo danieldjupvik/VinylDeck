@@ -62,9 +62,7 @@ None yet.
 
 **From Phase 4 execution:**
 
-- discojs types avatar_url as required but API may omit it - Phase 5 facade should handle
-- banner_url completely missing from discojs - extended in 04-01, may need upstream PR
-- country field missing from discojs BasicInformation - extended in 04-01
+- banner_url missing from discojs - extended in User type, may need upstream PR
 
 **From research:**
 
