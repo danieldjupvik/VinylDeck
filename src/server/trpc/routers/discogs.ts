@@ -7,7 +7,7 @@ import { publicProcedure, router } from '../init.js'
 import type {
   DiscogsCollectionRelease,
   DiscogsPagination
-} from '../../../types/discogs.js'
+} from '../../../types/discogs/index.js'
 
 /**
  * Discogs API router for proxying authenticated requests.

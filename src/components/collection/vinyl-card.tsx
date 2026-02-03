@@ -167,7 +167,7 @@ function getColorStyles(colorName: string) {
 }
 
 function extractVinylInfo(
-  formats: { name: string; text?: string }[]
+  formats: { name: string; text?: string | undefined }[]
 ): VinylInfo {
   const info: VinylInfo = {}
   const colorCandidates: string[] = []

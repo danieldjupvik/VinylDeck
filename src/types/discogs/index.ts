@@ -58,9 +58,16 @@ export type CollectionRelease = CollectionResponseBase['releases'][number] & {
 
 /**
  * Basic information about a release (nested in CollectionRelease)
+ * Extended with country field which discojs omits but API returns
  */
 export type BasicInformation =
-  CollectionResponseBase['releases'][number]['basic_information']
+  CollectionResponseBase['releases'][number]['basic_information'] & {
+    /**
+     * Country of release
+     * @optional May be omitted for some releases
+     */
+    country?: string | undefined
+  }
 
 /**
  * Collection response from GET /users/{username}/collection/folders/{folder_id}/releases
@@ -94,10 +101,12 @@ export type CollectionSortKey =
   | 'artist'
   | 'title'
   | 'label'
-  | 'year'
+  | 'releaseYear'
   | 'format'
   | 'added'
   | 'rating'
+  | 'genre'
+  | 'random'
 
 /**
  * Discogs API sort keys (snake_case)
@@ -119,12 +128,13 @@ export type CollectionSortOrder = 'asc' | 'desc'
 
 /**
  * Format information structure
+ * Matches discojs format but with explicit undefined for exactOptionalPropertyTypes
  */
 export interface DiscogsFormat {
   name: string
   qty: string
-  descriptions?: string[]
-  text?: string
+  descriptions?: string[] | undefined
+  text?: string | undefined
 }
 
 /**
