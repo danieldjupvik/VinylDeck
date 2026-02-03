@@ -30,11 +30,6 @@ export type User = DiscogsUserProfileBase & {
    * @optional Users without custom banners may not have this field
    */
   banner_url?: string
-  /**
-   * User's avatar image URL
-   * NOTE: discojs types this as required string, but API may omit for users without avatars
-   */
-  avatar_url?: string
 }
 
 /**
@@ -58,16 +53,9 @@ export type CollectionRelease = CollectionResponseBase['releases'][number] & {
 
 /**
  * Basic information about a release (nested in CollectionRelease)
- * Extended with country field which discojs omits but API returns
  */
 export type BasicInformation =
-  CollectionResponseBase['releases'][number]['basic_information'] & {
-    /**
-     * Country of release
-     * @optional May be omitted for some releases
-     */
-    country?: string | undefined
-  }
+  CollectionResponseBase['releases'][number]['basic_information']
 
 /**
  * Collection response from GET /users/{username}/collection/folders/{folder_id}/releases

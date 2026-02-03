@@ -72,7 +72,6 @@ const FILTER_PARAM_KEYS = {
   labels: 'label',
   types: 'type',
   sizes: 'size',
-  countries: 'country',
   yearRange: 'year'
 } as const
 
@@ -93,7 +92,6 @@ export interface CollectionFilterOptions {
   labels: FilterOption[]
   types: FilterOption[]
   sizes: FilterOption[]
-  countries: FilterOption[]
   yearBounds: [number, number] | null
 }
 
@@ -103,7 +101,6 @@ interface CollectionSelectedFilters {
   labels: string[]
   types: string[]
   sizes: string[]
-  countries: string[]
   yearRange: [number, number] | null
 }
 
@@ -120,7 +117,6 @@ const readFiltersFromUrl = (): CollectionSelectedFilters => {
     labels: readParamList(params, FILTER_PARAM_KEYS.labels),
     types: readParamList(params, FILTER_PARAM_KEYS.types),
     sizes: readParamList(params, FILTER_PARAM_KEYS.sizes),
-    countries: readParamList(params, FILTER_PARAM_KEYS.countries),
     yearRange: readParamRange(params, FILTER_PARAM_KEYS.yearRange)
   }
 }
@@ -155,7 +151,6 @@ interface UseCollectionReturn {
   setSelectedLabels: (values: string[]) => void
   setSelectedTypes: (values: string[]) => void
   setSelectedSizes: (values: string[]) => void
-  setSelectedCountries: (values: string[]) => void
   setYearRange: (range: [number, number] | null) => void
   clearFilters: () => void
   reshuffleRandom: () => void
@@ -189,9 +184,6 @@ export function useCollection(
   )
   const [selectedTypes, setSelectedTypes] = useState<string[]>(urlFilters.types)
   const [selectedSizes, setSelectedSizes] = useState<string[]>(urlFilters.sizes)
-  const [selectedCountries, setSelectedCountries] = useState<string[]>(
-    urlFilters.countries
-  )
   const [yearRangeSelection, setYearRangeSelection] = useState<
     [number, number] | null
   >(urlFilters.yearRange)
@@ -205,7 +197,6 @@ export function useCollection(
     selectedLabels.length > 0 ||
     selectedTypes.length > 0 ||
     selectedSizes.length > 0 ||
-    selectedCountries.length > 0 ||
     yearRangeSelection !== null
   const shouldFetchAllPages = isClientSort || hasSearch || hasActiveFilters
   const isQueryEnabled = useHydrationGuard(!!username && !!oauthTokens)
@@ -220,7 +211,6 @@ export function useCollection(
       setSelectedLabels(nextFilters.labels)
       setSelectedTypes(nextFilters.types)
       setSelectedSizes(nextFilters.sizes)
-      setSelectedCountries(nextFilters.countries)
       setYearRangeSelection(nextFilters.yearRange)
     }
 
@@ -398,7 +388,6 @@ export function useCollection(
     const labelCounts = new Map<string, number>()
     const typeCounts = new Map<string, number>()
     const sizeCounts = new Map<string, number>()
-    const countryCounts = new Map<string, number>()
     let minYear = Number.POSITIVE_INFINITY
     let maxYear = 0
 
@@ -421,12 +410,6 @@ export function useCollection(
       for (const size of releaseSizes) {
         sizeCounts.set(size, (sizeCounts.get(size) ?? 0) + 1)
       }
-      if (info.country) {
-        countryCounts.set(
-          info.country,
-          (countryCounts.get(info.country) ?? 0) + 1
-        )
-      }
       if (info.year && info.year > 0) {
         minYear = Math.min(minYear, info.year)
         maxYear = Math.max(maxYear, info.year)
@@ -448,9 +431,6 @@ export function useCollection(
     }
     for (const size of selectedSizes) {
       if (!sizeCounts.has(size)) sizeCounts.set(size, 0)
-    }
-    for (const country of selectedCountries) {
-      if (!countryCounts.has(country)) countryCounts.set(country, 0)
     }
 
     const createFilterOptions = (
@@ -481,9 +461,6 @@ export function useCollection(
         sortValues(new Set(vals))
       ),
       sizes: createFilterOptions(sizeCounts, sortSizes),
-      countries: createFilterOptions(countryCounts, (vals) =>
-        sortValues(new Set(vals))
-      ),
       yearBounds
     }
   }, [
@@ -492,8 +469,7 @@ export function useCollection(
     selectedStyles,
     selectedLabels,
     selectedTypes,
-    selectedSizes,
-    selectedCountries
+    selectedSizes
   ])
   const yearRange = useMemo<[number, number] | null>(() => {
     if (!filterOptions.yearBounds) return yearRangeSelection
@@ -545,9 +521,6 @@ export function useCollection(
       const matchesSizes =
         selectedSizes.length === 0 ||
         selectedSizes.some((size) => releaseSizes.includes(size))
-      const matchesCountries =
-        selectedCountries.length === 0 ||
-        (!!info.country && selectedCountries.includes(info.country))
 
       let matchesYear = true
       if (yearRange) {
@@ -564,7 +537,6 @@ export function useCollection(
         matchesLabels &&
         matchesTypes &&
         matchesSizes &&
-        matchesCountries &&
         matchesYear
       )
     })
@@ -575,7 +547,6 @@ export function useCollection(
     selectedLabels,
     selectedTypes,
     selectedSizes,
-    selectedCountries,
     yearRange
   ])
 
@@ -650,7 +621,6 @@ export function useCollection(
       [FILTER_PARAM_KEYS.labels]: selectedLabels,
       [FILTER_PARAM_KEYS.types]: selectedTypes,
       [FILTER_PARAM_KEYS.sizes]: selectedSizes,
-      [FILTER_PARAM_KEYS.countries]: selectedCountries,
       // yearRangeActive already implies yearRange is truthy (see its definition above)
       [FILTER_PARAM_KEYS.yearRange]: yearRangeActive
         ? `${yearRange[0]}-${yearRange[1]}`
@@ -662,7 +632,6 @@ export function useCollection(
     selectedLabels,
     selectedTypes,
     selectedSizes,
-    selectedCountries,
     yearRange,
     yearRangeActive
   ])
@@ -673,7 +642,6 @@ export function useCollection(
     selectedLabels.length +
     selectedTypes.length +
     selectedSizes.length +
-    selectedCountries.length +
     (yearRangeActive ? 1 : 0)
 
   const clearFilters = () => {
@@ -682,7 +650,6 @@ export function useCollection(
     setSelectedLabels([])
     setSelectedTypes([])
     setSelectedSizes([])
-    setSelectedCountries([])
     setYearRangeSelection(null)
   }
 
@@ -735,7 +702,6 @@ export function useCollection(
       labels: selectedLabels,
       types: selectedTypes,
       sizes: selectedSizes,
-      countries: selectedCountries,
       yearRange
     },
     setSelectedGenres,
@@ -743,7 +709,6 @@ export function useCollection(
     setSelectedLabels,
     setSelectedTypes,
     setSelectedSizes,
-    setSelectedCountries,
     setYearRange: setYearRangeSelection,
     clearFilters,
     reshuffleRandom,

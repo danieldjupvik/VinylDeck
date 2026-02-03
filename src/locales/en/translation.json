@@ -111,7 +111,6 @@
       "label": "Label",
       "vinylType": "Vinyl type",
       "size": "Size",
-      "country": "Country",
       "yearRange": "Year range",
       "anyYear": "Any year",
       "empty": "No options"
@@ -128,8 +127,7 @@
       "year": "Year",
       "genre": "Genre",
       "label": "Label",
-      "format": "Format",
-      "country": "Country"
+      "format": "Format"
     },
     "unknownArtist": "Unknown artist",
     "pagination": {
