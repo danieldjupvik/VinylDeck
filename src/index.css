@@ -363,6 +363,8 @@
 /* Reduced motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
   .animate-vinyl-spin-slow,
+  .animate-card-pop,
+  .animate-view-switch,
   .animate-groove-pulse,
   .animate-float-slow,
   .animate-float-slower,
