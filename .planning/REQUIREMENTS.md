@@ -9,11 +9,11 @@ Requirements for hybrid @lionralfs + discojs architecture.
 
 ### Type System
 
-- [ ] **TYPE-01**: Import collection types from discojs (CollectionRelease, BasicInformation, Pagination)
-- [ ] **TYPE-02**: Import user types from discojs (User, Identity)
-- [ ] **TYPE-03**: Create module augmentation for missing fields (avatar_url, banner_url)
-- [ ] **TYPE-04**: Create OAuth types file from @lionralfs (OAuthTokens, RequestTokenResult, AccessTokenResult)
-- [ ] **TYPE-05**: Create unified type exports (index.ts re-exporting all)
+- [x] **TYPE-01**: Import collection types from discojs (CollectionRelease, BasicInformation, Pagination)
+- [x] **TYPE-02**: Import user types from discojs (User, Identity)
+- [x] **TYPE-03**: Create module augmentation for missing fields (avatar_url, banner_url)
+- [x] **TYPE-04**: Create OAuth types file from @lionralfs (OAuthTokens, RequestTokenResult, AccessTokenResult)
+- [x] **TYPE-05**: Create unified type exports (index.ts re-exporting all)
 - [ ] **TYPE-06**: Delete old custom types file (src/types/discogs.ts)
 - [ ] **TYPE-07**: Remove `as unknown as` casts from tRPC router
 
@@ -74,31 +74,31 @@ Explicitly excluded from v1.1. Documented to prevent scope creep.
 
 ## Traceability
 
-| Requirement | Phase | Status  |
-| ----------- | ----- | ------- |
-| TYPE-01     | 4     | Pending |
-| TYPE-02     | 4     | Pending |
-| TYPE-03     | 4     | Pending |
-| TYPE-04     | 4     | Pending |
-| TYPE-05     | 4     | Pending |
-| TYPE-06     | 8     | Pending |
-| TYPE-07     | 7     | Pending |
-| FACADE-01   | 6     | Pending |
-| FACADE-02   | 6     | Pending |
-| FACADE-03   | 6     | Pending |
-| FACADE-04   | 6     | Pending |
-| FACADE-05   | 7     | Pending |
-| FACADE-06   | 7     | Pending |
-| FACADE-07   | 6     | Pending |
-| RATE-01     | 5     | Pending |
-| RATE-02     | 5     | Pending |
-| RATE-03     | 5     | Pending |
-| RATE-04     | 5     | Pending |
-| RATE-05     | 5     | Pending |
-| RATE-06     | 5     | Pending |
-| CLEAN-01    | 8     | Pending |
-| CLEAN-02    | 8     | Pending |
-| CLEAN-03    | 8     | Pending |
+| Requirement | Phase | Status   |
+| ----------- | ----- | -------- |
+| TYPE-01     | 4     | Complete |
+| TYPE-02     | 4     | Complete |
+| TYPE-03     | 4     | Complete |
+| TYPE-04     | 4     | Complete |
+| TYPE-05     | 4     | Complete |
+| TYPE-06     | 8     | Pending  |
+| TYPE-07     | 7     | Pending  |
+| FACADE-01   | 6     | Pending  |
+| FACADE-02   | 6     | Pending  |
+| FACADE-03   | 6     | Pending  |
+| FACADE-04   | 6     | Pending  |
+| FACADE-05   | 7     | Pending  |
+| FACADE-06   | 7     | Pending  |
+| FACADE-07   | 6     | Pending  |
+| RATE-01     | 5     | Pending  |
+| RATE-02     | 5     | Pending  |
+| RATE-03     | 5     | Pending  |
+| RATE-04     | 5     | Pending  |
+| RATE-05     | 5     | Pending  |
+| RATE-06     | 5     | Pending  |
+| CLEAN-01    | 8     | Pending  |
+| CLEAN-02    | 8     | Pending  |
+| CLEAN-03    | 8     | Pending  |
 
 **Coverage:**
 
@@ -109,4 +109,4 @@ Explicitly excluded from v1.1. Documented to prevent scope creep.
 ---
 
 _Requirements defined: 2026-02-03_
-_Last updated: 2026-02-03 after roadmap creation_
+_Last updated: 2026-02-03 after Phase 4 completion_
