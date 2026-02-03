@@ -44,6 +44,7 @@
     "clsx": "^2.1.1",
     "compare-versions": "^6.1.1",
     "country-flag-icons": "^1.6.4",
+    "discojs": "^2.3.1",
     "i18next": "^25.7.4",
     "idb-keyval": "^6.2.2",
     "lucide-react": "^0.563.0",
