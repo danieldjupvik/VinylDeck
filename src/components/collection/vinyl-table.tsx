@@ -63,9 +63,7 @@ function VinylTableRow({
 
   return (
     <TableRow
-      className={
-        shouldAnimate ? 'animate-view-switch cursor-pointer' : 'cursor-pointer'
-      }
+      className={shouldAnimate ? 'animate-view-switch' : undefined}
       style={
         shouldAnimate ? { animationDelay: `${animationDelay}ms` } : undefined
       }

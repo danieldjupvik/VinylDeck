@@ -103,6 +103,33 @@ feat: add collection search functionality
 - **i18next** for internationalization
 - **PWA** via vite-plugin-pwa with offline-first support
 
+### ⚠️ CRITICAL: No Manual Memoization
+
+**This is a strict rule. AI agents MUST NOT add `useMemo`, `useCallback`, or `React.memo` to this codebase.**
+
+This project uses **React Compiler** (`babel-plugin-react-compiler`) which automatically handles memoization. Adding manual memoization is unnecessary and adds code bloat.
+
+```tsx
+// ❌ WRONG - do not add these
+const value = useMemo(() => computeValue(a, b), [a, b])
+const handler = useCallback(() => doThing(), [dep])
+const MemoizedComponent = React.memo(Component)
+
+// ✅ CORRECT - just write the code, compiler handles it
+const value = computeValue(a, b)
+const handler = () => doThing()
+function Component() { ... }
+```
+
+**Exception:** Manual memoization is allowed ONLY when you need precise control that the compiler cannot provide (e.g., specific dependency timing for external library integration). When adding manual memoization, you MUST include a comment explaining why:
+
+```tsx
+// Manual memo required: external charting library expects stable callback reference
+const handler = useCallback(() => { ... }, [dep])
+```
+
+Existing `useMemo`/`useCallback` in the codebase is legacy code that will be removed over time.
+
 ## Project Structure
 
 - `api/` - Vercel Serverless Functions (tRPC handler)

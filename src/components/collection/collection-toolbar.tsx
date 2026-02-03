@@ -88,6 +88,7 @@ export function CollectionToolbar({
         <Search className="text-muted-foreground group-focus-within:text-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transition-colors" />
         <Input
           type="search"
+          name="collection-search"
           placeholder={t('collection.search')}
           aria-label={t('collection.search')}
           value={search}
