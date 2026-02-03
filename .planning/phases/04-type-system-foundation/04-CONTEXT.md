@@ -18,7 +18,7 @@ Replace custom Discogs types with discojs imports and establish module augmentat
 - Single barrel file at `src/types/discogs/index.ts` — all types accessible from one import
 - Re-export discojs types with original names (no prefixes)
 - All types in one barrel — no public/internal split
-- Delete old `src/types/discogs.ts` immediately — no deprecation aliases
+- Keep old `src/types/discogs.ts` for now — deletion deferred to Phase 8 (after facade layer eliminates `as unknown as` casts)
 
 ### Module Augmentation
 
