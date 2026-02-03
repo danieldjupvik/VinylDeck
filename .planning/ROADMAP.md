@@ -2,13 +2,13 @@
 
 ## Milestones
 
-- ✅ **v1.0 User-Friendly Changelog** - Phases 1-3 (shipped 2026-02-03)
-- 🚧 **v1.1 Improve API Types** - Phases 4-8 (in progress)
+- v1.0 User-Friendly Changelog - Phases 1-3 (shipped 2026-02-03)
+- v1.1 Improve API Types - Phases 4-8 (in progress)
 
 ## Phases
 
 <details>
-<summary>✅ v1.0 User-Friendly Changelog (Phases 1-3) - SHIPPED 2026-02-03</summary>
+<summary>v1.0 User-Friendly Changelog (Phases 1-3) - SHIPPED 2026-02-03</summary>
 
 ### Phase 1: Modal UI Foundation
 
@@ -43,7 +43,7 @@ Plans:
 
 </details>
 
-### 🚧 v1.1 Improve API Types (In Progress)
+### v1.1 Improve API Types (In Progress)
 
 **Milestone Goal:** Type-safe, maintainable Discogs API integration with facade architecture
 
@@ -59,11 +59,11 @@ Plans:
 3. Missing fields (avatar_url, banner_url) are type-safe via module augmentation
 4. OAuth types (OAuthTokens, RequestTokenResult, AccessTokenResult) are extracted from @lionralfs in separate file
 5. All Discogs types are accessible via single import from src/types/discogs/index.ts
-   **Plans**: TBD
+   **Plans**: 1 plan
 
 Plans:
 
-- [ ] TBD
+- [ ] 04-01-PLAN.md — Create discojs type system and migrate all imports
 
 #### Phase 5: Rate Limiting
 
@@ -145,7 +145,7 @@ Phases 4-8 execute sequentially. Phase 4 and Phase 5 can run in parallel (no dep
 | 1. Modal UI Foundation    | v1.0      | 3/3            | Complete    | 2026-02-03 |
 | 2. Changelog System       | v1.0      | 2/2            | Complete    | 2026-02-03 |
 | 3. Polish and Integration | v1.0      | 2/2            | Complete    | 2026-02-03 |
-| 4. Type System Foundation | v1.1      | 0/TBD          | Not started | -          |
+| 4. Type System Foundation | v1.1      | 0/1            | Not started | -          |
 | 5. Rate Limiting          | v1.1      | 0/TBD          | Not started | -          |
 | 6. Facade Layer           | v1.1      | 0/TBD          | Not started | -          |
 | 7. tRPC Integration       | v1.1      | 0/TBD          | Not started | -          |
