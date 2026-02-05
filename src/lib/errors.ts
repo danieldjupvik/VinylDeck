@@ -20,6 +20,30 @@ export class OfflineNoCacheError extends Error {
 }
 
 /**
+ * Error thrown when Discogs API rate limit is exceeded and retries are exhausted.
+ * Contains timing info for upstream layers to display user feedback.
+ *
+ * @example
+ * ```ts
+ * catch (error) {
+ *   if (error instanceof RateLimitError) {
+ *     showToast(`Try again in ${Math.ceil(error.retryAfterMs / 1000)}s`)
+ *   }
+ * }
+ * ```
+ */
+export class RateLimitError extends Error {
+  readonly retryAfterMs: number
+  readonly statusCode = 429
+
+  constructor(retryAfterMs: number) {
+    super(`Rate limit exceeded. Retry after ${Math.ceil(retryAfterMs / 1000)}s`)
+    this.name = 'RateLimitError'
+    this.retryAfterMs = retryAfterMs
+  }
+}
+
+/**
  * Extracts the tRPC error code from a TRPCClientError.
  * Returns undefined if the error is not a TRPCClientError or has no code.
  */
@@ -60,6 +84,8 @@ export function isAuthError(error: unknown): boolean {
  * @returns True if retrying would not resolve the error
  */
 export function isNonRetryableError(error: unknown): boolean {
+  if (error instanceof RateLimitError) return true
+
   const code = getTRPCErrorCode(error)
   return (
     code === 'UNAUTHORIZED' ||
