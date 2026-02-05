@@ -8,6 +8,11 @@ import { Discojs, DiscogsError, UserSortEnum, SortOrdersEnum } from 'discojs'
 import { DiscogsApiError, DiscogsAuthError } from './errors.js'
 import { withRateLimitRetry, RateLimitError } from './retry.js'
 
+import type {
+  User,
+  Identity,
+  CollectionResponse
+} from '../../types/discogs/index.js'
 import type { OAuthTokens } from '../../types/discogs/oauth.js'
 
 declare const process: {
@@ -52,7 +57,7 @@ function buildPagination(
  * Data client interface returned by createDataClient
  */
 export interface DataClient {
-  getIdentity(): Promise<Awaited<ReturnType<Discojs['getIdentity']>>>
+  getIdentity(): Promise<Identity>
   getCollectionReleases(
     username: string,
     folderId?: number,
@@ -62,10 +67,8 @@ export interface DataClient {
       sort?: UserSortEnum | undefined
       sortOrder?: SortOrdersEnum | undefined
     }
-  ): Promise<Awaited<ReturnType<Discojs['listItemsInFolderForUser']>>>
-  getUserProfile(
-    username: string
-  ): Promise<Awaited<ReturnType<Discojs['getProfileForUser']>>>
+  ): Promise<CollectionResponse>
+  getUserProfile(username: string): Promise<User>
 }
 
 /**
