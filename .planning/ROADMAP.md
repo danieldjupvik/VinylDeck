@@ -98,7 +98,7 @@ Plans:
 Plans:
 
 - [x] 06-01-PLAN.md — Create facade with OAuth and data client wrappers
-- [ ] 06-02-PLAN.md — Fix DataClient to return extended types (gap closure)
+- [x] 06-02-PLAN.md — Fix DataClient to return extended types (gap closure)
 
 #### Phase 7: tRPC Integration
 
@@ -146,6 +146,6 @@ Phases 4-8 execute sequentially. Phase 4 and Phase 5 can run in parallel (no dep
 | 3. Polish and Integration | v1.0      | 2/2            | Complete    | 2026-02-03 |
 | 4. Type System Foundation | v1.1      | 1/1            | Complete    | 2026-02-03 |
 | 5. Rate Limiting          | v1.1      | 1/1            | Complete    | 2026-02-05 |
-| 6. Facade Layer           | v1.1      | 1/2            | In Progress | -          |
+| 6. Facade Layer           | v1.1      | 2/2            | Complete    | 2026-02-05 |
 | 7. tRPC Integration       | v1.1      | 0/TBD          | Not started | -          |
 | 8. Cleanup                | v1.1      | 0/TBD          | Not started | -          |

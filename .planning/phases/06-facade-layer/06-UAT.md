@@ -3,7 +3,7 @@ status: complete
 phase: 06-facade-layer
 source: 06-01-SUMMARY.md
 started: 2026-02-05T14:30:00Z
-updated: 2026-02-05T14:35:00Z
+updated: 2026-02-05T15:10:00Z
 ---
 
 ## Current Test
@@ -36,6 +36,7 @@ result: pass
 
 expected: TypeScript should show proper types when hovering over facade methods. No `any` types on return values. getIdentity returns Identity type, getCollectionReleases returns paginated collection, etc.
 result: pass
+notes: Fixed in 06-02 gap closure. DataClient now imports User, Identity, CollectionResponse from src/types/discogs barrel. getUserProfile returns User with banner_url accessible.
 
 ## Summary
 
@@ -47,4 +48,4 @@ skipped: 0
 
 ## Gaps
 
-[none]
+[none - all gaps closed by 06-02-PLAN.md]
