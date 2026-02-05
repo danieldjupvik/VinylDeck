@@ -6,7 +6,7 @@
 <domain>
 ## Phase Boundary
 
-Single entry point (`createDiscogsClient()`) hiding dual-library complexity. OAuth operations route through @lionralfs, data operations route through discojs. Query params converted to snake_case. Supports optional authentication for future unauthenticated browsing.
+Single entry point (`createDiscogsClient()`) hiding dual-library complexity. OAuth operations route through @lionralfs, data operations route through discojs. ~~Query params converted to snake_case~~ (research verified discojs handles this internally — no manual conversion needed). Supports optional authentication for future unauthenticated browsing.
 
 </domain>
 
@@ -30,8 +30,9 @@ Rate limiting architecture is already decided (see 05-CONTEXT.md):
 
 ### Client Factory API
 
-- Singleton pattern — one shared instance for entire app
+- ~~Singleton pattern~~ → **Factory function pattern** (research found factory is correct for stateless Vercel Serverless Functions)
 - Method names match Discogs API naming (e.g., `getCollectionReleases`, `getIdentity`) — familiar to Discogs devs
+- Facade method names wrap discojs internals: `getCollectionReleases()` wraps `listItemsInFolderForUser()`, `getUserProfile()` wraps `getProfileForUser()`
 
 ### Claude's Discretion (Factory API)
 
@@ -65,7 +66,8 @@ Rate limiting architecture is already decided (see 05-CONTEXT.md):
 ## Specific Ideas
 
 - Extend unified error pattern from Phase 5's `RateLimitError`
-- Singleton should work well with tRPC context (one client per request isn't needed since Vercel functions are stateless per-invocation anyway)
+- Factory function creates fresh client per invocation (appropriate for stateless Vercel Serverless Functions)
+- discojs requires OAuth 1.0a config (`consumerKey`, `consumerSecret`, `oAuthToken`, `oAuthTokenSecret`) — NOT `userToken` (personal access token)
 
 </specifics>
 

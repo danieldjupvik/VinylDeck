@@ -619,13 +619,19 @@ export function createDataClient(tokens?: OAuthTokens | undefined) {
     })
   }
 
-  // Create discojs client (authenticated if tokens provided)
-  const client = new Discojs({
-    userToken: tokens
-      ? `${tokens.accessToken},${tokens.accessTokenSecret}`
-      : undefined,
-    userAgent: `VinylDeck/${APP_VERSION}`
-  })
+  // Create discojs client with OAuth 1.0a (NOT userToken - that's for personal access tokens)
+  // CRITICAL: discojs requires all four OAuth fields for authenticated requests
+  const client = new Discojs(
+    tokens
+      ? {
+          consumerKey: CONSUMER_KEY,
+          consumerSecret: CONSUMER_SECRET,
+          oAuthToken: tokens.accessToken,
+          oAuthTokenSecret: tokens.accessTokenSecret,
+          userAgent: `VinylDeck/${APP_VERSION}`
+        }
+      : { userAgent: `VinylDeck/${APP_VERSION}` }
+  )
 
   /**
    * Wraps discojs call with rate limit retry and error handling
@@ -708,10 +714,15 @@ export function createDataClient(tokens?: OAuthTokens | undefined) {
       }
 
       return wrapCall('getCollectionReleases', async () => {
-        return await client
-          .user()
-          .collection()
-          .getReleases(username, folderId, options)
+        // ACTUAL discojs method: listItemsInFolderForUser (NOT .user().collection().getReleases())
+        return await client.listItemsInFolderForUser(
+          username,
+          folderId,
+          options?.sort
+            ? { sortBy: options.sort, sortOrder: options.sortOrder }
+            : undefined,
+          { page: options?.page, perPage: options?.perPage }
+        )
       })
     },
 
@@ -731,7 +742,8 @@ export function createDataClient(tokens?: OAuthTokens | undefined) {
       }
 
       return wrapCall('getUserProfile', async () => {
-        return await client.user().getProfile(username)
+        // ACTUAL discojs method: getProfileForUser (NOT .user().getProfile())
+        return await client.getProfileForUser(username)
       })
     }
 
