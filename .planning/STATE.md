@@ -5,24 +5,24 @@
 See: .planning/PROJECT.md (updated 2026-02-03)
 
 **Core value:** Type-safe, maintainable Discogs API integration that scales with the app
-**Current focus:** Phase 5 - Rate Limiting
+**Current focus:** Phase 6 - Facade Layer
 
 ## Current Position
 
-Phase: 5 of 8 (Rate Limiting)
+Phase: 6 of 8 (Facade Layer)
 Plan: Ready to plan
-Status: Ready for Phase 5 planning
-Last activity: 2026-02-03 — Completed Phase 4 (Type System Foundation)
+Status: Ready for Phase 6 planning
+Last activity: 2026-02-05 — Completed Phase 5 (Rate Limiting)
 
-Progress: [████░░░░░░] 42% (8/19 plans complete from all milestones)
+Progress: [█████░░░░░] 47% (9/19 plans complete from all milestones)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 8
-- Average duration: ~7 min (v1.1 only - v1.0 not tracked)
-- Total execution time: 7 min (v1.1 only)
+- Total plans completed: 9
+- Average duration: ~6 min (v1.1 only - v1.0 not tracked)
+- Total execution time: 12 min (v1.1 only)
 
 **By Phase:**
 
@@ -32,11 +32,12 @@ Progress: [████░░░░░░] 42% (8/19 plans complete from all mil
 | 2. Changelog System       | 2/2   | -     | -        |
 | 3. Polish and Integration | 2/2   | -     | -        |
 | 4. Type System Foundation | 1/1   | 7min  | 7min     |
+| 5. Rate Limiting          | 1/1   | 5min  | 5min     |
 
 **Recent Trend:**
 
-- v1.1 in progress - Phase 4 complete, Phase 5 next
-- Trend: 7 min/plan (first v1.1 plan baseline)
+- v1.1 in progress - Phase 5 complete, Phase 6 next
+- Trend: 6 min/plan (2 plan average)
 
 _Updated after each plan completion_
 
@@ -51,7 +52,7 @@ Recent decisions affecting current work:
 - **Import types, don't copy**: Auto-sync on discojs updates, less maintenance (Implemented - 04-01)
 - **ReturnType extraction over module augmentation**: discojs inline types cause circular refs (04-01)
 - **Barrel export pattern**: Single import point @/types/discogs for all types (Implemented - 04-01)
-- **Bottleneck for throttling**: Industry standard, supports clustering, dynamic limits (Pending - Phase 5)
+- **Reactive rate limiting via retry wrapper**: withRateLimitRetry with exponential backoff (Implemented - 05-01)
 - **Facade pattern**: Hide library complexity, easy to swap/extend (Pending - Phase 6)
 
 ### Pending Todos
@@ -71,6 +72,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03
-Stopped at: Completed Phase 4 (Type System Foundation) - verified
+Last session: 2026-02-05
+Stopped at: Completed Phase 5 (Rate Limiting) - verified
 Resume file: None
