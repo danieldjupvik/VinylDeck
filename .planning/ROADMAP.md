@@ -67,21 +67,20 @@ Plans:
 
 #### Phase 5: Rate Limiting
 
-**Goal**: Proactive server-side throttling with Bottleneck
+**Goal**: Reactive 429 error handling and rate state exposure (proactive throttling handled by discojs built-in Bottleneck)
 **Depends on**: Phase 3
 **Requirements**: RATE-01, RATE-02, RATE-03, RATE-04, RATE-05, RATE-06
 **Success Criteria** (what must be TRUE):
 
-1. All Discogs API calls are queued through shared Bottleneck instance
-2. Authenticated requests respect 60 requests/minute limit
-3. Unauthenticated requests respect 25 requests/minute limit
-4. 429 errors trigger automatic Retry-After delay before retry
-5. Rate limit state (remaining, reset time) is exposed for UI consumption
-   **Plans**: TBD
+1. 429 errors are caught and retried with exponential backoff + jitter
+2. RateLimitError is thrown after retries exhausted, carrying remaining wait time
+3. Rate limit state (remaining, reset time) is exposed for UI consumption
+4. Retry wrapper is ready for facade layer to consume (Phase 6)
+   **Plans**: 1 plan
 
 Plans:
 
-- [ ] TBD
+- [ ] 05-01-PLAN.md — Create retry infrastructure and rate state tracking
 
 #### Phase 6: Facade Layer
 
@@ -146,7 +145,7 @@ Phases 4-8 execute sequentially. Phase 4 and Phase 5 can run in parallel (no dep
 | 2. Changelog System       | v1.0      | 2/2            | Complete    | 2026-02-03 |
 | 3. Polish and Integration | v1.0      | 2/2            | Complete    | 2026-02-03 |
 | 4. Type System Foundation | v1.1      | 1/1            | Complete    | 2026-02-03 |
-| 5. Rate Limiting          | v1.1      | 0/TBD          | Not started | -          |
+| 5. Rate Limiting          | v1.1      | 0/1            | Not started | -          |
 | 6. Facade Layer           | v1.1      | 0/TBD          | Not started | -          |
 | 7. tRPC Integration       | v1.1      | 0/TBD          | Not started | -          |
 | 8. Cleanup                | v1.1      | 0/TBD          | Not started | -          |
