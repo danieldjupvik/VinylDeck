@@ -19,22 +19,22 @@ Requirements for hybrid @lionralfs + discojs architecture.
 
 ### Facade Layer
 
-- [ ] **FACADE-01**: Create facade entry point (server/discogs/index.ts) with createDiscogsClient()
-- [ ] **FACADE-02**: Create OAuth wrapper (server/discogs/oauth.ts) using @lionralfs
-- [ ] **FACADE-03**: Create data client wrapper (server/discogs/client.ts) using discojs
-- [ ] **FACADE-04**: Implement query param casing workaround (camelCase → snake_case)
+- [x] **FACADE-01**: Create facade entry point (server/discogs/index.ts) with createDiscogsClient()
+- [x] **FACADE-02**: Create OAuth wrapper (server/discogs/oauth.ts) using @lionralfs
+- [x] **FACADE-03**: Create data client wrapper (server/discogs/client.ts) using discojs
+- [x] **FACADE-04**: ~~Implement query param casing workaround~~ — N/A, discojs handles internally
 - [ ] **FACADE-05**: Update tRPC OAuth router to use facade
 - [ ] **FACADE-06**: Update tRPC discogs router to use facade
-- [ ] **FACADE-07**: Support optional authentication (tokens parameter optional)
+- [x] **FACADE-07**: Support optional authentication (tokens parameter optional)
 
 ### Rate Limiting
 
-- [ ] **RATE-01**: Create Bottleneck configuration (server/discogs/throttle.ts)
-- [ ] **RATE-02**: Configure authenticated rate limit (60 req/min)
-- [ ] **RATE-03**: Configure unauthenticated rate limit (25 req/min)
-- [ ] **RATE-04**: Implement Retry-After handling for 429 errors
-- [ ] **RATE-05**: Expose rate limit state for UI consumption
-- [ ] **RATE-06**: Wrap all discojs calls with throttling
+- [x] **RATE-01**: Create retry wrapper with exponential backoff (server/discogs/retry.ts)
+- [x] **RATE-02**: Configure authenticated rate limit (60 req/min) — via withRateLimitRetry
+- [x] **RATE-03**: Configure unauthenticated rate limit (25 req/min) — via withRateLimitRetry
+- [x] **RATE-04**: Implement Retry-After handling for 429 errors
+- [x] **RATE-05**: Expose rate limit state for UI consumption (server/discogs/rate-state.ts)
+- [x] **RATE-06**: Wrap all discojs calls with throttling — via facade data client
 
 ### Cleanup
 
@@ -83,19 +83,19 @@ Explicitly excluded from v1.1. Documented to prevent scope creep.
 | TYPE-05     | 4     | Complete |
 | TYPE-06     | 8     | Pending  |
 | TYPE-07     | 7     | Pending  |
-| FACADE-01   | 6     | Pending  |
-| FACADE-02   | 6     | Pending  |
-| FACADE-03   | 6     | Pending  |
-| FACADE-04   | 6     | Pending  |
+| FACADE-01   | 6     | Complete |
+| FACADE-02   | 6     | Complete |
+| FACADE-03   | 6     | Complete |
+| FACADE-04   | 6     | N/A      |
 | FACADE-05   | 7     | Pending  |
 | FACADE-06   | 7     | Pending  |
-| FACADE-07   | 6     | Pending  |
-| RATE-01     | 5     | Pending  |
-| RATE-02     | 5     | Pending  |
-| RATE-03     | 5     | Pending  |
-| RATE-04     | 5     | Pending  |
-| RATE-05     | 5     | Pending  |
-| RATE-06     | 5     | Pending  |
+| FACADE-07   | 6     | Complete |
+| RATE-01     | 5     | Complete |
+| RATE-02     | 5     | Complete |
+| RATE-03     | 5     | Complete |
+| RATE-04     | 5     | Complete |
+| RATE-05     | 5     | Complete |
+| RATE-06     | 5     | Complete |
 | CLEAN-01    | 8     | Pending  |
 | CLEAN-02    | 8     | Pending  |
 | CLEAN-03    | 8     | Pending  |
@@ -109,4 +109,4 @@ Explicitly excluded from v1.1. Documented to prevent scope creep.
 ---
 
 _Requirements defined: 2026-02-03_
-_Last updated: 2026-02-03 after Phase 4 completion_
+_Last updated: 2026-02-05 after Phase 6 completion_
