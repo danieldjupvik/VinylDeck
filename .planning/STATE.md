@@ -5,24 +5,24 @@
 See: .planning/PROJECT.md (updated 2026-02-03)
 
 **Core value:** Type-safe, maintainable Discogs API integration that scales with the app
-**Current focus:** Phase 6 - Facade Layer
+**Current focus:** Phase 7 - Router Migration (next)
 
 ## Current Position
 
 Phase: 6 of 8 (Facade Layer)
-Plan: Ready for execution
-Status: Phase 6 planned (1 plan)
-Last activity: 2026-02-05 — Created Phase 6 plan
+Plan: 1/1 complete
+Status: Phase 6 complete
+Last activity: 2026-02-05 — Completed Phase 6 Plan 01 (Facade Layer)
 
-Progress: [█████░░░░░] 47% (9/19 plans complete from all milestones)
+Progress: [██████░░░░] 53% (10/19 plans complete from all milestones)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: ~6 min (v1.1 only - v1.0 not tracked)
-- Total execution time: 12 min (v1.1 only)
+- Total execution time: 17 min (v1.1 only)
 
 **By Phase:**
 
@@ -33,11 +33,12 @@ Progress: [█████░░░░░] 47% (9/19 plans complete from all mil
 | 3. Polish and Integration | 2/2   | -     | -        |
 | 4. Type System Foundation | 1/1   | 7min  | 7min     |
 | 5. Rate Limiting          | 1/1   | 5min  | 5min     |
+| 6. Facade Layer           | 1/1   | 5min  | 5min     |
 
 **Recent Trend:**
 
-- v1.1 in progress - Phase 5 complete, Phase 6 planned
-- Trend: 6 min/plan (2 plan average)
+- v1.1 in progress - Phase 6 complete
+- Trend: 6 min/plan (3 plan average)
 
 _Updated after each plan completion_
 
@@ -53,8 +54,9 @@ Recent decisions affecting current work:
 - **ReturnType extraction over module augmentation**: discojs inline types cause circular refs (04-01)
 - **Barrel export pattern**: Single import point @/types/discogs for all types (Implemented - 04-01)
 - **Reactive rate limiting via retry wrapper**: withRateLimitRetry with exponential backoff (Implemented - 05-01)
-- **Facade pattern**: Hide library complexity, easy to swap/extend (Pending - Phase 6)
-- **Grouped namespaces**: client.oauth._ and client.data._ for clear subsystem separation (Phase 6 decision)
+- **Facade pattern**: Hide library complexity, easy to swap/extend (Implemented - 06-01)
+- **Grouped namespaces**: client.oauth._ and client.data._ for clear subsystem separation (Implemented - 06-01)
+- **OAuth 1.0a config for discojs**: Use consumerKey/Secret/oAuthToken/TokenSecret, NOT userToken (06-01)
 
 ### Pending Todos
 
@@ -66,13 +68,12 @@ None yet.
 
 - banner_url missing from discojs - extended in User type, may need upstream PR
 
-**From research (RESOLVED):**
+**Pre-existing build issue:**
 
-- ~~Phase 6: discojs query param casing bug~~ — VERIFIED FALSE by research (discojs converts internally, line 473)
-- Phase 6: Rate limit metadata extraction - continue existing tRPC middleware pattern (src/api/rate-limiter.ts)
+- `__APP_VERSION__` TypeScript error in vercel build - exists on main branch, not caused by v1.1 work
 
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Created Phase 6 plan (06-01-PLAN.md)
+Stopped at: Completed Phase 6 Plan 01 (06-01-SUMMARY.md created)
 Resume file: None
