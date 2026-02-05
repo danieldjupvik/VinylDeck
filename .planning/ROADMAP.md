@@ -86,19 +86,18 @@ Plans:
 
 **Goal**: Single entry point hiding dual-library complexity
 **Depends on**: Phase 4, Phase 5
-**Requirements**: FACADE-01, FACADE-02, FACADE-03, FACADE-04, FACADE-07
+**Requirements**: FACADE-01, FACADE-02, FACADE-03, FACADE-07
 **Success Criteria** (what must be TRUE):
 
 1. Single createDiscogsClient() factory creates OAuth and data clients with shared throttling
 2. OAuth operations (getRequestToken, getAccessToken) route through @lionralfs wrapper
 3. Data operations (getCollection, getIdentity, getUserProfile) route through discojs wrapper
-4. Query parameters are converted from camelCase to snake_case for Discogs API compatibility
-5. Facade accepts optional authentication (tokens parameter can be omitted for future unauthenticated browsing)
-   **Plans**: TBD
+4. Facade accepts optional authentication (tokens parameter can be omitted for future unauthenticated browsing)
+   **Plans**: 1 plan
 
 Plans:
 
-- [ ] TBD
+- [ ] 06-01-PLAN.md — Create facade with OAuth and data client wrappers
 
 #### Phase 7: tRPC Integration
 
@@ -146,6 +145,6 @@ Phases 4-8 execute sequentially. Phase 4 and Phase 5 can run in parallel (no dep
 | 3. Polish and Integration | v1.0      | 2/2            | Complete    | 2026-02-03 |
 | 4. Type System Foundation | v1.1      | 1/1            | Complete    | 2026-02-03 |
 | 5. Rate Limiting          | v1.1      | 1/1            | Complete    | 2026-02-05 |
-| 6. Facade Layer           | v1.1      | 0/TBD          | Not started | -          |
+| 6. Facade Layer           | v1.1      | 0/1            | Not started | -          |
 | 7. tRPC Integration       | v1.1      | 0/TBD          | Not started | -          |
 | 8. Cleanup                | v1.1      | 0/TBD          | Not started | -          |

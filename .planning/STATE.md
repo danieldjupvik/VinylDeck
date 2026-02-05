@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 6 of 8 (Facade Layer)
-Plan: Ready to plan
-Status: Ready for Phase 6 planning
-Last activity: 2026-02-05 — Completed Phase 5 (Rate Limiting)
+Plan: Ready for execution
+Status: Phase 6 planned (1 plan)
+Last activity: 2026-02-05 — Created Phase 6 plan
 
 Progress: [█████░░░░░] 47% (9/19 plans complete from all milestones)
 
@@ -36,7 +36,7 @@ Progress: [█████░░░░░] 47% (9/19 plans complete from all mil
 
 **Recent Trend:**
 
-- v1.1 in progress - Phase 5 complete, Phase 6 next
+- v1.1 in progress - Phase 5 complete, Phase 6 planned
 - Trend: 6 min/plan (2 plan average)
 
 _Updated after each plan completion_
@@ -54,6 +54,7 @@ Recent decisions affecting current work:
 - **Barrel export pattern**: Single import point @/types/discogs for all types (Implemented - 04-01)
 - **Reactive rate limiting via retry wrapper**: withRateLimitRetry with exponential backoff (Implemented - 05-01)
 - **Facade pattern**: Hide library complexity, easy to swap/extend (Pending - Phase 6)
+- **Grouped namespaces**: client.oauth._ and client.data._ for clear subsystem separation (Phase 6 decision)
 
 ### Pending Todos
 
@@ -65,13 +66,13 @@ None yet.
 
 - banner_url missing from discojs - extended in User type, may need upstream PR
 
-**From research:**
+**From research (RESOLVED):**
 
-- Phase 6: discojs query param casing bug (camelCase not converted to snake_case) - manual conversion needed
-- Phase 6: Rate limit metadata extraction - need to verify if discojs exposes headers before response processing
+- ~~Phase 6: discojs query param casing bug~~ — VERIFIED FALSE by research (discojs converts internally, line 473)
+- Phase 6: Rate limit metadata extraction - continue existing tRPC middleware pattern (src/api/rate-limiter.ts)
 
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed Phase 5 (Rate Limiting) - verified
+Stopped at: Created Phase 6 plan (06-01-PLAN.md)
 Resume file: None
