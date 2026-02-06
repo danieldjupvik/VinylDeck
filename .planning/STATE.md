@@ -5,24 +5,24 @@
 See: .planning/PROJECT.md (updated 2026-02-03)
 
 **Core value:** Type-safe, maintainable Discogs API integration that scales with the app
-**Current focus:** Phase 8 - Cleanup (in progress)
+**Current focus:** Phase 8 - Cleanup (complete)
 
 ## Current Position
 
 Phase: 8 of 8 (Cleanup)
-Plan: 1/2 complete
-Status: In progress
-Last activity: 2026-02-06 - Completed 08-01-PLAN.md
+Plan: 2/2 complete
+Status: Phase 8 complete
+Last activity: 2026-02-06 - Completed 08-02-PLAN.md
 
-Progress: [████████░░] 70% (14/20 plans complete from all milestones)
+Progress: [████████░░] 75% (15/20 plans complete from all milestones)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 14
+- Total plans completed: 15
 - Average duration: ~4 min (v1.1 only - v1.0 not tracked)
-- Total execution time: 31 min (v1.1 only)
+- Total execution time: 33 min (v1.1 only)
 
 **By Phase:**
 
@@ -35,12 +35,12 @@ Progress: [████████░░] 70% (14/20 plans complete from all mi
 | 5. Rate Limiting          | 1/1   | 5min  | 5min     |
 | 6. Facade Layer           | 2/2   | 8min  | 4min     |
 | 7. tRPC Router Migration  | 2/2   | 8min  | 4min     |
-| 8. Cleanup                | 1/2   | 3min  | 3min     |
+| 8. Cleanup                | 2/2   | 5min  | 2.5min   |
 
 **Recent Trend:**
 
-- v1.1 in progress - Phase 8 started (1/2 plans)
-- Trend: 4 min/plan (7 plan average)
+- v1.1 in progress - Phase 8 complete (2/2 plans)
+- Trend: 4 min/plan (8 plan average)
 
 _Updated after each plan completion_
 
@@ -64,6 +64,7 @@ Recent decisions affecting current work:
 - **OAuth router migration pattern**: Import only from facade, flat response returns, preserve deployment security (07-01)
 - **Flat tRPC responses**: All routers return flat facade types, no wrapping, no rateLimit in responses (Implemented - 07-02)
 - **RATE_LIMIT co-location**: Inlined into rate-state.ts (only consumer), removed from shared constants (08-01)
+- **Document facade in API Layer section**: No separate Facade section in CLAUDE.md (08-02)
 
 ### Pending Todos
 
@@ -82,5 +83,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 08-01-PLAN.md. Ready for 08-02 (CLAUDE.md documentation update).
+Stopped at: Completed 08-02-PLAN.md. Phase 8 (Cleanup) complete.
 Resume file: None
