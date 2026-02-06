@@ -1,6 +1,6 @@
 /**
  * Unified error types for the Discogs facade layer.
- * All facade errors extend Error with ES2022 Error.cause for stack trace preservation.
+ * All facade errors extend Error with manual cause assignment for stack trace preservation.
  */
 
 /**
@@ -8,6 +8,7 @@
  * Preserves original error via Error.cause for debugging.
  */
 export class DiscogsApiError extends Error {
+  declare readonly cause?: unknown
   readonly statusCode?: number | undefined
   readonly originalError: unknown
 
@@ -15,8 +16,9 @@ export class DiscogsApiError extends Error {
     message: string,
     options: { cause: unknown; statusCode?: number }
   ) {
-    super(message, { cause: options.cause })
+    super(message)
     this.name = 'DiscogsApiError'
+    this.cause = options.cause
     this.statusCode = options.statusCode
     this.originalError = options.cause
   }
@@ -27,6 +29,7 @@ export class DiscogsApiError extends Error {
  * Indicates invalid or expired OAuth tokens.
  */
 export class DiscogsAuthError extends Error {
+  declare readonly cause?: unknown
   readonly statusCode: 401 | 403
   readonly originalError: unknown
 
@@ -34,8 +37,9 @@ export class DiscogsAuthError extends Error {
     message: string,
     options: { cause: unknown; statusCode: 401 | 403 }
   ) {
-    super(message, { cause: options.cause })
+    super(message)
     this.name = 'DiscogsAuthError'
+    this.cause = options.cause
     this.statusCode = options.statusCode
     this.originalError = options.cause
   }
