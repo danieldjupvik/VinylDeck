@@ -14,7 +14,7 @@ Requirements for hybrid @lionralfs + discojs architecture.
 - [x] **TYPE-03**: Create module augmentation for missing fields (avatar_url, banner_url)
 - [x] **TYPE-04**: Create OAuth types file from @lionralfs (OAuthTokens, RequestTokenResult, AccessTokenResult)
 - [x] **TYPE-05**: Create unified type exports (index.ts re-exporting all)
-- [ ] **TYPE-06**: Delete old custom types file (src/types/discogs.ts)
+- [x] **TYPE-06**: Delete old custom types file (src/types/discogs.ts)
 - [x] **TYPE-07**: Remove `as unknown as` casts from tRPC router
 
 ### Facade Layer
@@ -39,8 +39,8 @@ Requirements for hybrid @lionralfs + discojs architecture.
 ### Cleanup
 
 - [x] **CLEAN-01**: Remove old discogs-client.ts factory
-- [ ] **CLEAN-02**: Remove passive rate limiter (src/api/rate-limiter.ts) if replaced
-- [ ] **CLEAN-03**: Update imports across codebase to use new type paths
+- [x] **CLEAN-02**: Remove passive rate limiter (src/api/rate-limiter.ts) if replaced
+- [x] **CLEAN-03**: Update imports across codebase to use new type paths
 
 ## Future Requirements (v1.2+)
 
@@ -81,7 +81,7 @@ Explicitly excluded from v1.1. Documented to prevent scope creep.
 | TYPE-03     | 4     | Complete |
 | TYPE-04     | 4     | Complete |
 | TYPE-05     | 4     | Complete |
-| TYPE-06     | 8     | Pending  |
+| TYPE-06     | 8     | Complete |
 | TYPE-07     | 7     | Complete |
 | FACADE-01   | 6     | Complete |
 | FACADE-02   | 6     | Complete |
@@ -97,8 +97,8 @@ Explicitly excluded from v1.1. Documented to prevent scope creep.
 | RATE-05     | 5     | Complete |
 | RATE-06     | 5     | Complete |
 | CLEAN-01    | 7     | Complete |
-| CLEAN-02    | 8     | Pending  |
-| CLEAN-03    | 8     | Pending  |
+| CLEAN-02    | 8     | Complete |
+| CLEAN-03    | 8     | Complete |
 
 **Coverage:**
 
@@ -109,4 +109,4 @@ Explicitly excluded from v1.1. Documented to prevent scope creep.
 ---
 
 _Requirements defined: 2026-02-03_
-_Last updated: 2026-02-06 after Phase 7 completion_
+_Last updated: 2026-02-06 after Phase 8 completion — all v1.1 requirements complete_

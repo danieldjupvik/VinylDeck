@@ -3,7 +3,7 @@
 ## Milestones
 
 - v1.0 User-Friendly Changelog - Phases 1-3 (shipped 2026-02-03)
-- v1.1 Improve API Types - Phases 4-8 (in progress)
+- v1.1 Improve API Types - Phases 4-8 (complete 2026-02-06)
 
 ## Phases
 
@@ -43,7 +43,7 @@ Plans:
 
 </details>
 
-### v1.1 Improve API Types (In Progress)
+### v1.1 Improve API Types (Complete 2026-02-06)
 
 **Milestone Goal:** Type-safe, maintainable Discogs API integration with facade architecture
 
@@ -133,21 +133,21 @@ Plans:
 
 Plans:
 
-- [ ] 08-01-PLAN.md — Dead code removal, orphan scan, unused dependency cleanup
-- [ ] 08-02-PLAN.md — Documentation sync (CLAUDE.md, GEMINI.md, AGENTS.md)
+- [x] 08-01-PLAN.md — Dead code removal, orphan scan, unused dependency cleanup
+- [x] 08-02-PLAN.md — Documentation sync (CLAUDE.md, GEMINI.md, AGENTS.md)
 
 ## Progress
 
 **Execution Order:**
 Phases 4-8 execute sequentially. Phase 4 and Phase 5 can run in parallel (no dependencies).
 
-| Phase                     | Milestone | Plans Complete | Status      | Completed  |
-| ------------------------- | --------- | -------------- | ----------- | ---------- |
-| 1. Modal UI Foundation    | v1.0      | 3/3            | Complete    | 2026-02-03 |
-| 2. Changelog System       | v1.0      | 2/2            | Complete    | 2026-02-03 |
-| 3. Polish and Integration | v1.0      | 2/2            | Complete    | 2026-02-03 |
-| 4. Type System Foundation | v1.1      | 1/1            | Complete    | 2026-02-03 |
-| 5. Rate Limiting          | v1.1      | 1/1            | Complete    | 2026-02-05 |
-| 6. Facade Layer           | v1.1      | 2/2            | Complete    | 2026-02-05 |
-| 7. tRPC Integration       | v1.1      | 2/2            | Complete    | 2026-02-06 |
-| 8. Cleanup                | v1.1      | 0/2            | Not started | -          |
+| Phase                     | Milestone | Plans Complete | Status   | Completed  |
+| ------------------------- | --------- | -------------- | -------- | ---------- |
+| 1. Modal UI Foundation    | v1.0      | 3/3            | Complete | 2026-02-03 |
+| 2. Changelog System       | v1.0      | 2/2            | Complete | 2026-02-03 |
+| 3. Polish and Integration | v1.0      | 2/2            | Complete | 2026-02-03 |
+| 4. Type System Foundation | v1.1      | 1/1            | Complete | 2026-02-03 |
+| 5. Rate Limiting          | v1.1      | 1/1            | Complete | 2026-02-05 |
+| 6. Facade Layer           | v1.1      | 2/2            | Complete | 2026-02-05 |
+| 7. tRPC Integration       | v1.1      | 2/2            | Complete | 2026-02-06 |
+| 8. Cleanup                | v1.1      | 2/2            | Complete | 2026-02-06 |
