@@ -129,11 +129,12 @@ Plans:
 2. Old discogs-client factory (src/server/discogs-client.ts) is deleted
 3. Passive rate limiter (src/api/rate-limiter.ts) is removed if replaced by Bottleneck
 4. All imports across codebase reference new type paths (src/types/discogs/)
-   **Plans**: TBD
+   **Plans**: 2 plans
 
 Plans:
 
-- [ ] TBD
+- [ ] 08-01-PLAN.md — Dead code removal, orphan scan, unused dependency cleanup
+- [ ] 08-02-PLAN.md — Documentation sync (CLAUDE.md, GEMINI.md, AGENTS.md)
 
 ## Progress
 
@@ -149,4 +150,4 @@ Phases 4-8 execute sequentially. Phase 4 and Phase 5 can run in parallel (no dep
 | 5. Rate Limiting          | v1.1      | 1/1            | Complete    | 2026-02-05 |
 | 6. Facade Layer           | v1.1      | 2/2            | Complete    | 2026-02-05 |
 | 7. tRPC Integration       | v1.1      | 2/2            | Complete    | 2026-02-06 |
-| 8. Cleanup                | v1.1      | 0/TBD          | Not started | -          |
+| 8. Cleanup                | v1.1      | 0/2            | Not started | -          |
