@@ -1,13 +1,9 @@
+import { UserSortEnum, SortOrdersEnum } from 'discojs'
 import { z } from 'zod'
 
-import { createDiscogsClient } from '../../discogs-client.js'
-import { handleDiscogsError } from '../error-utils.js'
+import { createDiscogsClient } from '../../discogs/index.js'
+import { mapFacadeErrorToTRPC } from '../error-mapper.js'
 import { publicProcedure, router } from '../init.js'
-
-import type {
-  DiscogsCollectionRelease,
-  DiscogsPagination
-} from '../../../types/discogs/index.js'
 
 /**
  * Discogs API router for proxying authenticated requests.
@@ -28,25 +24,15 @@ export const discogsRouter = router({
       })
     )
     .query(async ({ input }) => {
-      const client = createDiscogsClient(
-        input.accessToken,
-        input.accessTokenSecret
-      )
+      const client = createDiscogsClient({
+        accessToken: input.accessToken,
+        accessTokenSecret: input.accessTokenSecret
+      })
 
       try {
-        const { data, rateLimit } = await client.getIdentity()
-
-        return {
-          identity: {
-            id: data.id,
-            username: data.username,
-            resource_url: data.resource_url,
-            consumer_name: data.consumer_name
-          },
-          rateLimit
-        }
+        return await client.data.getIdentity()
       } catch (error) {
-        handleDiscogsError(error, 'get identity')
+        mapFacadeErrorToTRPC(error, 'get identity')
       }
     }),
 
@@ -80,32 +66,24 @@ export const discogsRouter = router({
       })
     )
     .query(async ({ input }) => {
-      const client = createDiscogsClient(
-        input.accessToken,
-        input.accessTokenSecret
-      )
+      const client = createDiscogsClient({
+        accessToken: input.accessToken,
+        accessTokenSecret: input.accessTokenSecret
+      })
 
       try {
-        const { data, rateLimit } = await client
-          .user()
-          .collection()
-          .getReleases(input.username, input.folderId, {
+        return await client.data.getCollectionReleases(
+          input.username,
+          input.folderId,
+          {
             page: input.page,
-            per_page: input.perPage,
-            ...(input.sort && { sort: input.sort }),
-            ...(input.sortOrder && { sort_order: input.sortOrder })
-          })
-
-        // Type cast required: @lionralfs/discogs-client types are incomplete.
-        // The Discogs API returns additional fields (basic_information, formats, etc.)
-        // that our DiscogsCollectionRelease type captures but the library omits.
-        return {
-          releases: data.releases as unknown as DiscogsCollectionRelease[],
-          pagination: data.pagination as unknown as DiscogsPagination,
-          rateLimit
-        }
+            perPage: input.perPage,
+            sort: input.sort as UserSortEnum | undefined,
+            sortOrder: input.sortOrder as SortOrdersEnum | undefined
+          }
+        )
       } catch (error) {
-        handleDiscogsError(error, 'get collection')
+        mapFacadeErrorToTRPC(error, 'get collection')
       }
     }),
 
@@ -123,29 +101,15 @@ export const discogsRouter = router({
       })
     )
     .query(async ({ input }) => {
-      const client = createDiscogsClient(
-        input.accessToken,
-        input.accessTokenSecret
-      )
+      const client = createDiscogsClient({
+        accessToken: input.accessToken,
+        accessTokenSecret: input.accessTokenSecret
+      })
 
       try {
-        const { data, rateLimit } = await client
-          .user()
-          .getProfile(input.username)
-
-        return {
-          profile: {
-            id: data.id,
-            username: data.username,
-            avatar_url: data.avatar_url,
-            email: data.email,
-            num_collection: data.num_collection,
-            num_wantlist: data.num_wantlist
-          },
-          rateLimit
-        }
+        return await client.data.getUserProfile(input.username)
       } catch (error) {
-        handleDiscogsError(error, 'get user profile')
+        mapFacadeErrorToTRPC(error, 'get user profile')
       }
     }),
 
@@ -163,27 +127,15 @@ export const discogsRouter = router({
       })
     )
     .query(async ({ input }) => {
-      const client = createDiscogsClient(
-        input.accessToken,
-        input.accessTokenSecret
-      )
+      const client = createDiscogsClient({
+        accessToken: input.accessToken,
+        accessTokenSecret: input.accessTokenSecret
+      })
 
       try {
-        // Fetch only first page with per_page=1 (minimal data transfer)
-        const { data, rateLimit } = await client
-          .user()
-          .collection()
-          .getReleases(input.username, 0, {
-            page: 1,
-            per_page: 1
-          })
-
-        return {
-          totalCount: data.pagination.items,
-          rateLimit
-        }
+        return await client.data.getCollectionMetadata(input.username)
       } catch (error) {
-        handleDiscogsError(error, 'get collection metadata')
+        mapFacadeErrorToTRPC(error, 'get collection metadata')
       }
     })
 })
