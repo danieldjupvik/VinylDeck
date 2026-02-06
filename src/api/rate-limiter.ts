@@ -209,4 +209,5 @@ class RateLimiter {
   }
 }
 
+// eslint-disable-next-line import-x/no-unused-modules -- Phase 8 will remove this file
 export const rateLimiter = new RateLimiter()

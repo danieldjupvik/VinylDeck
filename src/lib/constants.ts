@@ -1,5 +1,3 @@
-export const APP_VERSION = __APP_VERSION__
-
 /**
  * Theme configuration.
  * IMPORTANT: Keep THEME.DEFAULT in sync with index.html inline script.

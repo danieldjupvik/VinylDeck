@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useAuth } from '@/hooks/use-auth'
 import { useChangelog } from '@/hooks/use-changelog'
-import { APP_VERSION } from '@/lib/constants'
+import { APP_VERSION } from '@/lib/app-version'
 import { useHydrationState } from '@/providers/hydration-context'
 import { usePreferencesStore } from '@/stores/preferences-store'
 import type { ChangelogVersion } from '@/types/changelog'
