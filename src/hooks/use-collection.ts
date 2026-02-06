@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 
 import { isVinylRecord } from '@/api/discogs'
-import { rateLimiter } from '@/api/rate-limiter'
 import { useAuth } from '@/hooks/use-auth'
 import { useHydrationGuard } from '@/hooks/use-hydration-guard'
 import { useUserProfile } from '@/hooks/use-user-profile'
@@ -289,7 +288,7 @@ export function useCollection(
       const perPage = COLLECTION.PER_PAGE
 
       const fetchPage = async (pageNumber: number) => {
-        const result = await trpcUtils.client.discogs.getCollection.query({
+        return await trpcUtils.client.discogs.getCollection.query({
           accessToken: oauthTokens.accessToken,
           accessTokenSecret: oauthTokens.accessTokenSecret,
           username,
@@ -298,14 +297,6 @@ export function useCollection(
           sort: serverSort,
           sortOrder: serverSortOrder
         })
-
-        // Update rate limiter from response
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- defensive: rateLimit headers may be absent in edge cases (proxies, maintenance) despite library types
-        if (result.rateLimit) {
-          rateLimiter.updateFromRateLimit(result.rateLimit)
-        }
-
-        return result
       }
 
       if (!shouldFetchAllPages) {
