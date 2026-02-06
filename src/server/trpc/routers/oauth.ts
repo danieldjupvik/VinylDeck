@@ -1,21 +1,16 @@
-import { DiscogsOAuth } from '@lionralfs/discogs-client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
-import { handleDiscogsError } from '../error-utils.js'
+import { createDiscogsClient } from '../../discogs/index.js'
+import { mapFacadeErrorToTRPC } from '../error-mapper.js'
 import { publicProcedure, router } from '../init.js'
 
 declare const process: {
   env: {
-    VITE_DISCOGS_CONSUMER_KEY?: string
-    DISCOGS_CONSUMER_SECRET?: string
     ALLOWED_CALLBACK_ORIGINS?: string
     VERCEL_URL?: string
   }
 }
-
-const CONSUMER_KEY = process.env.VITE_DISCOGS_CONSUMER_KEY
-const CONSUMER_SECRET = process.env.DISCOGS_CONSUMER_SECRET
 
 /**
  * Get allowed callback origins for OAuth flow.
@@ -62,17 +57,6 @@ function validateCallbackUrl(callbackUrl: string): boolean {
   }
 }
 
-function getDiscogsOAuth() {
-  if (!CONSUMER_KEY || !CONSUMER_SECRET) {
-    throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Missing Discogs OAuth credentials'
-    })
-  }
-
-  return new DiscogsOAuth(CONSUMER_KEY, CONSUMER_SECRET)
-}
-
 /**
  * OAuth router for Discogs OAuth 1.0a token exchange.
  * These procedures handle the server-side OAuth flow that requires
@@ -99,25 +83,12 @@ export const oauthRouter = router({
         })
       }
 
-      const oauth = getDiscogsOAuth()
+      const client = createDiscogsClient()
 
       try {
-        const response = await oauth.getRequestToken(input.callbackUrl)
-
-        if (!response.token || !response.tokenSecret) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'Failed to obtain request token from Discogs'
-          })
-        }
-
-        return {
-          requestToken: response.token,
-          requestTokenSecret: response.tokenSecret,
-          authorizeUrl: response.authorizeUrl
-        }
+        return await client.oauth.getRequestToken(input.callbackUrl)
       } catch (error) {
-        handleDiscogsError(error, 'get request token')
+        mapFacadeErrorToTRPC(error, 'get request token')
       }
     }),
 
@@ -134,28 +105,16 @@ export const oauthRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const oauth = getDiscogsOAuth()
+      const client = createDiscogsClient()
 
       try {
-        const response = await oauth.getAccessToken(
+        return await client.oauth.getAccessToken(
           input.requestToken,
           input.requestTokenSecret,
           input.verifier
         )
-
-        if (!response.accessToken || !response.accessTokenSecret) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'Failed to obtain access token from Discogs'
-          })
-        }
-
-        return {
-          accessToken: response.accessToken,
-          accessTokenSecret: response.accessTokenSecret
-        }
       } catch (error) {
-        handleDiscogsError(error, 'get access token')
+        mapFacadeErrorToTRPC(error, 'get access token')
       }
     })
 })
