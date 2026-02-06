@@ -135,7 +135,7 @@ Plans:
 
 - [x] 08-01-PLAN.md — Dead code removal, orphan scan, unused dependency cleanup
 - [x] 08-02-PLAN.md — Documentation sync (CLAUDE.md, GEMINI.md, AGENTS.md)
-- [ ] 08-03-PLAN.md — Fix vercel build TS2554 in facade error classes (gap closure)
+- [x] 08-03-PLAN.md — Fix vercel build TS2554 in facade error classes (gap closure)
 
 ## Progress
 
@@ -151,4 +151,4 @@ Phases 4-8 execute sequentially. Phase 4 and Phase 5 can run in parallel (no dep
 | 5. Rate Limiting          | v1.1      | 1/1            | Complete | 2026-02-05 |
 | 6. Facade Layer           | v1.1      | 2/2            | Complete | 2026-02-05 |
 | 7. tRPC Integration       | v1.1      | 2/2            | Complete | 2026-02-06 |
-| 8. Cleanup                | v1.1      | 2/3            | Gap fix  | -          |
+| 8. Cleanup                | v1.1      | 3/3            | Complete | 2026-02-06 |
