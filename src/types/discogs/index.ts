@@ -1,9 +1,8 @@
 /**
  * Discogs types - single entry point for all Discogs-related types.
- * Imports discojs types and augments them with missing fields.
+ * Extracts and extends discojs types via ReturnType inference.
  */
 
-import './augment.js'
 import type { Discojs } from 'discojs'
 
 /**
@@ -71,8 +70,6 @@ export interface CollectionResponse {
  * ==============================================================================
  */
 
-// eslint-disable-next-line import-x/no-unused-modules -- Types exported for use after migration in Task 3
-export type { RequestTokenResult, AccessTokenResult } from './oauth.js'
 export type { OAuthTokens, OAuthRequestTokens } from './oauth.js'
 
 /**
