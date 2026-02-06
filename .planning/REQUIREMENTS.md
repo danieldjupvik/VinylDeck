@@ -15,7 +15,7 @@ Requirements for hybrid @lionralfs + discojs architecture.
 - [x] **TYPE-04**: Create OAuth types file from @lionralfs (OAuthTokens, RequestTokenResult, AccessTokenResult)
 - [x] **TYPE-05**: Create unified type exports (index.ts re-exporting all)
 - [ ] **TYPE-06**: Delete old custom types file (src/types/discogs.ts)
-- [ ] **TYPE-07**: Remove `as unknown as` casts from tRPC router
+- [x] **TYPE-07**: Remove `as unknown as` casts from tRPC router
 
 ### Facade Layer
 
@@ -23,8 +23,8 @@ Requirements for hybrid @lionralfs + discojs architecture.
 - [x] **FACADE-02**: Create OAuth wrapper (server/discogs/oauth.ts) using @lionralfs
 - [x] **FACADE-03**: Create data client wrapper (server/discogs/client.ts) using discojs
 - [x] **FACADE-04**: ~~Implement query param casing workaround~~ — N/A, discojs handles internally
-- [ ] **FACADE-05**: Update tRPC OAuth router to use facade
-- [ ] **FACADE-06**: Update tRPC discogs router to use facade
+- [x] **FACADE-05**: Update tRPC OAuth router to use facade
+- [x] **FACADE-06**: Update tRPC discogs router to use facade
 - [x] **FACADE-07**: Support optional authentication (tokens parameter optional)
 
 ### Rate Limiting
@@ -38,7 +38,7 @@ Requirements for hybrid @lionralfs + discojs architecture.
 
 ### Cleanup
 
-- [ ] **CLEAN-01**: Remove old discogs-client.ts factory
+- [x] **CLEAN-01**: Remove old discogs-client.ts factory
 - [ ] **CLEAN-02**: Remove passive rate limiter (src/api/rate-limiter.ts) if replaced
 - [ ] **CLEAN-03**: Update imports across codebase to use new type paths
 
@@ -82,13 +82,13 @@ Explicitly excluded from v1.1. Documented to prevent scope creep.
 | TYPE-04     | 4     | Complete |
 | TYPE-05     | 4     | Complete |
 | TYPE-06     | 8     | Pending  |
-| TYPE-07     | 7     | Pending  |
+| TYPE-07     | 7     | Complete |
 | FACADE-01   | 6     | Complete |
 | FACADE-02   | 6     | Complete |
 | FACADE-03   | 6     | Complete |
 | FACADE-04   | 6     | N/A      |
-| FACADE-05   | 7     | Pending  |
-| FACADE-06   | 7     | Pending  |
+| FACADE-05   | 7     | Complete |
+| FACADE-06   | 7     | Complete |
 | FACADE-07   | 6     | Complete |
 | RATE-01     | 5     | Complete |
 | RATE-02     | 5     | Complete |
@@ -96,7 +96,7 @@ Explicitly excluded from v1.1. Documented to prevent scope creep.
 | RATE-04     | 5     | Complete |
 | RATE-05     | 5     | Complete |
 | RATE-06     | 5     | Complete |
-| CLEAN-01    | 8     | Pending  |
+| CLEAN-01    | 7     | Complete |
 | CLEAN-02    | 8     | Pending  |
 | CLEAN-03    | 8     | Pending  |
 
@@ -109,4 +109,4 @@ Explicitly excluded from v1.1. Documented to prevent scope creep.
 ---
 
 _Requirements defined: 2026-02-03_
-_Last updated: 2026-02-05 after Phase 6 completion_
+_Last updated: 2026-02-06 after Phase 7 completion_
