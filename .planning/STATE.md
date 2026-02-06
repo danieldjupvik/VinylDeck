@@ -2,89 +2,52 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-03)
+See: .planning/PROJECT.md (updated 2026-02-07)
 
-**Core value:** Type-safe, maintainable Discogs API integration that scales with the app
-**Current focus:** v1.1 milestone complete — all phases done
+**Core value:** Browse and manage your Discogs vinyl collection with a fast, offline-capable web app
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 8 of 8 (Cleanup)
-Plan: 3/3 complete (includes gap closure plan 08-03)
-Status: Phase 8 complete — v1.1 milestone done + gap closure ✓
-Last activity: 2026-02-06 — Completed 08-03-PLAN.md (gap closure: vercel build TS2554)
+Phase: Next milestone not started
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-02-07 -- v1.1 milestone complete
 
-Progress: [██████████] 100% (21/21 plans complete from all milestones)
+Progress: [██████████] 100% (16/16 plans complete for v1.1)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 16
-- Average duration: ~4 min (v1.1 only - v1.0 not tracked)
-- Total execution time: 38 min (v1.1 only)
+- Total plans completed: 16 (v1.0 + v1.1)
+- v1.1: 9 plans in ~38 min (~4 min/plan average)
 
-**By Phase:**
+**By Milestone:**
 
-| Phase                     | Plans | Total | Avg/Plan |
-| ------------------------- | ----- | ----- | -------- |
-| 1. Modal UI Foundation    | 3/3   | -     | -        |
-| 2. Changelog System       | 2/2   | -     | -        |
-| 3. Polish and Integration | 2/2   | -     | -        |
-| 4. Type System Foundation | 1/1   | 7min  | 7min     |
-| 5. Rate Limiting          | 1/1   | 5min  | 5min     |
-| 6. Facade Layer           | 2/2   | 8min  | 4min     |
-| 7. tRPC Router Migration  | 2/2   | 8min  | 4min     |
-| 8. Cleanup                | 3/3   | 10min | 3.3min   |
-
-**Recent Trend:**
-
-- v1.1 complete - Phase 8 done (3/3 plans including gap closure)
-- Trend: 4 min/plan (9 plan average)
-
-_Updated after each plan completion_
+| Milestone                    | Phases | Plans | Duration |
+| ---------------------------- | ------ | ----- | -------- |
+| v1.0 User-Friendly Changelog | 1-3    | 7     | ~5 hours |
+| v1.1 Improve API Types       | 4-8    | 9     | ~38 min  |
 
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
-
-- **Hybrid @lionralfs + discojs**: Best of both - OAuth flow + proper types (Phase 4 complete)
-- **Import types, don't copy**: Auto-sync on discojs updates, less maintenance (Implemented - 04-01)
-- **ReturnType extraction over module augmentation**: discojs inline types cause circular refs (04-01)
-- **Barrel export pattern**: Single import point @/types/discogs for all types (Implemented - 04-01)
-- **Reactive rate limiting via retry wrapper**: withRateLimitRetry with exponential backoff (Implemented - 05-01)
-- **Facade pattern**: Hide library complexity, easy to swap/extend (Implemented - 06-01)
-- **Grouped namespaces**: client.oauth._ and client.data._ for clear subsystem separation (Implemented - 06-01)
-- **OAuth 1.0a config for discojs**: Use consumerKey/Secret/oAuthToken/TokenSecret, NOT userToken (06-01)
-- **Extended types for public interfaces**: DataClient interface uses imported types, implementation calls library directly (06-02)
-- **Error mapper for facade**: mapFacadeErrorToTRPC replaces handleDiscogsError for facade-based routers (Implemented - 07-01)
-- **OAuth router migration pattern**: Import only from facade, flat response returns, preserve deployment security (07-01)
-- **Flat tRPC responses**: All routers return flat facade types, no wrapping, no rateLimit in responses (Implemented - 07-02)
-- **RATE_LIMIT co-location**: Inlined into rate-state.ts (only consumer), removed from shared constants (08-01)
-- **Document facade in API Layer section**: No separate Facade section in CLAUDE.md (08-02)
-- **Manual cause assignment for Vercel TS compat**: super(message) + this.cause instead of ES2022 2-arg constructor (08-03)
-- **declare keyword for cross-tsconfig compat**: declare readonly cause on Error subclasses for Vercel serverless (08-03)
+All decisions logged in PROJECT.md Key Decisions table (12 decisions, all marked Good).
 
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-**From Phase 4 execution:**
+**Pre-existing:**
 
-- banner_url missing from discojs - extended in User type, may need upstream PR
-
-**Pre-existing build issue (partially resolved):**
-
-- `__APP_VERSION__` TypeScript error in vercel build - exists on main branch, not caused by v1.1 work
-- TS2554 in errors.ts - RESOLVED by 08-03 gap closure plan
+- `__APP_VERSION__` TypeScript error in vercel build -- exists on main branch, not caused by GSD work
 
 ## Session Continuity
 
-Last session: 2026-02-06
-Stopped at: Completed 08-03-PLAN.md (gap closure). vercel build TS2554 in errors.ts resolved.
+Last session: 2026-02-07
+Stopped at: v1.1 milestone archived and completed
 Resume file: None
