@@ -69,6 +69,7 @@ export interface DataClient {
     }
   ): Promise<CollectionResponse>
   getUserProfile(username: string): Promise<User>
+  getCollectionMetadata(username: string): Promise<{ totalCount: number }>
 }
 
 /**
@@ -217,6 +218,37 @@ export function createDataClient(tokens?: OAuthTokens): DataClient {
 
       return wrapCall('getUserProfile', async () => {
         return await client.getProfileForUser(username)
+      })
+    },
+
+    /**
+     * Get collection metadata (total count only).
+     * Fast endpoint using perPage=1 trick.
+     * Requires authentication.
+     *
+     * @param username - Discogs username
+     * @returns Object with totalCount property
+     * @throws {DiscogsAuthError} When no tokens provided or tokens invalid
+     */
+    async getCollectionMetadata(username: string) {
+      if (!tokens) {
+        throw new DiscogsAuthError(
+          'Authentication required for getCollectionMetadata',
+          {
+            cause: new Error('No tokens provided to createDiscogsClient'),
+            statusCode: 401
+          }
+        )
+      }
+
+      return wrapCall('getCollectionMetadata', async () => {
+        const response = await client.listItemsInFolderForUser(
+          username,
+          0,
+          undefined,
+          { page: 1, perPage: 1 }
+        )
+        return { totalCount: response.pagination.items }
       })
     }
   }
