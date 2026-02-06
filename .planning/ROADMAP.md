@@ -111,11 +111,12 @@ Plans:
 2. Discogs router (getIdentity, getUserProfile, getCollection, getCollectionMetadata) uses facade data client
 3. No `as unknown as` casts remain in tRPC router code
 4. Responses from tRPC endpoints have full type inference from discojs types
-   **Plans**: TBD
+   **Plans**: 2 plans
 
 Plans:
 
-- [ ] TBD
+- [ ] 07-01-PLAN.md — Error mapper, facade getCollectionMetadata, OAuth router migration
+- [ ] 07-02-PLAN.md — Discogs router migration, hook updates, old file cleanup
 
 #### Phase 8: Cleanup
 
@@ -147,5 +148,5 @@ Phases 4-8 execute sequentially. Phase 4 and Phase 5 can run in parallel (no dep
 | 4. Type System Foundation | v1.1      | 1/1            | Complete    | 2026-02-03 |
 | 5. Rate Limiting          | v1.1      | 1/1            | Complete    | 2026-02-05 |
 | 6. Facade Layer           | v1.1      | 2/2            | Complete    | 2026-02-05 |
-| 7. tRPC Integration       | v1.1      | 0/TBD          | Not started | -          |
+| 7. tRPC Integration       | v1.1      | 0/2            | Not started | -          |
 | 8. Cleanup                | v1.1      | 0/TBD          | Not started | -          |
