@@ -1,15 +1,24 @@
-import { DiscogsError } from 'discojs'
-
 import { RateLimitError } from '../../lib/errors.js'
+
+interface DiscogsErrorLike {
+  name?: string
+  statusCode?: number
+}
+
+function isDiscogsErrorLike(error: unknown): error is DiscogsErrorLike {
+  if (typeof error !== 'object' || error === null) return false
+  const discogsError = error as DiscogsErrorLike
+  return discogsError.name === 'DiscogsError'
+}
 
 /**
  * Type guard to check if an error is a Discogs 429 rate limit error.
  *
  * @param error - The error to check
- * @returns True if error is a DiscogsError with statusCode 429
+ * @returns True if error is a DiscogsError-like object with statusCode 429
  */
-export function isRateLimitError(error: unknown): error is DiscogsError {
-  return error instanceof DiscogsError && error.statusCode === 429
+export function isRateLimitError(error: unknown): error is DiscogsErrorLike {
+  return isDiscogsErrorLike(error) && error.statusCode === 429
 }
 
 /**

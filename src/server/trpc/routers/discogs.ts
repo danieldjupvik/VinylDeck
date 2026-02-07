@@ -1,10 +1,10 @@
-import { UserSortEnum, SortOrdersEnum } from 'discojs'
 import { z } from 'zod'
 
 import { createDiscogsClient } from '../../discogs/index.js'
 import { mapFacadeErrorToTRPC } from '../error-mapper.js'
 import { publicProcedure, router } from '../init.js'
 
+import type { SortOrder, UserSort } from '../../../types/discogs/index.js'
 import type { OAuthTokens } from '../../../types/discogs/oauth.js'
 
 const authInput = z.object({
@@ -29,18 +29,21 @@ const optionalAuthInput = z
 
 type DiscogsOptionalClientInput = z.infer<typeof optionalAuthInput>
 
-/**
- * Sort values derived from discojs enums at runtime.
- * Single source of truth — no hardcoded strings to keep in sync.
- */
-const USER_SORT_VALUES = Object.values(UserSortEnum) as [
-  `${UserSortEnum}`,
-  ...`${UserSortEnum}`[]
-]
-const SORT_ORDER_VALUES = Object.values(SortOrdersEnum) as [
-  `${SortOrdersEnum}`,
-  ...`${SortOrdersEnum}`[]
-]
+const USER_SORT_VALUES = [
+  'label',
+  'artist',
+  'title',
+  'catno',
+  'format',
+  'rating',
+  'year',
+  'added'
+] as const satisfies readonly UserSort[]
+
+const SORT_ORDER_VALUES = [
+  'asc',
+  'desc'
+] as const satisfies readonly SortOrder[]
 
 async function withDiscogsDataClient<T>(
   input: DiscogsOptionalClientInput,

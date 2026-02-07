@@ -3,13 +3,7 @@
  * Handles all non-OAuth data operations with rate limit retry.
  */
 
-import {
-  Discojs,
-  DiscogsError,
-  AuthError,
-  UserSortEnum,
-  SortOrdersEnum
-} from 'discojs'
+import { Discojs } from 'discojs/dist/index.es.js'
 
 import { DiscogsApiError, DiscogsAuthError } from './errors.js'
 import { withRateLimitRetry, RateLimitError } from './retry.js'
@@ -29,6 +23,17 @@ declare const process: {
   }
 }
 
+interface DiscogsErrorLike {
+  name?: string
+  statusCode?: number
+}
+
+type DiscojsSortOptions = NonNullable<
+  Parameters<Discojs['listItemsInFolderForUser']>[2]
+>
+type DiscojsSortBy = NonNullable<DiscojsSortOptions['by']>
+type DiscojsSortOrder = NonNullable<DiscojsSortOptions['order']>
+
 const CONSUMER_KEY = process.env.VITE_DISCOGS_CONSUMER_KEY
 const CONSUMER_SECRET = process.env.DISCOGS_CONSUMER_SECRET
 const APP_VERSION = process.env.npm_package_version ?? '1.0.0'
@@ -40,10 +45,15 @@ const APP_VERSION = process.env.npm_package_version ?? '1.0.0'
 function buildSortOptions(
   sort?: UserSort,
   order?: SortOrder
-): { by: UserSortEnum; order?: SortOrdersEnum } | undefined {
+): DiscojsSortOptions | undefined {
   if (!sort) return undefined
-  if (order) return { by: sort as UserSortEnum, order: order as SortOrdersEnum }
-  return { by: sort as UserSortEnum }
+  if (order) {
+    return {
+      by: sort as DiscojsSortBy,
+      order: order as DiscojsSortOrder
+    }
+  }
+  return { by: sort as DiscojsSortBy }
 }
 
 /**
@@ -58,6 +68,17 @@ function buildPagination(
   if (page !== undefined) result.page = page
   if (perPage !== undefined) result.perPage = perPage
   return result
+}
+
+function getDiscogsStatusCode(error: unknown): number | undefined {
+  if (typeof error !== 'object' || error === null) return undefined
+  const statusCode = (error as DiscogsErrorLike).statusCode
+  return typeof statusCode === 'number' ? statusCode : undefined
+}
+
+function isAuthError(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) return false
+  return (error as DiscogsErrorLike).name === 'AuthError'
 }
 
 function createDataClientImpl(tokens?: OAuthTokens) {
@@ -97,7 +118,7 @@ function createDataClientImpl(tokens?: OAuthTokens) {
         throw error
       }
 
-      if (error instanceof AuthError) {
+      if (isAuthError(error)) {
         const authErrorMessage = tokens
           ? 'Discogs authorization failed (token may be invalid, expired, or lacks access)'
           : 'Resource is private or requires owner authentication'
@@ -108,21 +129,23 @@ function createDataClientImpl(tokens?: OAuthTokens) {
         })
       }
 
-      if (error instanceof DiscogsError) {
-        if (error.statusCode === 401 || error.statusCode === 403) {
+      const discogsStatusCode = getDiscogsStatusCode(error)
+
+      if (discogsStatusCode !== undefined) {
+        if (discogsStatusCode === 401 || discogsStatusCode === 403) {
           const authErrorMessage = tokens
             ? 'Discogs authorization failed (token may be invalid, expired, or lacks access)'
             : 'Resource is private or requires owner authentication'
 
           throw new DiscogsAuthError(authErrorMessage, {
             cause: error,
-            statusCode: error.statusCode
+            statusCode: discogsStatusCode
           })
         }
 
         throw new DiscogsApiError(`${operation} failed`, {
           cause: error,
-          statusCode: error.statusCode
+          statusCode: discogsStatusCode
         })
       }
 
