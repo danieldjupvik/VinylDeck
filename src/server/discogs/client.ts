@@ -3,7 +3,13 @@
  * Handles all non-OAuth data operations with rate limit retry.
  */
 
-import { Discojs, DiscogsError, UserSortEnum, SortOrdersEnum } from 'discojs'
+import {
+  Discojs,
+  DiscogsError,
+  AuthError,
+  UserSortEnum,
+  SortOrdersEnum
+} from 'discojs'
 
 import { DiscogsApiError, DiscogsAuthError } from './errors.js'
 import { withRateLimitRetry, RateLimitError } from './retry.js'
@@ -87,6 +93,17 @@ function createDataClientImpl(tokens?: OAuthTokens) {
     } catch (error) {
       if (error instanceof RateLimitError) {
         throw error
+      }
+
+      if (error instanceof AuthError) {
+        const authErrorMessage = tokens
+          ? 'Discogs authorization failed (token may be invalid, expired, or lacks access)'
+          : 'Resource is private or requires owner authentication'
+
+        throw new DiscogsAuthError(authErrorMessage, {
+          cause: error,
+          statusCode: 401
+        })
       }
 
       if (error instanceof DiscogsError) {
