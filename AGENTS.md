@@ -119,7 +119,7 @@ feat: add collection search functionality
 - `src/providers/` - React providers (auth, theme, query/tRPC, hydration, i18n)
 - `src/routes/` - TanStack Router file-based routes
 - `src/stores/` - Zustand stores (auth-store, preferences-store)
-- `src/types/discogs/` - Discogs type definitions (extracted from discojs + @lionralfs)
+- `src/types/discogs/` - Discogs API types (`index.ts`, auto-derived from discojs) and OAuth types (`oauth.ts`, inferred from @lionralfs)
 
 ## Path Aliases
 
@@ -305,13 +305,17 @@ Client (React) → tRPC Client → Vercel Serverless Function → Facade → Dis
 
 The facade (`src/server/discogs/`) wraps two libraries: **@lionralfs/discogs-client** handles OAuth 1.0a signing, **discojs** handles typed data operations (collection, identity, profile). tRPC routers import only from the facade -- never from the libraries directly. Errors are mapped to tRPC errors via `mapFacadeErrorToTRPC` in `src/server/trpc/error-mapper.ts`.
 
+Discogs endpoint return types are centralized in `src/types/discogs/index.ts` via `DiscojsAPI['methodName']` mapped types. OAuth token shapes are defined in `src/types/discogs/oauth.ts`.
+
 **Available procedures:**
 
 - `oauth.getRequestToken` / `oauth.getAccessToken` - OAuth flow
-- `discogs.getIdentity` - Validate tokens, get user identity
-- `discogs.getUserProfile` - Get user profile (avatar, email)
-- `discogs.getCollection` - Get collection with pagination
-- `discogs.getCollectionMetadata` - Fast count check for sync
+- `discogs.getIdentity` - Validate tokens, get user identity (**requires** access token pair)
+- `discogs.getUserProfile` - Get user profile (avatar, email). Access token pair is optional.
+- `discogs.getCollection` - Get collection with pagination. Access token pair is optional for public collections in folder `0`; private/non-zero folder access requires owner auth.
+- `discogs.getCollectionMetadata` - Fast count check for sync. Access token pair is optional for public collections.
+
+For optional-auth procedures, pass both `accessToken` and `accessTokenSecret` together or omit both.
 
 All procedures return flat response shapes (no wrapper objects).
 
