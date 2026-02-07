@@ -79,6 +79,14 @@ function OAuthCallbackPage() {
   const paramsMissing = noParams && !hasSearch && isHydrated
 
   useEffect(() => {
+    const reportError = (nextError: OAuthError, clearTokens = false): void => {
+      setError(nextError)
+      setStatus('error')
+      if (clearTokens) {
+        clearOAuthRequestTokens()
+      }
+    }
+
     // Create a key from current params to detect changes
     const paramsKey = `${oauth_token ?? ''}|${oauth_verifier ?? ''}|${denied ?? ''}`
 
@@ -97,16 +105,13 @@ function OAuthCallbackPage() {
     const exchangeTokens = async () => {
       // Check if user denied authorization
       if (denied) {
-        setError('denied')
-        setStatus('error')
-        clearOAuthRequestTokens()
+        reportError('denied', true)
         return
       }
 
       // Check for required URL parameters
       if (!oauth_token || !oauth_verifier) {
-        setError('missing_params')
-        setStatus('error')
+        reportError('missing_params')
         return
       }
 
@@ -117,16 +122,13 @@ function OAuthCallbackPage() {
       // Get the request token secret from session storage
       const requestTokens = getOAuthRequestTokens()
       if (!requestTokens) {
-        setError('session_expired')
-        setStatus('error')
+        reportError('session_expired')
         return
       }
 
       // Verify the oauth_token matches what we stored
       if (requestTokens.requestToken !== token) {
-        setError('session_expired')
-        setStatus('error')
-        clearOAuthRequestTokens()
+        reportError('session_expired', true)
         return
       }
 
@@ -151,8 +153,7 @@ function OAuthCallbackPage() {
           // establishSession validates tokens and fetches profile
           await establishSession(tokens)
         } catch {
-          setError('validation_failed')
-          setStatus('error')
+          reportError('validation_failed')
           return
         }
 
@@ -162,9 +163,7 @@ function OAuthCallbackPage() {
         const redirectUrl = getAndClearRedirectUrl() ?? '/collection'
         void navigate({ to: redirectUrl })
       } catch {
-        setError('exchange_failed')
-        setStatus('error')
-        clearOAuthRequestTokens()
+        reportError('exchange_failed', true)
       }
     }
 

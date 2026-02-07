@@ -243,7 +243,7 @@ export function VinylCard({
   return (
     <div
       className={cn(
-        'group bg-card ring-border/40 hover:ring-border/60 relative cursor-pointer overflow-hidden rounded-xl shadow-sm ring-1 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl',
+        'group bg-card ring-border/40 hover:ring-border/60 relative overflow-hidden rounded-xl shadow-sm ring-1 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl',
         className
       )}
     >

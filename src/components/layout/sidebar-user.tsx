@@ -26,7 +26,7 @@ import { usePreferences } from '@/hooks/use-preferences'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { storeRedirectUrl } from '@/lib/redirect-utils'
 
-import type { MouseEvent } from 'react'
+import { createSidebarNavClickHandler } from './sidebar-nav-click'
 
 export function SidebarUser(): React.JSX.Element {
   const { t } = useTranslation()
@@ -46,26 +46,11 @@ export function SidebarUser(): React.JSX.Element {
     routeLocation.pathname === path ||
     routeLocation.pathname.startsWith(`${path}/`)
 
-  const handleNavClick =
-    (path: string) => (event: MouseEvent<HTMLAnchorElement>) => {
-      if (
-        event.metaKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        event.altKey ||
-        event.button === 1
-      ) {
-        return
-      }
-
-      if (isActive(path)) {
-        event.preventDefault()
-      }
-
-      if (isMobile) {
-        setOpenMobile(false)
-      }
-    }
+  const handleNavClick = createSidebarNavClickHandler({
+    isActivePath: isActive,
+    isMobile,
+    setOpenMobile
+  })
 
   const handleSignOut = () => {
     const currentUrl = location.pathname + location.searchStr + location.hash
@@ -117,10 +102,9 @@ export function SidebarUser(): React.JSX.Element {
         <div className="flex h-12 w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0! [&>span:last-child]:truncate">
           <Tooltip>
             <TooltipTrigger asChild>
-              <span
-                role="button"
-                tabIndex={0}
-                className="cursor-default"
+              <button
+                type="button"
+                className="cursor-default bg-transparent p-0"
                 aria-label={`${username ?? t('user.fallback')} - ${t(isOnline ? 'user.status.online' : 'user.status.offline')}`}
               >
                 <UserAvatar
@@ -131,7 +115,7 @@ export function SidebarUser(): React.JSX.Element {
                   className="group-data-[collapsible=icon]:size-5"
                   badgeClassName="group-data-[collapsible=icon]:!size-1.5"
                 />
-              </span>
+              </button>
             </TooltipTrigger>
             <TooltipContent
               side={state === 'collapsed' && !isMobile ? 'right' : 'top'}

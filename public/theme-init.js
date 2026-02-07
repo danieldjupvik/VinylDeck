@@ -12,6 +12,7 @@ try {
         : 'light'
       : theme
   document.documentElement.classList.add(effectiveTheme)
+  document.documentElement.style.colorScheme = effectiveTheme
 } catch (e) {
   // Ignore storage errors in private browsing
 }

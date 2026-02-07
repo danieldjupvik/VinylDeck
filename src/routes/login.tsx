@@ -321,7 +321,9 @@ function LoginPage(): React.JSX.Element {
                   </Label>
                   <Input
                     id="public-browse-username"
+                    name="username"
                     type="text"
+                    autoComplete="username"
                     placeholder={t('login.publicBrowse.placeholder')}
                     className="flex-1"
                     disabled
