@@ -20,7 +20,6 @@ export type CollectionSortKey =
   | 'releaseYear'
   | 'format'
   | 'added'
-  | 'rating'
   | 'genre'
   | 'random'
 

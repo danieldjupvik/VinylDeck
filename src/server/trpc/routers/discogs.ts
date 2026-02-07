@@ -94,9 +94,9 @@ export const discogsRouter = router({
     .input(
       optionalAuthInput.extend({
         username: z.string(),
-        folderId: z.number().optional().default(0),
-        page: z.number().optional().default(1),
-        perPage: z.number().max(100).optional().default(50),
+        folderId: z.number().min(0).optional().default(0),
+        page: z.number().min(1).optional().default(1),
+        perPage: z.number().min(1).max(100).optional().default(50),
         sort: z.enum(USER_SORT_VALUES).optional(),
         sortOrder: z.enum(SORT_ORDER_VALUES).optional()
       })

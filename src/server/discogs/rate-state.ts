@@ -84,5 +84,3 @@ export function resetRateLimitState(): void {
   rateLimitState.resetAt = DEFAULT_STATE.resetAt
   rateLimitState.updatedAt = DEFAULT_STATE.updatedAt
 }
-
-export { rateLimitState }
