@@ -3,7 +3,7 @@
  * Handles all non-OAuth data operations with rate limit retry.
  */
 
-import { Discojs } from 'discojs/dist/index.es.js'
+import { Discojs } from 'discojs'
 
 import { DiscogsApiError, DiscogsAuthError } from './errors.js'
 import { withRateLimitRetry, RateLimitError } from './retry.js'
@@ -64,10 +64,10 @@ function buildPagination(
   perPage?: number
 ): { page?: number; perPage?: number } | undefined {
   if (page === undefined && perPage === undefined) return undefined
-  const result: { page?: number; perPage?: number } = {}
-  if (page !== undefined) result.page = page
-  if (perPage !== undefined) result.perPage = perPage
-  return result
+  return {
+    ...(page !== undefined && { page }),
+    ...(perPage !== undefined && { perPage })
+  }
 }
 
 function getDiscogsStatusCode(error: unknown): number | undefined {
