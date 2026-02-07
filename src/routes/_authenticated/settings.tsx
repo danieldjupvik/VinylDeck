@@ -38,8 +38,8 @@ import { changelog } from '@/data/changelog'
 import { useAuth } from '@/hooks/use-auth'
 import { usePreferences } from '@/hooks/use-preferences'
 import { useUserProfile } from '@/hooks/use-user-profile'
+import { APP_VERSION } from '@/lib/app-version'
 import { buildTranslatedEntries } from '@/lib/changelog-utils'
-import { APP_VERSION } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_authenticated/settings')({

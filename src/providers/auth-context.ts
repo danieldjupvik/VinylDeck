@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import type { OAuthTokens } from '@/types/discogs'
+import type { OAuthTokens } from '@/types/discogs/oauth'
 
 /**
  * Authentication state managed by AuthProvider.

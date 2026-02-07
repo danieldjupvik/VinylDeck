@@ -133,7 +133,8 @@ Existing `useMemo`/`useCallback` in the codebase is legacy code that will be rem
 ## Project Structure
 
 - `api/` - Vercel Serverless Functions (tRPC handler)
-- `src/server/` - tRPC routers, Discogs client factory
+- `src/server/discogs/` - Discogs API facade (dual-library: @lionralfs for OAuth, discojs for data)
+- `src/server/trpc/` - tRPC router definitions and error mapper
 - `src/components/ui/` - shadcn/ui components (**DO NOT EDIT** - see shadcn section)
 - `src/components/common/` - Reusable wrapper components (edit these instead of ui/)
 - `src/components/layout/` - Sidebar, brand mark, toggles
@@ -145,7 +146,7 @@ Existing `useMemo`/`useCallback` in the codebase is legacy code that will be rem
 - `src/providers/` - React providers (auth, theme, query/tRPC, hydration, i18n)
 - `src/routes/` - TanStack Router file-based routes
 - `src/stores/` - Zustand stores (auth-store, preferences-store)
-- `src/types/` - TypeScript type definitions
+- `src/types/discogs/` - Discogs API types (`index.ts`, auto-derived from discojs) and OAuth types (`oauth.ts`, inferred from @lionralfs)
 
 ## Path Aliases
 
@@ -323,21 +324,29 @@ export function useOnlineStatus(): boolean { ... }
 
 ## API Layer (tRPC)
 
-All Discogs API calls go through tRPC serverless functions (OAuth 1.0a requires server-side signing).
+All Discogs API calls go through tRPC serverless functions via a facade layer that hides the dual-library complexity.
 
 ```
-Client (React) → tRPC Client → Vercel Serverless Function → Discogs API
+Client (React) → tRPC Client → Vercel Serverless Function → Facade → Discogs API
 ```
+
+The facade (`src/server/discogs/`) wraps two libraries: **@lionralfs/discogs-client** handles OAuth 1.0a signing, **discojs** handles typed data operations (collection, identity, profile). tRPC routers import only from the facade -- never from the libraries directly. Errors are mapped to tRPC errors via `mapFacadeErrorToTRPC` in `src/server/trpc/error-mapper.ts`.
+
+Discogs endpoint return types are centralized in `src/types/discogs/index.ts` via `DiscojsAPI['methodName']` mapped types. OAuth token shapes are defined in `src/types/discogs/oauth.ts`.
 
 **Available procedures:**
 
 - `oauth.getRequestToken` / `oauth.getAccessToken` - OAuth flow
-- `discogs.getIdentity` - Validate tokens, get user identity
-- `discogs.getUserProfile` - Get user profile (avatar, email)
-- `discogs.getCollection` - Get collection with pagination
-- `discogs.getCollectionMetadata` - Fast count check for sync
+- `discogs.getIdentity` - Validate tokens, get user identity (**requires** access token pair)
+- `discogs.getUserProfile` - Get user profile (avatar, email). Access token pair is optional.
+- `discogs.getCollection` - Get collection with pagination. Access token pair is optional for public collections in folder `0`; private/non-zero folder access requires owner auth.
+- `discogs.getCollectionMetadata` - Fast count check for sync. Access token pair is optional for public collections.
 
-**Rate Limiting:** `src/api/rate-limiter.ts` tracks Discogs API limits (60 req/min) using response headers. The limiter uses a moving window and prevents thundering herd with shared wait promises.
+For optional-auth procedures, pass both `accessToken` and `accessTokenSecret` together or omit both.
+
+All procedures return flat response shapes (no wrapper objects).
+
+**Rate Limiting:** Server-side only. `withRateLimitRetry` (`src/server/discogs/retry.ts`) retries on 429 responses with exponential backoff and jitter. discojs provides proactive throttling via its built-in Bottleneck integration. Rate state is tracked in `src/server/discogs/rate-state.ts` as a module-level singleton. There is no client-side rate limiter.
 
 ## Vercel Serverless Functions
 

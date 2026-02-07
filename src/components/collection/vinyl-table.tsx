@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table'
 import { getLimitedGenreParts } from '@/lib/formatters'
 import type { NonVinylBreakdownItem } from '@/types/collection'
-import type { DiscogsCollectionRelease, DiscogsFormat } from '@/types/discogs'
+import type { CollectionRelease, Format } from '@/types/discogs'
 
 import { CollectionEmptyState } from './collection-empty-state'
 import { VinylTableSkeleton } from './vinyl-table-skeleton'
@@ -20,14 +20,14 @@ import { VinylTableSkeleton } from './vinyl-table-skeleton'
 import type { TFunction } from 'i18next'
 
 interface VinylTableProps {
-  releases: DiscogsCollectionRelease[]
+  releases: CollectionRelease[]
   isLoading: boolean
   shouldAnimate: boolean
   nonVinylCount?: number
   nonVinylBreakdown?: NonVinylBreakdownItem[]
 }
 
-const formatFormats = (formats: DiscogsFormat[]) => {
+const formatFormats = (formats: Format[]) => {
   const unique = Array.from(
     new Set(formats.map((format) => format.name).filter(Boolean))
   )
@@ -35,7 +35,7 @@ const formatFormats = (formats: DiscogsFormat[]) => {
 }
 
 interface VinylTableRowProps {
-  release: DiscogsCollectionRelease
+  release: CollectionRelease
   index: number
   shouldAnimate: boolean
   t: TFunction

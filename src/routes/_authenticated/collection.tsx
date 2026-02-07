@@ -56,7 +56,6 @@ function CollectionPage() {
     setSelectedLabels,
     setSelectedTypes,
     setSelectedSizes,
-    setSelectedCountries,
     setYearRange,
     clearFilters,
     reshuffleRandom,
@@ -185,11 +184,6 @@ function CollectionPage() {
     setPage(1)
   }
 
-  const handleSetSelectedCountries = (values: string[]) => {
-    setSelectedCountries(values)
-    setPage(1)
-  }
-
   const handleSetYearRange = (range: [number, number] | null) => {
     setYearRange(range)
     setPage(1)
@@ -301,7 +295,6 @@ function CollectionPage() {
               setSelectedLabels: handleSetSelectedLabels,
               setSelectedTypes: handleSetSelectedTypes,
               setSelectedSizes: handleSetSelectedSizes,
-              setSelectedCountries: handleSetSelectedCountries,
               setYearRange: handleSetYearRange,
               clearFilters: handleClearFilters,
               activeFilterCount

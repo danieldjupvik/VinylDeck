@@ -1,13 +1,72 @@
 import { z } from 'zod'
 
-import { createDiscogsClient } from '../../discogs-client.js'
-import { handleDiscogsError } from '../error-utils.js'
+import { createDiscogsClient } from '../../discogs/index.js'
+import { mapFacadeErrorToTRPC } from '../error-mapper.js'
 import { publicProcedure, router } from '../init.js'
 
-import type {
-  DiscogsCollectionRelease,
-  DiscogsPagination
-} from '../../../types/discogs.js'
+import type { SortOrder, UserSort } from '../../../types/discogs/index.js'
+import type { OAuthTokens } from '../../../types/discogs/oauth.js'
+
+const authInput = z.object({
+  accessToken: z.string(),
+  accessTokenSecret: z.string()
+})
+
+const optionalAuthInput = z
+  .object({
+    accessToken: z.string().optional(),
+    accessTokenSecret: z.string().optional()
+  })
+  .refine(
+    (input) =>
+      (input.accessToken === undefined) ===
+      (input.accessTokenSecret === undefined),
+    {
+      message:
+        'accessToken and accessTokenSecret must both be provided or omitted'
+    }
+  )
+
+type DiscogsOptionalClientInput = z.infer<typeof optionalAuthInput>
+
+const USER_SORT_VALUES = [
+  'label',
+  'artist',
+  'title',
+  'catno',
+  'format',
+  'rating',
+  'year',
+  'added'
+] as const satisfies readonly UserSort[]
+
+const SORT_ORDER_VALUES = [
+  'asc',
+  'desc'
+] as const satisfies readonly SortOrder[]
+
+async function withDiscogsDataClient<T>(
+  input: DiscogsOptionalClientInput,
+  operation: string,
+  query: (
+    dataClient: ReturnType<typeof createDiscogsClient>['data']
+  ) => Promise<T>
+): Promise<T> {
+  const tokens: OAuthTokens | undefined =
+    input.accessToken === undefined || input.accessTokenSecret === undefined
+      ? undefined
+      : {
+          accessToken: input.accessToken,
+          accessTokenSecret: input.accessTokenSecret
+        }
+
+  try {
+    const client = createDiscogsClient(tokens)
+    return await query(client.data)
+  } catch (error) {
+    return mapFacadeErrorToTRPC(error, operation)
+  }
+}
 
 /**
  * Discogs API router for proxying authenticated requests.
@@ -21,169 +80,74 @@ export const discogsRouter = router({
    * Uses query (not mutation) but sent as POST via methodOverride for security.
    */
   getIdentity: publicProcedure
-    .input(
-      z.object({
-        accessToken: z.string(),
-        accessTokenSecret: z.string()
-      })
-    )
-    .query(async ({ input }) => {
-      const client = createDiscogsClient(
-        input.accessToken,
-        input.accessTokenSecret
+    .input(authInput)
+    .query(async ({ input }) =>
+      withDiscogsDataClient(input, 'get identity', (dataClient) =>
+        dataClient.getIdentity()
       )
-
-      try {
-        const { data, rateLimit } = await client.getIdentity()
-
-        return {
-          identity: {
-            id: data.id,
-            username: data.username,
-            resource_url: data.resource_url,
-            consumer_name: data.consumer_name
-          },
-          rateLimit
-        }
-      } catch (error) {
-        handleDiscogsError(error, 'get identity')
-      }
-    }),
+    ),
 
   /**
    * Get a user's collection releases.
    * Supports pagination and sorting.
+   * Access token pair is optional for public collections in folder 0.
    * Uses query (not mutation) but sent as POST via methodOverride for security.
    */
   getCollection: publicProcedure
     .input(
-      z.object({
-        accessToken: z.string(),
-        accessTokenSecret: z.string(),
+      optionalAuthInput.extend({
         username: z.string(),
-        folderId: z.number().optional().default(0),
-        page: z.number().optional().default(1),
-        perPage: z.number().max(100).optional().default(50), // Discogs API max
-        sort: z
-          .enum([
-            'label',
-            'artist',
-            'title',
-            'catno',
-            'format',
-            'rating',
-            'added',
-            'year'
-          ])
-          .optional(),
-        sortOrder: z.enum(['asc', 'desc']).optional()
+        folderId: z.number().int().min(0).optional().default(0),
+        page: z.number().int().min(1).optional().default(1),
+        perPage: z.number().int().min(1).max(100).optional().default(50),
+        sort: z.enum(USER_SORT_VALUES).optional(),
+        sortOrder: z.enum(SORT_ORDER_VALUES).optional()
       })
     )
-    .query(async ({ input }) => {
-      const client = createDiscogsClient(
-        input.accessToken,
-        input.accessTokenSecret
+    .query(async ({ input }) =>
+      withDiscogsDataClient(input, 'get collection', (dataClient) =>
+        dataClient.getCollectionReleases(input.username, input.folderId, {
+          page: input.page,
+          perPage: input.perPage,
+          sort: input.sort,
+          sortOrder: input.sortOrder
+        })
       )
-
-      try {
-        const { data, rateLimit } = await client
-          .user()
-          .collection()
-          .getReleases(input.username, input.folderId, {
-            page: input.page,
-            per_page: input.perPage,
-            ...(input.sort && { sort: input.sort }),
-            ...(input.sortOrder && { sort_order: input.sortOrder })
-          })
-
-        // Type cast required: @lionralfs/discogs-client types are incomplete.
-        // The Discogs API returns additional fields (basic_information, formats, etc.)
-        // that our DiscogsCollectionRelease type captures but the library omits.
-        return {
-          releases: data.releases as unknown as DiscogsCollectionRelease[],
-          pagination: data.pagination as unknown as DiscogsPagination,
-          rateLimit
-        }
-      } catch (error) {
-        handleDiscogsError(error, 'get collection')
-      }
-    }),
+    ),
 
   /**
    * Get a user's profile including avatar_url and email.
+   * OAuth token pair is optional.
    * Email is only visible when authenticated as the requested user.
    * Uses query (not mutation) but sent as POST via methodOverride for security.
    */
   getUserProfile: publicProcedure
     .input(
-      z.object({
-        accessToken: z.string(),
-        accessTokenSecret: z.string(),
+      optionalAuthInput.extend({
         username: z.string()
       })
     )
-    .query(async ({ input }) => {
-      const client = createDiscogsClient(
-        input.accessToken,
-        input.accessTokenSecret
+    .query(async ({ input }) =>
+      withDiscogsDataClient(input, 'get user profile', (dataClient) =>
+        dataClient.getUserProfile(input.username)
       )
-
-      try {
-        const { data, rateLimit } = await client
-          .user()
-          .getProfile(input.username)
-
-        return {
-          profile: {
-            id: data.id,
-            username: data.username,
-            avatar_url: data.avatar_url,
-            email: data.email,
-            num_collection: data.num_collection,
-            num_wantlist: data.num_wantlist
-          },
-          rateLimit
-        }
-      } catch (error) {
-        handleDiscogsError(error, 'get user profile')
-      }
-    }),
+    ),
 
   /**
    * Get collection metadata for change detection.
    * Returns only the total count without fetching full collection data.
+   * OAuth token pair is optional for public collections.
    * Fast endpoint (1 API call) for detecting new/deleted items.
    */
   getCollectionMetadata: publicProcedure
     .input(
-      z.object({
-        accessToken: z.string(),
-        accessTokenSecret: z.string(),
+      optionalAuthInput.extend({
         username: z.string()
       })
     )
-    .query(async ({ input }) => {
-      const client = createDiscogsClient(
-        input.accessToken,
-        input.accessTokenSecret
+    .query(async ({ input }) =>
+      withDiscogsDataClient(input, 'get collection metadata', (dataClient) =>
+        dataClient.getCollectionMetadata(input.username)
       )
-
-      try {
-        // Fetch only first page with per_page=1 (minimal data transfer)
-        const { data, rateLimit } = await client
-          .user()
-          .collection()
-          .getReleases(input.username, 0, {
-            page: 1,
-            per_page: 1
-          })
-
-        return {
-          totalCount: data.pagination.items,
-          rateLimit
-        }
-      } catch (error) {
-        handleDiscogsError(error, 'get collection metadata')
-      }
-    })
+    )
 })

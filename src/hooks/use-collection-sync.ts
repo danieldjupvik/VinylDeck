@@ -5,7 +5,7 @@ import { useSyncExternalStore } from 'react'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { trpc } from '@/lib/trpc'
 import { useAuthStore } from '@/stores/auth-store'
-import type { DiscogsCollectionResponse } from '@/types/discogs'
+import type { CollectionReleasesPage } from '@/types/discogs'
 
 /**
  * Detects changes in user's Discogs collection by comparing
@@ -70,8 +70,9 @@ export function useCollectionSync(): {
       }
 
       const cachedCollection = latestQuery?.state.data as
-        | DiscogsCollectionResponse
+        | CollectionReleasesPage
         | undefined
+
       const cachedCount = cachedCollection?.pagination.items ?? 0
       const hasCachedData = cachedCollection !== undefined
       return `${hasCachedData ? 1 : 0}|${cachedCount}`
