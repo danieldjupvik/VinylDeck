@@ -13,12 +13,13 @@ import {
   readSearchParams,
   updateSearchParams
 } from '@/lib/url-state'
+import { useAuthStore } from '@/stores/auth-store'
 import type {
   CollectionSortKey,
   CollectionSortOrder,
-  DiscogsCollectionRelease,
-  DiscogsCollectionSortKey
-} from '@/types/discogs'
+  NonVinylBreakdownItem
+} from '@/types/collection'
+import type { CollectionRelease, UserSort } from '@/types/discogs'
 
 const collator = new Intl.Collator(undefined, {
   numeric: true,
@@ -103,11 +104,6 @@ interface CollectionSelectedFilters {
   yearRange: [number, number] | null
 }
 
-interface NonVinylBreakdownItem {
-  format: string
-  count: number
-}
-
 const readFiltersFromUrl = (): CollectionSelectedFilters => {
   const params = readSearchParams()
   return {
@@ -121,9 +117,9 @@ const readFiltersFromUrl = (): CollectionSelectedFilters => {
 }
 
 interface UseCollectionReturn {
-  releases: DiscogsCollectionRelease[]
-  vinylOnly: DiscogsCollectionRelease[]
-  filteredReleases: DiscogsCollectionRelease[]
+  releases: CollectionRelease[]
+  vinylOnly: CollectionRelease[]
+  filteredReleases: CollectionRelease[]
   isLoading: boolean
   isFetching: boolean
   dataUpdatedAt: number
@@ -219,7 +215,7 @@ export function useCollection(
     }
   }, [])
 
-  const serverSort: DiscogsCollectionSortKey = isClientSort
+  const serverSort: UserSort = isClientSort
     ? 'added'
     : (() => {
         switch (sort) {
@@ -270,7 +266,6 @@ export function useCollection(
     dataUpdatedAt,
     refetch
   } = useQuery({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps -- tokens excluded from key to avoid storing credentials in IndexedDB; token changes trigger re-auth and cache clearing anyway
     queryKey: [
       'collection',
       username,
@@ -281,7 +276,9 @@ export function useCollection(
     ],
     placeholderData: (previousData) => previousData,
     queryFn: async () => {
-      if (!username || !oauthTokens) {
+      const currentTokens = useAuthStore.getState().tokens
+
+      if (!username || !currentTokens) {
         throw new Error('Username and OAuth tokens are required')
       }
 
@@ -289,8 +286,8 @@ export function useCollection(
 
       const fetchPage = async (pageNumber: number) => {
         return await trpcUtils.client.discogs.getCollection.query({
-          accessToken: oauthTokens.accessToken,
-          accessTokenSecret: oauthTokens.accessTokenSecret,
+          accessToken: currentTokens.accessToken,
+          accessTokenSecret: currentTokens.accessTokenSecret,
           username,
           page: pageNumber,
           perPage,

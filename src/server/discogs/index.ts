@@ -3,9 +3,10 @@
  * Provides unified API surface hiding dual-library complexity.
  */
 
-import { createDataClient, type DataClient } from './client.js'
+import { createDataClient } from './client.js'
 import { createOAuthClient, type OAuthClient } from './oauth.js'
 
+import type { DataClient } from './client.js'
 import type { OAuthTokens } from '../../types/discogs/oauth.js'
 
 /**

@@ -9,9 +9,9 @@ import { DiscogsApiError, DiscogsAuthError } from './errors.js'
 import { withRateLimitRetry, RateLimitError } from './retry.js'
 
 import type {
-  User,
-  Identity,
-  CollectionResponse
+  CollectionReleasesQueryOptions,
+  SortOrder,
+  UserSort
 } from '../../types/discogs/index.js'
 import type { OAuthTokens } from '../../types/discogs/oauth.js'
 
@@ -29,14 +29,15 @@ const APP_VERSION = process.env.npm_package_version ?? '1.0.0'
 
 /**
  * Builds sort options for discojs, omitting undefined values.
+ * Accepts string union types from tRPC and casts at the discojs boundary.
  */
 function buildSortOptions(
-  sort?: UserSortEnum,
-  order?: SortOrdersEnum
+  sort?: UserSort,
+  order?: SortOrder
 ): { by: UserSortEnum; order?: SortOrdersEnum } | undefined {
   if (!sort) return undefined
-  if (order) return { by: sort, order }
-  return { by: sort }
+  if (order) return { by: sort as UserSortEnum, order: order as SortOrdersEnum }
+  return { by: sort as UserSortEnum }
 }
 
 /**
@@ -53,34 +54,7 @@ function buildPagination(
   return result
 }
 
-/**
- * Data client interface returned by createDataClient
- */
-export interface DataClient {
-  getIdentity(): Promise<Identity>
-  getCollectionReleases(
-    username: string,
-    folderId?: number,
-    options?: {
-      page?: number | undefined
-      perPage?: number | undefined
-      sort?: UserSortEnum | undefined
-      sortOrder?: SortOrdersEnum | undefined
-    }
-  ): Promise<CollectionResponse>
-  getUserProfile(username: string): Promise<User>
-  getCollectionMetadata(username: string): Promise<{ totalCount: number }>
-}
-
-/**
- * Creates a data client for Discogs API operations.
- * Uses discojs library with rate limit retry wrapper.
- *
- * @param tokens - Optional OAuth tokens for authenticated operations
- * @returns Data client with getIdentity, getCollectionReleases, and getUserProfile methods
- * @throws {DiscogsApiError} When OAuth credentials are missing
- */
-export function createDataClient(tokens?: OAuthTokens): DataClient {
+function createDataClientImpl(tokens?: OAuthTokens) {
   if (!CONSUMER_KEY || !CONSUMER_SECRET) {
     throw new DiscogsApiError('Missing OAuth credentials', {
       cause: new Error(
@@ -117,7 +91,11 @@ export function createDataClient(tokens?: OAuthTokens): DataClient {
 
       if (error instanceof DiscogsError) {
         if (error.statusCode === 401 || error.statusCode === 403) {
-          throw new DiscogsAuthError('Invalid or expired tokens', {
+          const authErrorMessage = tokens
+            ? 'Discogs authorization failed (token may be invalid, expired, or lacks access)'
+            : 'Resource is private or requires owner authentication'
+
+          throw new DiscogsAuthError(authErrorMessage, {
             cause: error,
             statusCode: error.statusCode
           })
@@ -156,27 +134,22 @@ export function createDataClient(tokens?: OAuthTokens): DataClient {
 
     /**
      * Get user's collection releases.
-     * Requires authentication.
+     * Public collections can be fetched without authentication when folderId is 0.
      *
      * @param username - Discogs username
      * @param folderId - Folder ID (default: 0 for all)
      * @param options - Pagination and sorting options
      * @returns Collection releases with pagination
-     * @throws {DiscogsAuthError} When no tokens provided or tokens invalid
+     * @throws {DiscogsAuthError} When folderId is non-zero without tokens or tokens are invalid
      */
     async getCollectionReleases(
       username: string,
       folderId: number = 0,
-      options?: {
-        page?: number | undefined
-        perPage?: number | undefined
-        sort?: UserSortEnum | undefined
-        sortOrder?: SortOrdersEnum | undefined
-      }
+      options?: CollectionReleasesQueryOptions
     ) {
-      if (!tokens) {
+      if (!tokens && folderId !== 0) {
         throw new DiscogsAuthError(
-          'Authentication required for getCollectionReleases',
+          'Authentication required for non-zero collection folders',
           {
             cause: new Error('No tokens provided to createDiscogsClient'),
             statusCode: 401
@@ -199,23 +172,13 @@ export function createDataClient(tokens?: OAuthTokens): DataClient {
 
     /**
      * Get user profile.
-     * Requires authentication.
+     * Public user profiles can be fetched without authentication.
      *
      * @param username - Discogs username
      * @returns User profile from Discogs
-     * @throws {DiscogsAuthError} When no tokens provided or tokens invalid
+     * @throws {DiscogsAuthError} When provided tokens are invalid
      */
     async getUserProfile(username: string) {
-      if (!tokens) {
-        throw new DiscogsAuthError(
-          'Authentication required for getUserProfile',
-          {
-            cause: new Error('No tokens provided to createDiscogsClient'),
-            statusCode: 401
-          }
-        )
-      }
-
       return wrapCall('getUserProfile', async () => {
         return await client.getProfileForUser(username)
       })
@@ -224,23 +187,13 @@ export function createDataClient(tokens?: OAuthTokens): DataClient {
     /**
      * Get collection metadata (total count only).
      * Fast endpoint using perPage=1 trick.
-     * Requires authentication.
+     * Public collections can be checked without authentication.
      *
      * @param username - Discogs username
      * @returns Object with totalCount property
-     * @throws {DiscogsAuthError} When no tokens provided or tokens invalid
+     * @throws {DiscogsAuthError} When provided tokens are invalid or collection is private
      */
     async getCollectionMetadata(username: string) {
-      if (!tokens) {
-        throw new DiscogsAuthError(
-          'Authentication required for getCollectionMetadata',
-          {
-            cause: new Error('No tokens provided to createDiscogsClient'),
-            statusCode: 401
-          }
-        )
-      }
-
       return wrapCall('getCollectionMetadata', async () => {
         const response = await client.listItemsInFolderForUser(
           username,
@@ -252,4 +205,18 @@ export function createDataClient(tokens?: OAuthTokens): DataClient {
       })
     }
   }
+}
+
+export type DataClient = ReturnType<typeof createDataClientImpl>
+
+/**
+ * Creates a data client for Discogs API operations.
+ * Uses discojs library with rate limit retry wrapper.
+ *
+ * @param tokens - Optional OAuth tokens for authenticated operations
+ * @returns Data client with getIdentity, getCollectionReleases, getUserProfile, and getCollectionMetadata methods
+ * @throws {DiscogsApiError} When OAuth credentials are missing
+ */
+export function createDataClient(tokens?: OAuthTokens): DataClient {
+  return createDataClientImpl(tokens)
 }

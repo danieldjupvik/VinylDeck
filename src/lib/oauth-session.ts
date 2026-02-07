@@ -9,7 +9,7 @@
  * - Isolated per tab (prevents cross-tab interference during OAuth)
  */
 import { SESSION_KEYS } from '@/lib/storage-keys'
-import type { OAuthRequestTokens } from '@/types/discogs'
+import type { OAuthRequestTokens } from '@/types/discogs/oauth'
 
 export function getOAuthRequestTokens(): OAuthRequestTokens | null {
   try {

@@ -3,10 +3,10 @@ import { useState } from 'react'
 
 import { getLimitedGenreParts } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
-import type { DiscogsCollectionRelease } from '@/types/discogs'
+import type { CollectionRelease } from '@/types/discogs'
 
 interface VinylCardProps {
-  release: DiscogsCollectionRelease
+  release: CollectionRelease
   className?: string
 }
 

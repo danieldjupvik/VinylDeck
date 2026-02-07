@@ -26,7 +26,7 @@ export class DiscogsApiError extends Error {
 
 /**
  * Authentication error (401, 403).
- * Indicates invalid or expired OAuth tokens.
+ * Indicates authentication is required, denied, or token access is invalid.
  */
 export class DiscogsAuthError extends Error {
   declare readonly cause?: unknown
