@@ -27,19 +27,19 @@ export class OfflineNoCacheError extends Error {
  * ```ts
  * catch (error) {
  *   if (error instanceof RateLimitError) {
- *     showToast(`Try again in ${Math.ceil(error.retryAfterMs / 1000)}s`)
+ *     showToast(`Try again in ${Math.ceil(error.backoffMs / 1000)}s`)
  *   }
  * }
  * ```
  */
 export class RateLimitError extends Error {
-  readonly retryAfterMs: number
+  readonly backoffMs: number
   readonly statusCode = 429
 
-  constructor(retryAfterMs: number) {
-    super(`Rate limit exceeded. Retry after ${Math.ceil(retryAfterMs / 1000)}s`)
+  constructor(backoffMs: number) {
+    super(`Rate limit exceeded. Backoff for ${Math.ceil(backoffMs / 1000)}s`)
     this.name = 'RateLimitError'
-    this.retryAfterMs = retryAfterMs
+    this.backoffMs = backoffMs
   }
 }
 

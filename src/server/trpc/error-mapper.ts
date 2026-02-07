@@ -32,7 +32,7 @@ export function mapFacadeErrorToTRPC(error: unknown, operation: string): never {
   if (error instanceof RateLimitError) {
     throw new TRPCError({
       code: 'TOO_MANY_REQUESTS',
-      message: `Rate limit exceeded. Retry after ${Math.ceil(error.retryAfterMs / 1000)}s`,
+      message: `Rate limit exceeded. Backoff for ${Math.ceil(error.backoffMs / 1000)}s`,
       cause: error
     })
   }

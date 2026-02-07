@@ -61,7 +61,7 @@ async function withDiscogsDataClient<T>(
     const client = createDiscogsClient(tokens)
     return await query(client.data)
   } catch (error) {
-    mapFacadeErrorToTRPC(error, operation)
+    return mapFacadeErrorToTRPC(error, operation)
   }
 }
 
