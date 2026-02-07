@@ -139,55 +139,22 @@ function CollectionPage() {
     })
   }, [dataUpdatedAt, now, t, numberFormatters])
 
-  // Reset to page 1 when sort changes
-  const handleSortChange = (newSort: typeof sort) => {
-    setSort(newSort)
-    setPage(1)
-  }
+  const applyWithPageReset =
+    <T,>(setter: (value: T) => void) =>
+    (value: T) => {
+      setter(value)
+      setPage(1)
+    }
 
-  const handleSortOrderChange = (newOrder: typeof sortOrder) => {
-    setSortOrder(newOrder)
-    setPage(1)
-  }
-
-  const handleReshuffle = () => {
-    reshuffleRandom()
-  }
-
-  const handleSearchChange = (nextSearch: string) => {
-    setSearch(nextSearch)
-    setPage(1)
-  }
-
-  const handleSetSelectedGenres = (values: string[]) => {
-    setSelectedGenres(values)
-    setPage(1)
-  }
-
-  const handleSetSelectedStyles = (values: string[]) => {
-    setSelectedStyles(values)
-    setPage(1)
-  }
-
-  const handleSetSelectedLabels = (values: string[]) => {
-    setSelectedLabels(values)
-    setPage(1)
-  }
-
-  const handleSetSelectedTypes = (values: string[]) => {
-    setSelectedTypes(values)
-    setPage(1)
-  }
-
-  const handleSetSelectedSizes = (values: string[]) => {
-    setSelectedSizes(values)
-    setPage(1)
-  }
-
-  const handleSetYearRange = (range: [number, number] | null) => {
-    setYearRange(range)
-    setPage(1)
-  }
+  const handleSortChange = applyWithPageReset(setSort)
+  const handleSortOrderChange = applyWithPageReset(setSortOrder)
+  const handleSearchChange = applyWithPageReset(setSearch)
+  const handleSetSelectedGenres = applyWithPageReset(setSelectedGenres)
+  const handleSetSelectedStyles = applyWithPageReset(setSelectedStyles)
+  const handleSetSelectedLabels = applyWithPageReset(setSelectedLabels)
+  const handleSetSelectedTypes = applyWithPageReset(setSelectedTypes)
+  const handleSetSelectedSizes = applyWithPageReset(setSelectedSizes)
+  const handleSetYearRange = applyWithPageReset(setYearRange)
 
   const handleClearFilters = () => {
     clearFilters()
@@ -284,7 +251,7 @@ function CollectionPage() {
             onSortChange={handleSortChange}
             sortOrder={sortOrder}
             onSortOrderChange={handleSortOrderChange}
-            onReshuffle={handleReshuffle}
+            onReshuffle={reshuffleRandom}
             viewMode={viewMode}
             onViewToggle={handleViewToggle}
             filters={{

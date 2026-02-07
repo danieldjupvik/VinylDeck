@@ -31,9 +31,8 @@ import {
 } from '@/components/ui/sidebar'
 
 import { BrandMark } from './brand-mark'
+import { createSidebarNavClickHandler } from './sidebar-nav-click'
 import { SidebarUser } from './sidebar-user'
-
-import type { MouseEvent } from 'react'
 
 export function AppSidebar(): React.JSX.Element {
   const { t } = useTranslation()
@@ -42,26 +41,11 @@ export function AppSidebar(): React.JSX.Element {
 
   const isActive = (path: string) =>
     location.pathname === path || location.pathname.startsWith(`${path}/`)
-  const handleNavClick =
-    (path: string) => (event: MouseEvent<HTMLAnchorElement>) => {
-      if (
-        event.metaKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        event.altKey ||
-        event.button === 1
-      ) {
-        return
-      }
-
-      if (isActive(path)) {
-        event.preventDefault()
-      }
-
-      if (isMobile) {
-        setOpenMobile(false)
-      }
-    }
+  const handleNavClick = createSidebarNavClickHandler({
+    isActivePath: isActive,
+    isMobile,
+    setOpenMobile
+  })
 
   return (
     <Sidebar collapsible="icon">

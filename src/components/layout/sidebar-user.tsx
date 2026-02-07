@@ -26,7 +26,7 @@ import { usePreferences } from '@/hooks/use-preferences'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { storeRedirectUrl } from '@/lib/redirect-utils'
 
-import type { MouseEvent } from 'react'
+import { createSidebarNavClickHandler } from './sidebar-nav-click'
 
 export function SidebarUser(): React.JSX.Element {
   const { t } = useTranslation()
@@ -46,26 +46,11 @@ export function SidebarUser(): React.JSX.Element {
     routeLocation.pathname === path ||
     routeLocation.pathname.startsWith(`${path}/`)
 
-  const handleNavClick =
-    (path: string) => (event: MouseEvent<HTMLAnchorElement>) => {
-      if (
-        event.metaKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        event.altKey ||
-        event.button === 1
-      ) {
-        return
-      }
-
-      if (isActive(path)) {
-        event.preventDefault()
-      }
-
-      if (isMobile) {
-        setOpenMobile(false)
-      }
-    }
+  const handleNavClick = createSidebarNavClickHandler({
+    isActivePath: isActive,
+    isMobile,
+    setOpenMobile
+  })
 
   const handleSignOut = () => {
     const currentUrl = location.pathname + location.searchStr + location.hash

@@ -65,22 +65,25 @@ export function CollectionToolbar({
     sort === 'genre'
   const isRandomSort = sort === 'random'
   const canReshuffle = Boolean(onReshuffle)
-  const sortOrderLabel = (() => {
-    if (isRandomSort) return t('collection.sortOrder.shuffle')
-    if (isTimelineSort) {
-      return sortOrder === 'asc'
+  let sortOrderLabel = t('collection.sortOrder.desc')
+  if (isRandomSort) {
+    sortOrderLabel = t('collection.sortOrder.shuffle')
+  } else if (isTimelineSort) {
+    sortOrderLabel =
+      sortOrder === 'asc'
         ? t('collection.sortOrder.oldest')
         : t('collection.sortOrder.newest')
-    }
-    if (isAlphaSort) {
-      return sortOrder === 'asc'
+  } else if (isAlphaSort) {
+    sortOrderLabel =
+      sortOrder === 'asc'
         ? t('collection.sortOrder.az')
         : t('collection.sortOrder.za')
-    }
-    return sortOrder === 'asc'
-      ? t('collection.sortOrder.asc')
-      : t('collection.sortOrder.desc')
-  })()
+  } else {
+    sortOrderLabel =
+      sortOrder === 'asc'
+        ? t('collection.sortOrder.asc')
+        : t('collection.sortOrder.desc')
+  }
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

@@ -46,6 +46,24 @@ const sortSizes = (values: string[]) =>
 const isSizeDescriptor = (value: string) =>
   value.includes('"') || /inch/i.test(value)
 
+const incrementCount = (counts: Map<string, number>, value: string) => {
+  counts.set(value, (counts.get(value) ?? 0) + 1)
+}
+
+const ensureCountEntries = (counts: Map<string, number>, values: string[]) => {
+  for (const value of values) {
+    if (!counts.has(value)) {
+      counts.set(value, 0)
+    }
+  }
+}
+
+const matchesSelection = (
+  selectedValues: string[],
+  matcher: (value: string) => boolean
+) =>
+  selectedValues.length === 0 || selectedValues.some((value) => matcher(value))
+
 const extractVinylDescriptors = (
   formats: { name: string; descriptions?: string[] }[]
 ) => {
@@ -389,21 +407,21 @@ export function useCollection(
     for (const release of vinylOnly) {
       const info = release.basic_information
       for (const genre of info.genres) {
-        genreCounts.set(genre, (genreCounts.get(genre) ?? 0) + 1)
+        incrementCount(genreCounts, genre)
       }
       for (const style of info.styles) {
-        styleCounts.set(style, (styleCounts.get(style) ?? 0) + 1)
+        incrementCount(styleCounts, style)
       }
       for (const label of info.labels) {
-        labelCounts.set(label.name, (labelCounts.get(label.name) ?? 0) + 1)
+        incrementCount(labelCounts, label.name)
       }
       const { types: releaseTypes, sizes: releaseSizes } =
         extractVinylDescriptors(info.formats)
       for (const type of releaseTypes) {
-        typeCounts.set(type, (typeCounts.get(type) ?? 0) + 1)
+        incrementCount(typeCounts, type)
       }
       for (const size of releaseSizes) {
-        sizeCounts.set(size, (sizeCounts.get(size) ?? 0) + 1)
+        incrementCount(sizeCounts, size)
       }
       if (info.year && info.year > 0) {
         minYear = Math.min(minYear, info.year)
@@ -412,21 +430,11 @@ export function useCollection(
     }
 
     // Ensure selected filters are in the options even if they have 0 count
-    for (const genre of selectedGenres) {
-      if (!genreCounts.has(genre)) genreCounts.set(genre, 0)
-    }
-    for (const style of selectedStyles) {
-      if (!styleCounts.has(style)) styleCounts.set(style, 0)
-    }
-    for (const label of selectedLabels) {
-      if (!labelCounts.has(label)) labelCounts.set(label, 0)
-    }
-    for (const type of selectedTypes) {
-      if (!typeCounts.has(type)) typeCounts.set(type, 0)
-    }
-    for (const size of selectedSizes) {
-      if (!sizeCounts.has(size)) sizeCounts.set(size, 0)
-    }
+    ensureCountEntries(genreCounts, selectedGenres)
+    ensureCountEntries(styleCounts, selectedStyles)
+    ensureCountEntries(labelCounts, selectedLabels)
+    ensureCountEntries(typeCounts, selectedTypes)
+    ensureCountEntries(sizeCounts, selectedSizes)
 
     const createFilterOptions = (
       counts: Map<string, number>,
@@ -499,32 +507,27 @@ export function useCollection(
       const { types: releaseTypes, sizes: releaseSizes } =
         extractVinylDescriptors(info.formats)
 
-      const matchesGenres =
-        selectedGenres.length === 0 ||
-        selectedGenres.some((genre) => info.genres.includes(genre))
-      const matchesStyles =
-        selectedStyles.length === 0 ||
-        selectedStyles.some((style) => info.styles.includes(style))
-      const matchesLabels =
-        selectedLabels.length === 0 ||
-        selectedLabels.some((label) =>
-          info.labels.some((item) => item.name === label)
-        )
-      const matchesTypes =
-        selectedTypes.length === 0 ||
-        selectedTypes.some((type) => releaseTypes.includes(type))
-      const matchesSizes =
-        selectedSizes.length === 0 ||
-        selectedSizes.some((size) => releaseSizes.includes(size))
-
-      let matchesYear = true
-      if (yearRange) {
-        if (!info.year || info.year <= 0) {
-          matchesYear = false
-        } else {
-          matchesYear = info.year >= yearRange[0] && info.year <= yearRange[1]
-        }
-      }
+      const matchesGenres = matchesSelection(selectedGenres, (genre) =>
+        info.genres.includes(genre)
+      )
+      const matchesStyles = matchesSelection(selectedStyles, (style) =>
+        info.styles.includes(style)
+      )
+      const matchesLabels = matchesSelection(selectedLabels, (label) =>
+        info.labels.some((item) => item.name === label)
+      )
+      const matchesTypes = matchesSelection(selectedTypes, (type) =>
+        releaseTypes.includes(type)
+      )
+      const matchesSizes = matchesSelection(selectedSizes, (size) =>
+        releaseSizes.includes(size)
+      )
+      const matchesYear =
+        !yearRange ||
+        (Boolean(info.year) &&
+          info.year > 0 &&
+          info.year >= yearRange[0] &&
+          info.year <= yearRange[1])
 
       return (
         matchesGenres &&
