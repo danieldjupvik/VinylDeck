@@ -17,6 +17,18 @@ declare const process: {
 const CONSUMER_KEY = process.env.VITE_DISCOGS_CONSUMER_KEY
 const CONSUMER_SECRET = process.env.DISCOGS_CONSUMER_SECRET
 
+function extractStatusCode(error: unknown): number | undefined {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'statusCode' in error &&
+    typeof (error as { statusCode: unknown }).statusCode === 'number'
+  ) {
+    return (error as { statusCode: number }).statusCode
+  }
+  return undefined
+}
+
 /**
  * OAuth client interface returned by createOAuthClient
  */
@@ -67,7 +79,8 @@ export function createOAuthClient(): OAuthClient {
 
         if (!response.token || !response.tokenSecret) {
           throw new DiscogsApiError('Failed to obtain request token', {
-            cause: new Error('Discogs returned null token or tokenSecret')
+            cause: new Error('Discogs returned null token or tokenSecret'),
+            statusCode: 400
           })
         }
 
@@ -80,8 +93,10 @@ export function createOAuthClient(): OAuthClient {
         if (error instanceof DiscogsApiError) {
           throw error
         }
+        const statusCode = extractStatusCode(error)
         throw new DiscogsApiError('OAuth request token exchange failed', {
-          cause: error
+          cause: error,
+          ...(statusCode !== undefined ? { statusCode } : {})
         })
       }
     },
@@ -111,7 +126,8 @@ export function createOAuthClient(): OAuthClient {
           throw new DiscogsApiError('Failed to obtain access token', {
             cause: new Error(
               'Discogs returned null accessToken or accessTokenSecret'
-            )
+            ),
+            statusCode: 400
           })
         }
 
@@ -123,8 +139,10 @@ export function createOAuthClient(): OAuthClient {
         if (error instanceof DiscogsApiError) {
           throw error
         }
+        const statusCode = extractStatusCode(error)
         throw new DiscogsApiError('OAuth access token exchange failed', {
-          cause: error
+          cause: error,
+          ...(statusCode !== undefined ? { statusCode } : {})
         })
       }
     }

@@ -38,13 +38,24 @@ export function mapFacadeErrorToTRPC(error: unknown, operation: string): never {
   }
 
   if (error instanceof DiscogsApiError) {
-    let code: 'BAD_REQUEST' | 'NOT_FOUND' | 'INTERNAL_SERVER_ERROR' =
-      'INTERNAL_SERVER_ERROR'
+    let code:
+      | 'BAD_REQUEST'
+      | 'UNAUTHORIZED'
+      | 'FORBIDDEN'
+      | 'NOT_FOUND'
+      | 'TOO_MANY_REQUESTS'
+      | 'INTERNAL_SERVER_ERROR' = 'INTERNAL_SERVER_ERROR'
 
     if (error.statusCode === 400) {
       code = 'BAD_REQUEST'
+    } else if (error.statusCode === 401) {
+      code = 'UNAUTHORIZED'
+    } else if (error.statusCode === 403) {
+      code = 'FORBIDDEN'
     } else if (error.statusCode === 404) {
       code = 'NOT_FOUND'
+    } else if (error.statusCode === 429) {
+      code = 'TOO_MANY_REQUESTS'
     }
 
     throw new TRPCError({

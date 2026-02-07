@@ -83,9 +83,8 @@ export const oauthRouter = router({
         })
       }
 
-      const client = createDiscogsClient()
-
       try {
+        const client = createDiscogsClient()
         return await client.oauth.getRequestToken(input.callbackUrl)
       } catch (error) {
         mapFacadeErrorToTRPC(error, 'get request token')
@@ -105,9 +104,8 @@ export const oauthRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const client = createDiscogsClient()
-
       try {
+        const client = createDiscogsClient()
         return await client.oauth.getAccessToken(
           input.requestToken,
           input.requestTokenSecret,
