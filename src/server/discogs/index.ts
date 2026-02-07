@@ -37,8 +37,25 @@ export interface DiscogsClient {
  * ```
  */
 export function createDiscogsClient(tokens?: OAuthTokens): DiscogsClient {
+  let oauthClient: OAuthClient | undefined
+  const getOAuthClient = (): OAuthClient => {
+    oauthClient ??= createOAuthClient()
+    return oauthClient
+  }
+
   return {
-    oauth: createOAuthClient(),
+    oauth: {
+      getRequestToken(callbackUrl) {
+        return getOAuthClient().getRequestToken(callbackUrl)
+      },
+      getAccessToken(requestToken, requestTokenSecret, verifier) {
+        return getOAuthClient().getAccessToken(
+          requestToken,
+          requestTokenSecret,
+          verifier
+        )
+      }
+    },
     data: createDataClient(tokens)
   }
 }

@@ -87,7 +87,7 @@ export const oauthRouter = router({
         const client = createDiscogsClient()
         return await client.oauth.getRequestToken(input.callbackUrl)
       } catch (error) {
-        mapFacadeErrorToTRPC(error, 'get request token')
+        return mapFacadeErrorToTRPC(error, 'get request token')
       }
     }),
 
@@ -112,7 +112,7 @@ export const oauthRouter = router({
           input.verifier
         )
       } catch (error) {
-        mapFacadeErrorToTRPC(error, 'get access token')
+        return mapFacadeErrorToTRPC(error, 'get access token')
       }
     })
 })

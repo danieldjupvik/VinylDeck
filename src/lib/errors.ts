@@ -21,7 +21,7 @@ export class OfflineNoCacheError extends Error {
 
 /**
  * Error thrown when Discogs API rate limit is exceeded and retries are exhausted.
- * Contains timing info for upstream layers to display user feedback.
+ * Contains a suggested client backoff duration for user feedback.
  *
  * @example
  * ```ts
@@ -37,7 +37,9 @@ export class RateLimitError extends Error {
   readonly statusCode = 429
 
   constructor(backoffMs: number) {
-    super(`Rate limit exceeded. Backoff for ${Math.ceil(backoffMs / 1000)}s`)
+    super(
+      `Rate limit exceeded. Suggested backoff: about ${Math.ceil(backoffMs / 1000)}s`
+    )
     this.name = 'RateLimitError'
     this.backoffMs = backoffMs
   }
