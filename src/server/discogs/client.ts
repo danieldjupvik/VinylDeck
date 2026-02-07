@@ -3,7 +3,8 @@
  * Handles all non-OAuth data operations with rate limit retry.
  */
 
-import { Discojs } from 'discojs'
+// Bare 'discojs' fails on Vercel — Node's ESM resolver ignores the "module" field
+import { Discojs } from 'discojs/dist/index.es.js'
 
 import { DiscogsApiError, DiscogsAuthError } from './errors.js'
 import { withRateLimitRetry, RateLimitError } from './retry.js'
