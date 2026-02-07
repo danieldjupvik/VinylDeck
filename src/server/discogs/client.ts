@@ -61,25 +61,27 @@ function buildPagination(
 }
 
 function createDataClientImpl(tokens?: OAuthTokens) {
-  if (!CONSUMER_KEY || !CONSUMER_SECRET) {
-    throw new DiscogsApiError('Missing OAuth credentials', {
-      cause: new Error(
-        'VITE_DISCOGS_CONSUMER_KEY or DISCOGS_CONSUMER_SECRET not set'
-      )
-    })
-  }
+  const clientConfig = tokens
+    ? (() => {
+        if (!CONSUMER_KEY || !CONSUMER_SECRET) {
+          throw new DiscogsApiError('Missing OAuth credentials', {
+            cause: new Error(
+              'VITE_DISCOGS_CONSUMER_KEY or DISCOGS_CONSUMER_SECRET not set'
+            )
+          })
+        }
 
-  const client = new Discojs(
-    tokens
-      ? {
+        return {
           consumerKey: CONSUMER_KEY,
           consumerSecret: CONSUMER_SECRET,
           oAuthToken: tokens.accessToken,
           oAuthTokenSecret: tokens.accessTokenSecret,
           userAgent: `VinylDeck/${APP_VERSION}`
         }
-      : { userAgent: `VinylDeck/${APP_VERSION}` }
-  )
+      })()
+    : { userAgent: `VinylDeck/${APP_VERSION}` }
+
+  const client = new Discojs(clientConfig)
 
   /**
    * Wraps discojs call with rate limit retry and error handling.
