@@ -155,6 +155,13 @@ interface UseCollectionReturn {
   hasCompleteCollection: boolean
 }
 
+/**
+ * Fetches and manages the user's Discogs vinyl collection with
+ * client-side search, filtering, sorting, and pagination.
+ *
+ * @param options - Page number, sort key, and sort order overrides
+ * @returns Collection data, filter state, pagination, and control functions
+ */
 export function useCollection(
   options: UseCollectionOptions = {}
 ): UseCollectionReturn {

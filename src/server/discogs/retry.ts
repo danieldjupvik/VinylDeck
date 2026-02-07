@@ -78,6 +78,7 @@ export async function withRateLimitRetry<T>(
     }
   }
 
+  // Unreachable — loop always returns or throws, but required for TypeScript control flow
   throw new RateLimitError(calculateBackoff(maxRetries, baseDelayMs))
 }
 

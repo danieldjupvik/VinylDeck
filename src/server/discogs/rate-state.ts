@@ -1,6 +1,5 @@
 const RATE_LIMIT = {
   MAX_REQUESTS: 60,
-  BUFFER: 5,
   WINDOW_MS: 60 * 1000
 } as const
 
