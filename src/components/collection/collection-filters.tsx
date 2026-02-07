@@ -26,7 +26,6 @@ interface CollectionSelectedFilters {
   labels: string[]
   types: string[]
   sizes: string[]
-  countries: string[]
   yearRange: [number, number] | null
 }
 
@@ -38,7 +37,6 @@ export interface CollectionFiltersProps {
   setSelectedLabels: (values: string[]) => void
   setSelectedTypes: (values: string[]) => void
   setSelectedSizes: (values: string[]) => void
-  setSelectedCountries: (values: string[]) => void
   setYearRange: (range: [number, number] | null) => void
   clearFilters: () => void
   activeFilterCount: number
@@ -126,7 +124,6 @@ function FilterContent({
   setSelectedLabels,
   setSelectedTypes,
   setSelectedSizes,
-  setSelectedCountries,
   setYearRange,
   clearFilters,
   activeFilterCount,
@@ -270,15 +267,6 @@ function FilterContent({
             onChange={setSelectedSizes}
             columns="single"
           />
-
-          <FilterGroup
-            idPrefix="filter-country"
-            title={t('collection.filters.country')}
-            options={options.countries}
-            selected={selected.countries}
-            onChange={setSelectedCountries}
-            columns={groupColumns}
-          />
         </div>
       </ScrollArea>
     </div>
@@ -293,7 +281,6 @@ export function CollectionFilters({
   setSelectedLabels,
   setSelectedTypes,
   setSelectedSizes,
-  setSelectedCountries,
   setYearRange,
   clearFilters,
   activeFilterCount,
@@ -321,7 +308,6 @@ export function CollectionFilters({
       setSelectedLabels={setSelectedLabels}
       setSelectedTypes={setSelectedTypes}
       setSelectedSizes={setSelectedSizes}
-      setSelectedCountries={setSelectedCountries}
       setYearRange={setYearRange}
       clearFilters={clearFilters}
       activeFilterCount={activeFilterCount}

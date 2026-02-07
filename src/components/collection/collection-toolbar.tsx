@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import type { CollectionSortKey, CollectionSortOrder } from '@/types/discogs'
+import type { CollectionSortKey, CollectionSortOrder } from '@/types/collection'
 import type { ViewMode } from '@/types/preferences'
 
 interface CollectionToolbarProps {

@@ -134,12 +134,12 @@ export function AuthProvider({
       accessToken: string
       accessTokenSecret: string
     }): Promise<{ username: string; id: number }> => {
-      const identityResult = await trpcUtils.client.discogs.getIdentity.query({
+      const identity = await trpcUtils.client.discogs.getIdentity.query({
         accessToken: tokens.accessToken,
         accessTokenSecret: tokens.accessTokenSecret
       })
 
-      return identityResult.identity
+      return identity
     },
     [trpcUtils.client.discogs.getIdentity]
   )

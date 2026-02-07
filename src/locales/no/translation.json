@@ -111,7 +111,6 @@
       "label": "Label",
       "vinylType": "Vinyltype",
       "size": "Størrelse",
-      "country": "Land",
       "yearRange": "Årsintervall",
       "anyYear": "Alle år",
       "empty": "Ingen alternativer"
@@ -128,8 +127,7 @@
       "year": "År",
       "genre": "Sjanger",
       "label": "Label",
-      "format": "Format",
-      "country": "Land"
+      "format": "Format"
     },
     "unknownArtist": "Ukjent artist",
     "pagination": {

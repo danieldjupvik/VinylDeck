@@ -1,12 +1,12 @@
 import type { NonVinylBreakdownItem } from '@/types/collection'
-import type { DiscogsCollectionRelease } from '@/types/discogs'
+import type { CollectionRelease } from '@/types/discogs'
 
 import { CollectionEmptyState } from './collection-empty-state'
 import { VinylCard } from './vinyl-card'
 import { VinylCardSkeleton } from './vinyl-card-skeleton'
 
 interface VinylGridProps {
-  releases: DiscogsCollectionRelease[]
+  releases: CollectionRelease[]
   isLoading: boolean
   shouldAnimate: boolean
   animationClassName?: string

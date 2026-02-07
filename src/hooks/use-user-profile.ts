@@ -70,7 +70,7 @@ export function useUserProfile(): {
     setIsFetching(true)
     setError(null)
     try {
-      const { profile } = await trpcUtils.client.discogs.getUserProfile.query({
+      const profile = await trpcUtils.client.discogs.getUserProfile.query({
         accessToken: tokens.accessToken,
         accessTokenSecret: tokens.accessTokenSecret,
         username
