@@ -60,7 +60,7 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
+    "@eslint/js": "^10.0.1",
     "@hono/node-server": "^1.19.9",
     "@tanstack/eslint-plugin-query": "^5.91.4",
     "@tanstack/router-devtools": "^1.158.4",
