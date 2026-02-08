@@ -388,7 +388,7 @@ export function AuthProvider({
       setState((prev) => ({ ...prev, isLoading: true }))
 
       // OFFLINE PATH: trust cached state if available
-      if (!isOnline) {
+      if (!isOnline && !tokens) {
         const cachedProfile = queryClient.getQueryData<UserProfile>(
           USER_PROFILE_QUERY_KEY
         )
@@ -397,7 +397,6 @@ export function AuthProvider({
           throw new OfflineNoCacheError()
         }
 
-        if (tokens) setTokens(tokens)
         setSessionActive(true)
         setState((prev) => ({
           ...prev,
@@ -414,14 +413,7 @@ export function AuthProvider({
         storeTokens: Boolean(tokens)
       })
     },
-    [
-      authTokens,
-      isOnline,
-      queryClient,
-      setTokens,
-      setSessionActive,
-      performAuthValidation
-    ]
+    [authTokens, isOnline, queryClient, setSessionActive, performAuthValidation]
   )
 
   // Initialize auth - Zustand hydrates synchronously from localStorage,
