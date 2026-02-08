@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import { useAuth } from '@/hooks/use-auth'
+import { isAuthError, OfflineNoCacheError } from '@/lib/errors'
 import {
   clearOAuthRequestTokens,
   getOAuthRequestTokens
@@ -33,6 +34,7 @@ type OAuthError =
   | 'missing_params'
   | 'session_expired'
   | 'exchange_failed'
+  | 'internet_required'
   | 'validation_failed'
 
 interface OAuthCallbackSearch {
@@ -152,7 +154,22 @@ function OAuthCallbackPage() {
         try {
           // establishSession validates tokens and fetches profile
           await establishSession(tokens)
-        } catch {
+        } catch (validationError) {
+          console.error(
+            '[oauth-callback] Session validation failed after token exchange:',
+            validationError
+          )
+          if (
+            validationError instanceof OfflineNoCacheError ||
+            (typeof navigator !== 'undefined' && !navigator.onLine)
+          ) {
+            reportError('internet_required')
+            return
+          }
+          if (isAuthError(validationError)) {
+            reportError('session_expired', true)
+            return
+          }
           reportError('validation_failed')
           return
         }
@@ -162,7 +179,11 @@ function OAuthCallbackPage() {
         // Navigate to the stored redirect URL or collection
         const redirectUrl = getAndClearRedirectUrl() ?? '/collection'
         void navigate({ to: redirectUrl })
-      } catch {
+      } catch (exchangeError) {
+        console.error(
+          '[oauth-callback] Access token exchange failed:',
+          exchangeError
+        )
         reportError('exchange_failed', true)
       }
     }
@@ -189,6 +210,8 @@ function OAuthCallbackPage() {
         return t('auth.oauthSessionExpired')
       case 'exchange_failed':
         return t('auth.oauthError')
+      case 'internet_required':
+        return t('auth.oauthInternetRequired')
       case 'validation_failed':
         return t('auth.oauthValidationFailed')
       default:

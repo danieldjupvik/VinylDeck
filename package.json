@@ -4,13 +4,13 @@
   "version": "0.3.1-beta.1",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -n api,vite -c blue,green \"bun run dev:api\" \"vite\"",
+    "dev": "concurrently -n api,vite -c blue,green \"DEBUG_API=1 bun run dev:api\" \"vite\"",
     "dev:vite": "vite",
     "dev:api": "bun run scripts/dev-server.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "preview:offline": "bun run build && concurrently -n api,preview -c blue,green \"bun run dev:api\" \"vite preview\"",
+    "preview:offline": "bun run build && concurrently -n api,preview -c blue,green \"DEBUG_API=1 bun run dev:api\" \"vite preview\"",
     "prepare": "husky"
   },
   "dependencies": {
