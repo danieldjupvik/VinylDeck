@@ -108,6 +108,7 @@ export function CollectionToolbar({
           <SelectTrigger
             size="sm"
             className="w-[120px] px-2 sm:w-[140px] sm:px-3"
+            aria-label={t('collection.sort.placeholder')}
           >
             <SelectValue placeholder={t('collection.sort.placeholder')} />
           </SelectTrigger>

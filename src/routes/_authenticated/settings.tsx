@@ -271,7 +271,10 @@ function SettingsPage() {
                     void i18n.changeLanguage(value)
                   }}
                 >
-                  <SelectTrigger className="w-full sm:w-48">
+                  <SelectTrigger
+                    className="w-full sm:w-48"
+                    aria-label={t('settings.appearance.language.title')}
+                  >
                     <SelectValue>
                       <span className="flex items-center gap-2">
                         <LanguageFlag lang={currentLanguage} />

@@ -38,7 +38,10 @@ export default defineConfig({
       devOptions: {
         enabled: false
       },
-      includeAssets: ['icons/*.png'],
+      pwaAssets: {
+        config: true,
+        overrideManifestIcons: true
+      },
       manifest: {
         name: 'VinylDeck',
         short_name: 'VinylDeck',
@@ -46,21 +49,40 @@ export default defineConfig({
         theme_color: '#09090b',
         background_color: '#09090b',
         display: 'standalone',
-        icons: [
+        orientation: 'any',
+        id: '/',
+        categories: ['entertainment', 'music'],
+        shortcuts: [
           {
-            src: 'icons/icon-192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'icons/icon-512.png',
-            sizes: '512x512',
-            type: 'image/png'
+            name: 'My Collection',
+            short_name: 'Collection',
+            url: '/collection',
+            icons: [
+              { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' }
+            ]
           }
         ]
+        // TODO: Add screenshots for richer install UI
+        // screenshots: [
+        //   {
+        //     src: 'screenshots/desktop.png',
+        //     sizes: '1280x720',
+        //     type: 'image/png',
+        //     form_factor: 'wide',
+        //     label: 'VinylDeck collection view on desktop'
+        //   },
+        //   {
+        //     src: 'screenshots/mobile.png',
+        //     sizes: '390x844',
+        //     type: 'image/png',
+        //     form_factor: 'narrow',
+        //     label: 'VinylDeck collection view on mobile'
+        //   }
+        // ]
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globIgnores: ['**/apple-splash-*', '**/og-image*'],
         // SPA: serve index.html for all navigation requests (enables offline refresh)
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/api\//],
@@ -121,7 +143,31 @@ export default defineConfig({
           }
         ]
       }
-    })
+    }),
+    // pwa-assets injects <link rel="icon" href="/logo.svg"> (its source image).
+    // Replace with our hand-made favicon.svg for the browser tab icon.
+    // transformIndexHtml covers dev, generateBundle covers build.
+    {
+      name: 'pwa-favicon-override',
+      enforce: 'post' as const,
+      transformIndexHtml: {
+        order: 'post' as const,
+        handler: (html: string) =>
+          html.replace(
+            /<link rel="icon" href="\/logo\.svg"[^>]*>/,
+            '<link rel="icon" href="/favicon.svg" type="image/svg+xml">'
+          )
+      },
+      generateBundle(_, bundle) {
+        const html = bundle['index.html']
+        if (html?.type === 'asset' && typeof html.source === 'string') {
+          html.source = html.source.replace(
+            /<link rel="icon" href="\/logo\.svg"[^>]*>/,
+            '<link rel="icon" href="/favicon.svg" type="image/svg+xml">'
+          )
+        }
+      }
+    }
   ],
   build: {
     rollupOptions: {

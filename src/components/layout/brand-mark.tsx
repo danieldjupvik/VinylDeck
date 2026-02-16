@@ -21,7 +21,7 @@ export function BrandMark({
 }: BrandMarkProps): React.JSX.Element {
   return (
     <img
-      src="/logo.png"
+      src="/logo.svg"
       alt="VinylDeck"
       className={cn(
         sizeClasses[size],
