@@ -25,7 +25,7 @@ export function PaginationControls({
   return (
     <nav
       aria-label={t('collection.pagination.navigation')}
-      className="animate-in fade-in slide-in-from-bottom-3 flex items-center justify-center gap-4 duration-500"
+      className="flex items-center justify-center gap-4"
     >
       <Button
         variant="outline"

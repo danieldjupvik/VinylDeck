@@ -12,6 +12,7 @@ interface PreferencesStore {
   avatarSource: AvatarSource
   gravatarEmail: string
   lastSeenVersion: string | null
+  gravatarUrl: string | null
 
   // Actions
   setViewMode: (mode: ViewMode) => void
@@ -23,6 +24,7 @@ interface PreferencesStore {
    * @param version - Semver string (e.g., "0.3.0-beta.1")
    */
   setLastSeenVersion: (version: string) => void
+  setGravatarUrl: (url: string | null) => void
   resetAvatarSettings: () => void
 }
 
@@ -43,13 +45,19 @@ export const usePreferencesStore = create<PreferencesStore>()(
       avatarSource: 'discogs',
       gravatarEmail: '',
       lastSeenVersion: null,
+      gravatarUrl: null,
 
       setViewMode: (mode) => set({ viewMode: mode }),
       setAvatarSource: (source) => set({ avatarSource: source }),
       setGravatarEmail: (email) => set({ gravatarEmail: email }),
       setLastSeenVersion: (version) => set({ lastSeenVersion: version }),
+      setGravatarUrl: (url) => set({ gravatarUrl: url }),
       resetAvatarSettings: () =>
-        set({ avatarSource: 'discogs', gravatarEmail: '' })
+        set({
+          avatarSource: 'discogs',
+          gravatarEmail: '',
+          gravatarUrl: null
+        })
     }),
     { name: STORAGE_KEYS.PREFERENCES }
   )

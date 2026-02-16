@@ -22,6 +22,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/use-auth'
+import { usePreferences } from '@/hooks/use-preferences'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { isAuthError, OfflineNoCacheError } from '@/lib/errors'
 import { setOAuthRequestTokens } from '@/lib/oauth-session'
@@ -91,9 +92,14 @@ function LoginPage(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null)
   const [showSwitchDialog, setShowSwitchDialog] = useState(false)
 
+  const { avatarSource, gravatarUrl } = usePreferences()
+
   // Get cached profile data for "Welcome back" flow
   const username = profile?.username
-  const cachedAvatarUrl = profile?.avatar_url
+  const avatarUrl = profile?.avatar_url
+  const preferredAvatar = avatarSource === 'gravatar' ? gravatarUrl : avatarUrl
+  const fallbackAvatar = avatarSource === 'gravatar' ? avatarUrl : gravatarUrl
+  const resolvedAvatar = preferredAvatar ?? fallbackAvatar ?? undefined
 
   // Show "Welcome back" if tokens exist (even without cached profile when online)
   // When online without cached profile, establishSession will fetch it
@@ -203,10 +209,7 @@ function LoginPage(): React.JSX.Element {
           <Card className="lg:bg-card/80 z-10 w-full max-w-md gap-0 border-0 bg-transparent pt-0 pb-0 shadow-none lg:border lg:shadow-2xl lg:backdrop-blur-xl">
             <CardHeader className="pt-8 pb-6 text-center">
               {/* App logo with spin animation */}
-              <BrandMark
-                size="lg"
-                className="animate-in spin-in fill-mode-backwards mx-auto mb-6 delay-500 duration-700"
-              />
+              <BrandMark size="lg" className="mx-auto mb-6" />
               <CardTitle className="animate-in fade-in slide-in-from-bottom-2 fill-mode-backwards text-3xl delay-600 duration-500">
                 {t('app.name')}
               </CardTitle>
@@ -234,7 +237,7 @@ function LoginPage(): React.JSX.Element {
                   <div className="mb-4 flex flex-col items-center gap-3">
                     <UserAvatar
                       username={username}
-                      avatarUrl={cachedAvatarUrl}
+                      avatarUrl={resolvedAvatar}
                       isOnline={isOnline}
                     />
                     <p className="text-lg font-medium">

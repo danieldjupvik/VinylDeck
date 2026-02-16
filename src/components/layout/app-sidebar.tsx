@@ -57,11 +57,7 @@ export function AppSidebar(): React.JSX.Element {
               asChild
               className="gap-3 text-base hover:bg-transparent active:bg-transparent"
             >
-              <Link
-                to="/collection"
-                viewTransition
-                onClick={handleNavClick('/collection')}
-              >
+              <Link to="/collection" onClick={handleNavClick('/collection')}>
                 <BrandMark size="sm" />
                 <div className="grid flex-1 text-left leading-tight">
                   <span className="truncate font-semibold">
@@ -95,7 +91,6 @@ export function AppSidebar(): React.JSX.Element {
                     >
                       <Link
                         to="/collection"
-                        viewTransition
                         onClick={handleNavClick('/collection')}
                       >
                         <Disc3 />

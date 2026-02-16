@@ -157,7 +157,6 @@ export function CollectionToolbar({
           disabled={isRandomSort ? !canReshuffle : false}
           title={sortOrderLabel}
           aria-label={sortOrderLabel}
-          className="transition-all duration-200 hover:scale-110"
         >
           {isRandomSort ? (
             <Shuffle className="h-4 w-4" />

@@ -33,7 +33,17 @@ export function PreferencesProvider({
     (state) => state.setGravatarEmail
   )
 
-  const [gravatarUrl, setGravatarUrl] = useState<string | null>(null)
+  const storedGravatarUrl = usePreferencesStore((state) => state.gravatarUrl)
+  const setStoredGravatarUrl = usePreferencesStore(
+    (state) => state.setGravatarUrl
+  )
+
+  // Use stored URL as initial value to prevent flash on load.
+  // Validate it matches the current email to avoid stale data.
+  const expectedUrl = buildGravatarUrl(gravatarEmail, 128)
+  const [gravatarUrl, setGravatarUrl] = useState<string | null>(
+    storedGravatarUrl === expectedUrl ? storedGravatarUrl : null
+  )
 
   // Load Gravatar URL when email changes
   useEffect(() => {
@@ -47,11 +57,13 @@ export function PreferencesProvider({
     image.onload = () => {
       if (isActive) {
         setGravatarUrl(url)
+        setStoredGravatarUrl(url)
       }
     }
     image.onerror = () => {
       if (isActive) {
         setGravatarUrl(null)
+        setStoredGravatarUrl(null)
       }
     }
     image.src = url
@@ -59,7 +71,7 @@ export function PreferencesProvider({
     return () => {
       isActive = false
     }
-  }, [gravatarEmail])
+  }, [gravatarEmail, setStoredGravatarUrl])
 
   const setAvatarSource = useCallback(
     (source: AvatarSource): void => {
@@ -73,8 +85,9 @@ export function PreferencesProvider({
       const normalized = normalizeGravatarEmail(email)
       setGravatarEmailStore(normalized)
       setGravatarUrl(null)
+      setStoredGravatarUrl(null)
     },
-    [setGravatarEmailStore]
+    [setGravatarEmailStore, setStoredGravatarUrl]
   )
 
   // Derive effective gravatarUrl - null if email is empty (prevents stale URL after reset)

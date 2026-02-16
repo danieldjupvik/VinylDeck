@@ -135,7 +135,7 @@ function SettingsPage() {
   return (
     <>
       <div className="mx-auto w-full max-w-4xl p-4 sm:p-6">
-        <div className="animate-in fade-in slide-in-from-bottom-2 space-y-1 duration-500">
+        <div className="space-y-1">
           <h1 className="text-2xl font-bold">{t('settings.title')}</h1>
           <p className="text-muted-foreground text-sm">
             {t('settings.subtitle')}
@@ -143,7 +143,7 @@ function SettingsPage() {
         </div>
 
         <div className="mt-6 space-y-6">
-          <Card className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards delay-100 duration-500">
+          <Card>
             <CardHeader>
               <CardTitle>{t('settings.profile.title')}</CardTitle>
               <CardDescription>
@@ -248,7 +248,7 @@ function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards delay-150 duration-500">
+          <Card>
             <CardHeader>
               <CardTitle>{t('settings.appearance.title')}</CardTitle>
               <CardDescription>
@@ -349,7 +349,7 @@ function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards delay-200 duration-500">
+          <Card>
             <CardHeader>
               <CardTitle>{t('settings.about.title')}</CardTitle>
               <CardDescription>

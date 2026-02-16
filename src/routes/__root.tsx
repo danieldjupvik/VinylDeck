@@ -37,9 +37,7 @@ function NotFoundComponent() {
         size="fullScreen"
         action={
           <Button asChild variant="outline">
-            <Link to="/" viewTransition>
-              {t('errors.backHome')}
-            </Link>
+            <Link to="/">{t('errors.backHome')}</Link>
           </Button>
         }
       />

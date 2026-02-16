@@ -142,7 +142,6 @@ interface UseCollectionReturn {
   isFetching: boolean
   dataUpdatedAt: number
   refetch: () => Promise<unknown>
-  shouldAnimateCards: boolean
   isError: boolean
   error: Error | null
   pagination: {
@@ -286,7 +285,6 @@ export function useCollection(
     isLoading,
     isError,
     error,
-    isFetchedAfterMount,
     isFetching,
     dataUpdatedAt,
     refetch
@@ -357,10 +355,7 @@ export function useCollection(
     refetchOnWindowFocus: false
   })
 
-  const [hasCachedDataAtMount] = useState(() => data !== undefined)
-
   const releases = data?.releases
-  const shouldAnimateCards = !hasCachedDataAtMount && isFetchedAfterMount
 
   // Filter to vinyl only
   const vinylOnly = useMemo(() => {
@@ -683,7 +678,6 @@ export function useCollection(
     isFetching,
     dataUpdatedAt,
     refetch,
-    shouldAnimateCards,
     isError,
     error: error instanceof Error ? error : null,
     pagination,

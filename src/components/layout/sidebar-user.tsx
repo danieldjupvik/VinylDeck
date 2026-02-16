@@ -78,11 +78,7 @@ export function SidebarUser(): React.JSX.Element {
           isActive={isActive('/settings')}
           tooltip={t('nav.settings')}
         >
-          <Link
-            to="/settings"
-            viewTransition
-            onClick={handleNavClick('/settings')}
-          >
+          <Link to="/settings" onClick={handleNavClick('/settings')}>
             <Settings />
             <span>{t('nav.settings')}</span>
           </Link>

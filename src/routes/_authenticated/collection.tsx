@@ -28,7 +28,6 @@ function CollectionPage() {
     setViewMode(viewMode === 'grid' ? 'table' : 'grid')
   }
   const [isViewSwitching, setIsViewSwitching] = useState(false)
-  const [hasViewToggled, setHasViewToggled] = useState(false)
   const viewSwitchTimeoutRef = useRef<number | null>(null)
 
   const {
@@ -37,7 +36,6 @@ function CollectionPage() {
     isFetching,
     dataUpdatedAt,
     refetch,
-    shouldAnimateCards,
     isError,
     pagination,
     nonVinylCount,
@@ -164,7 +162,6 @@ function CollectionPage() {
   const handleViewToggle = () => {
     toggleView()
     setIsViewSwitching(true)
-    setHasViewToggled(true)
     if (viewSwitchTimeoutRef.current !== null) {
       window.clearTimeout(viewSwitchTimeoutRef.current)
     }
@@ -173,11 +170,7 @@ function CollectionPage() {
     }, 420)
   }
 
-  const shouldAnimateItems =
-    isViewSwitching || (shouldAnimateCards && !hasViewToggled)
-  const gridAnimationClassName = isViewSwitching
-    ? 'animate-view-switch'
-    : 'animate-card-pop'
+  const shouldAnimateItems = isViewSwitching
 
   if (isError) {
     return (
@@ -202,7 +195,7 @@ function CollectionPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div>
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <h1 className="text-2xl font-bold">{t('collection.title')}</h1>
           <div className="text-muted-foreground flex items-center gap-2 text-sm">
@@ -232,7 +225,7 @@ function CollectionPage() {
             })}
           </p>
           {showNonVinyl ? (
-            <div className="animate-in fade-in slide-in-from-right flex items-center gap-2 duration-500">
+            <div className="flex items-center gap-2">
               <span>{t('collection.nonVinylHidden')}</span>
               <Badge variant="secondary" className="font-normal">
                 {nonVinylSummary}
@@ -242,7 +235,7 @@ function CollectionPage() {
         </div>
       </div>
 
-      <div className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards delay-100 duration-500">
+      <div>
         <div className="bg-card/60 rounded-xl border p-4 shadow-sm backdrop-blur">
           <CollectionToolbar
             search={search}
@@ -275,7 +268,6 @@ function CollectionPage() {
           releases={filteredReleases}
           isLoading={isLoading || isFetching}
           shouldAnimate={shouldAnimateItems}
-          animationClassName={gridAnimationClassName}
           nonVinylCount={nonVinylCount}
           nonVinylBreakdown={nonVinylBreakdown}
         />
