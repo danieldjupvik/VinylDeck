@@ -11,16 +11,13 @@ import {
 import { useCrossTabAuthSync } from '@/hooks/use-cross-tab-auth-sync'
 import { useOnlineStatus } from '@/hooks/use-online-status'
 import { usePreferences } from '@/hooks/use-preferences'
-import {
-  type UserProfile,
-  USER_PROFILE_QUERY_KEY,
-  useUserProfile
-} from '@/hooks/use-user-profile'
+import { useUserProfile } from '@/hooks/use-user-profile'
 import { CACHE_NAMES } from '@/lib/constants'
 import { isAuthError, OfflineNoCacheError } from '@/lib/errors'
 import { queryPersister } from '@/lib/query-persister'
 import { trpc } from '@/lib/trpc'
 import { useAuthStore } from '@/stores/auth-store'
+import { useProfileCacheStore } from '@/stores/profile-cache-store'
 
 import { AuthContext, type AuthState } from './auth-context'
 
@@ -60,13 +57,18 @@ export function AuthProvider({
   // Online status
   const isOnline = useOnlineStatus()
 
-  // Track if IndexedDB cache is still being restored
+  // Track if IndexedDB cache is still being restored (needed for collection, cross-tab sync)
   const isRestoring = useIsRestoring()
 
-  // User profile from TanStack Query
+  // localStorage profile cache (synchronous — available before IndexedDB hydrates)
+  const hasProfileCache = useProfileCacheStore(
+    (state) => state.profile !== null
+  )
+
+  // User profile hook (reads/writes localStorage-backed Zustand store)
   const { fetchProfile, clearProfile } = useUserProfile()
 
-  // Query client for cache management
+  // Query client for cache management (collection, not profile)
   const queryClient = useQueryClient()
 
   // Track previous tokens to detect changes (for cross-account leakage prevention)
@@ -155,7 +157,7 @@ export function AuthProvider({
    */
   const clearAllCaches = useCallback(() => {
     queueMicrotask(() => {
-      // Clear TanStack Query in-memory cache
+      // Clear TanStack Query in-memory cache (collection data)
       queryClient.clear()
 
       // Clear IndexedDB via the persister (errors handled internally)
@@ -182,11 +184,8 @@ export function AuthProvider({
       void (async () => {
         try {
           const identity = await validateTokens(tokens)
-          // Tokens valid - ensure profile is cached
-          const cachedProfile = queryClient.getQueryData<UserProfile>(
-            USER_PROFILE_QUERY_KEY
-          )
-          if (!cachedProfile) {
+          // Tokens valid - ensure profile is cached (skip if already in localStorage)
+          if (!useProfileCacheStore.getState().profile) {
             try {
               const userProfile = await fetchProfile(identity.username, tokens)
               if (!latestGravatarEmailRef.current && userProfile.email) {
@@ -195,11 +194,10 @@ export function AuthProvider({
               }
             } catch {
               // Profile fetch failed but tokens are valid - set minimal profile
-              const minimalProfile: UserProfile = {
+              useProfileCacheStore.getState().setProfile({
                 id: identity.id,
                 username: identity.username
-              }
-              queryClient.setQueryData(USER_PROFILE_QUERY_KEY, minimalProfile)
+              })
             }
           }
         } catch (error: unknown) {
@@ -222,7 +220,6 @@ export function AuthProvider({
     },
     [
       validateTokens,
-      queryClient,
       fetchProfile,
       setGravatarEmail,
       disconnectStore,
@@ -267,10 +264,7 @@ export function AuthProvider({
           )
 
           // If we have a cached profile, trust it and authenticate (like offline mode)
-          const cachedProfile = queryClient.getQueryData<UserProfile>(
-            USER_PROFILE_QUERY_KEY
-          )
-          if (cachedProfile) {
+          if (useProfileCacheStore.getState().profile) {
             if (options.storeTokens) {
               setTokens(tokens)
             }
@@ -295,9 +289,7 @@ export function AuthProvider({
       }
 
       // Step 2: Fetch profile (conditionally based on cache and forceRefresh)
-      const cachedProfile = queryClient.getQueryData<UserProfile>(
-        USER_PROFILE_QUERY_KEY
-      )
+      const cachedProfile = useProfileCacheStore.getState().profile
       if (options.forceProfileRefresh || !cachedProfile) {
         try {
           const userProfile = await fetchProfile(identity.username, tokens)
@@ -311,11 +303,10 @@ export function AuthProvider({
             'Profile fetch failed, using identity data:',
             profileError
           )
-          const minimalProfile: UserProfile = {
+          useProfileCacheStore.getState().setProfile({
             id: identity.id,
             username: identity.username
-          }
-          queryClient.setQueryData(USER_PROFILE_QUERY_KEY, minimalProfile)
+          })
         }
       }
 
@@ -335,7 +326,6 @@ export function AuthProvider({
       validateTokens,
       disconnectStore,
       clearAllCaches,
-      queryClient,
       fetchProfile,
       setGravatarEmail,
       setTokens,
@@ -389,10 +379,7 @@ export function AuthProvider({
 
       // OFFLINE PATH: trust cached state if available
       if (!isOnline && !tokens) {
-        const cachedProfile = queryClient.getQueryData<UserProfile>(
-          USER_PROFILE_QUERY_KEY
-        )
-        if (!cachedProfile) {
+        if (!hasProfileCache) {
           setState((prev) => ({ ...prev, isLoading: false }))
           throw new OfflineNoCacheError()
         }
@@ -413,7 +400,13 @@ export function AuthProvider({
         storeTokens: Boolean(tokens)
       })
     },
-    [authTokens, isOnline, queryClient, setSessionActive, performAuthValidation]
+    [
+      authTokens,
+      isOnline,
+      hasProfileCache,
+      setSessionActive,
+      performAuthValidation
+    ]
   )
 
   // Initialize auth - Zustand hydrates synchronously from localStorage,
@@ -450,35 +443,22 @@ export function AuthProvider({
       return
     }
 
-    // OFFLINE GUARD: Wait for IndexedDB hydration before making auth decisions
-    // We need to know if cached profile exists before authenticating offline
-    if (!isOnline && isRestoring) {
-      // Keep showing loading state until hydration completes
-      // Effect will re-run when isRestoring becomes false
+    // OFFLINE WITHOUT CACHE: Cannot authenticate — no way to get username.
+    // Profile is in localStorage (synchronous), so no IndexedDB wait needed.
+    if (!isOnline && !hasProfileCache) {
+      hasInitializedRef.current = false
+      setState({
+        isAuthenticated: false,
+        isLoading: false,
+        isOnline,
+        hasStoredTokens: true,
+        oauthTokens: null
+      })
       return
     }
 
-    // OFFLINE WITHOUT CACHE: Cannot authenticate - no way to get username
-    // Fall back to "Welcome back" flow so user can re-authenticate when online
-    if (!isOnline) {
-      const cachedProfile = queryClient.getQueryData<UserProfile>(
-        USER_PROFILE_QUERY_KEY
-      )
-      if (!cachedProfile) {
-        hasInitializedRef.current = false
-        setState({
-          isAuthenticated: false,
-          isLoading: false,
-          isOnline,
-          hasStoredTokens: true,
-          oauthTokens: null
-        })
-        return
-      }
-    }
-
     // OPTIMISTIC AUTH: tokens + sessionActive = authenticate immediately
-    // Profile will load from IndexedDB in background, components handle their own loading
+    // Profile is available from localStorage, no async wait required
     hasInitializedRef.current = true
     setState({
       isAuthenticated: true,
@@ -493,8 +473,8 @@ export function AuthProvider({
     if (isOnline) {
       validateTokensInBackground(authTokens)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Network validation guarded by hasInitializedRef; isRestoring and queryClient are stable refs
-  }, [authTokens, sessionActive, isOnline, isRestoring])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Network validation guarded by hasInitializedRef
+  }, [authTokens, sessionActive, isOnline, hasProfileCache])
 
   // Sync derived auth state when Zustand store changes (cross-tab sync)
   useCrossTabAuthSync({
@@ -549,7 +529,7 @@ export function AuthProvider({
    * Clears all tokens, profile cache, and IndexedDB data.
    */
   const disconnect = useCallback((): void => {
-    // Store's disconnect() handles token and preference cleanup
+    // Store's disconnect() handles token, preference, and profile cleanup
     disconnectStore()
     clearAllCaches()
 

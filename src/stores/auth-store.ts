@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware'
 
 import { STORAGE_KEYS } from '@/lib/storage-keys'
 import { usePreferencesStore } from '@/stores/preferences-store'
+import { useProfileCacheStore } from '@/stores/profile-cache-store'
 
 interface AuthTokens {
   accessToken: string
@@ -53,6 +54,8 @@ export const useAuthStore = create<AuthStore>()(
       disconnect: () => {
         // Reset avatar preferences to prevent cross-account data leakage
         usePreferencesStore.getState().resetAvatarSettings()
+        // Clear cached profile from localStorage
+        useProfileCacheStore.getState().clearProfile()
 
         set({
           tokens: null,
