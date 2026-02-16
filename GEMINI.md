@@ -565,3 +565,15 @@ Detects collection changes via fast metadata check (count only):
 **Cross-tab auth sync** prevents stale authenticated sessions.
 
 **Redirect validation** blocks open redirect attacks via protocol/path checks.
+
+## Temporary Workarounds
+
+### Zod v3/v4 TanStack Router Patch (TODO: Remove when fixed upstream)
+
+**Tracking:** [TanStack/router#6138](https://github.com/TanStack/router/issues/6138) | **Fix PR:** [#6652](https://github.com/TanStack/router/pull/6652)
+
+`@tanstack/router-generator` depends on `zod@^3.24.2`, which bun resolves to `3.25.x` (the "Mini" bridge release with broken v3 compat). This crashes the Vite build at plugin init time.
+
+**Workaround:** `scripts/patch-tanstack-zod-imports.mjs` rewrites TanStack's `from "zod"` imports to `from "zod/v3"` after every install. Runs via `postinstall` hook and before `build`.
+
+**When to remove:** Once TanStack Router ships zod v4 support (check the tracking issue above), delete `scripts/patch-tanstack-zod-imports.mjs`, remove the `patch:tanstack-zod` script, remove it from `build` and `postinstall` in `package.json`.

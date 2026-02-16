@@ -7,10 +7,12 @@
     "dev": "concurrently -n api,vite -c blue,green \"bun run dev:api\" \"vite\"",
     "dev:vite": "vite",
     "dev:api": "bun run scripts/dev-server.ts",
-    "build": "tsc -b && vite build",
+    "patch:tanstack-zod": "bun run scripts/patch-tanstack-zod-imports.mjs",
+    "build": "bun run patch:tanstack-zod && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "preview:offline": "bun run build && concurrently -n api,preview -c blue,green \"bun run dev:api\" \"vite preview\"",
+    "postinstall": "bun run patch:tanstack-zod",
     "prepare": "husky"
   },
   "dependencies": {
