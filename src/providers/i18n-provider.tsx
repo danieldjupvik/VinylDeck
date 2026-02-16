@@ -1,4 +1,5 @@
-import i18next from 'i18next'
+// eslint-disable-next-line import-x/no-named-as-default -- i18next default export shares name with named exports; default is the configured instance
+import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
 import { STORAGE_KEYS } from '@/lib/storage-keys'
@@ -36,7 +37,7 @@ const readStoredLanguage = () => {
 }
 
 // eslint-disable-next-line import-x/no-named-as-default-member -- i18next default export is the configured instance used for chaining
-void i18next.use(initReactI18next).init({
+void i18n.use(initReactI18next).init({
   resources: {
     en: {
       translation: enTranslation
@@ -55,7 +56,7 @@ void i18next.use(initReactI18next).init({
 })
 
 if (typeof window !== 'undefined') {
-  i18next.on('languageChanged', (language) => {
+  i18n.on('languageChanged', (language) => {
     try {
       localStorage.setItem(STORAGE_KEYS.LANGUAGE, normalizeLanguage(language))
     } catch (error) {
@@ -64,4 +65,4 @@ if (typeof window !== 'undefined') {
   })
 }
 
-export default i18next
+export default i18n
