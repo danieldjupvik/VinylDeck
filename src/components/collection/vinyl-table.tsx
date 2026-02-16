@@ -1,7 +1,7 @@
-import { Disc3 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { BrandMark } from '@/components/layout/brand-mark'
 import {
   Table,
   TableBody,
@@ -81,7 +81,7 @@ function VinylTableRow({
           />
         ) : (
           <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-sm">
-            <Disc3 className="text-muted-foreground/70 h-5 w-5" />
+            <BrandMark decorative className="w-5 opacity-40" />
           </div>
         )}
       </TableCell>

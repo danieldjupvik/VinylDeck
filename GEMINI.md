@@ -545,6 +545,10 @@ Detects collection changes via fast metadata check (count only):
 4. Banner: "5 new items detected - Refresh"
 5. User clicks refresh → background refetch with old data shown
 
+### Known Limitations
+
+- **Non-vinyl stats require all pages:** `nonVinylCount`/`nonVinylBreakdown` in `useCollection` compute from `releases`, which is only the current page when `shouldFetchAllPages` is false. The `hasCompleteCollection` guard hides the badge, but stats are wrong for multi-page collections in default view. Fix when improving pagination, filtering, and backend API load.
+
 ## Theme Management
 
 `next-themes` with FOUC prevention:

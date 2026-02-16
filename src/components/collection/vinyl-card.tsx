@@ -1,6 +1,7 @@
 import { Disc3 } from 'lucide-react'
 import { useState } from 'react'
 
+import { BrandMark } from '@/components/layout/brand-mark'
 import { getLimitedGenreParts } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 import type { CollectionRelease } from '@/types/discogs'
@@ -261,7 +262,7 @@ export function VinylCard({
           />
         ) : (
           <div className="bg-muted flex h-full w-full items-center justify-center">
-            <Disc3 className="text-muted-foreground h-20 w-20 opacity-30" />
+            <BrandMark size="md" decorative className="opacity-20" />
           </div>
         )}
 

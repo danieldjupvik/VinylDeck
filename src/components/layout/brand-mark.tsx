@@ -5,6 +5,7 @@ type BrandMarkSize = 'sm' | 'md' | 'lg'
 interface BrandMarkProps {
   size?: BrandMarkSize
   spinning?: boolean
+  decorative?: boolean
   className?: string
 }
 
@@ -17,12 +18,14 @@ const sizeClasses: Record<BrandMarkSize, string> = {
 export function BrandMark({
   size = 'md',
   spinning = false,
+  decorative = false,
   className
 }: BrandMarkProps): React.JSX.Element {
   return (
     <img
       src="/logo.svg"
-      alt="VinylDeck"
+      alt={decorative ? '' : 'VinylDeck'}
+      aria-hidden={decorative || undefined}
       className={cn(
         sizeClasses[size],
         spinning && 'animate-vinyl-spin',

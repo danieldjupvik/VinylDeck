@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/common/empty-state'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useCollection } from '@/hooks/use-collection'
+import { useHydrationState } from '@/providers/hydration-context'
 import { usePreferencesStore } from '@/stores/preferences-store'
 
 export const Route = createFileRoute('/_authenticated/collection')({
@@ -21,6 +22,7 @@ function CollectionPage() {
   const { t, i18n } = useTranslation()
   const [page, setPage] = useState(1)
   const [now, setNow] = useState(() => Date.now())
+  const { hasHydrated } = useHydrationState()
   const viewMode = usePreferencesStore((state) => state.viewMode)
   const setViewMode = usePreferencesStore((state) => state.setViewMode)
 
@@ -263,31 +265,35 @@ function CollectionPage() {
         </div>
       </div>
 
-      {viewMode === 'grid' ? (
-        <VinylGrid
-          releases={filteredReleases}
-          isLoading={isLoading || isFetching}
-          shouldAnimate={shouldAnimateItems}
-          nonVinylCount={nonVinylCount}
-          nonVinylBreakdown={nonVinylBreakdown}
-        />
-      ) : (
-        <VinylTable
-          releases={filteredReleases}
-          isLoading={isLoading || isFetching}
-          shouldAnimate={shouldAnimateItems}
-          nonVinylCount={nonVinylCount}
-          nonVinylBreakdown={nonVinylBreakdown}
-        />
-      )}
+      {hasHydrated ? (
+        <>
+          {viewMode === 'grid' ? (
+            <VinylGrid
+              releases={filteredReleases}
+              isLoading={isLoading || isFetching}
+              shouldAnimate={shouldAnimateItems}
+              nonVinylCount={nonVinylCount}
+              nonVinylBreakdown={nonVinylBreakdown}
+            />
+          ) : (
+            <VinylTable
+              releases={filteredReleases}
+              isLoading={isLoading || isFetching}
+              shouldAnimate={shouldAnimateItems}
+              nonVinylCount={nonVinylCount}
+              nonVinylBreakdown={nonVinylBreakdown}
+            />
+          )}
 
-      {pagination ? (
-        <PaginationControls
-          page={pagination.page}
-          totalPages={pagination.pages}
-          onPageChange={setPage}
-          isLoading={isLoading}
-        />
+          {pagination ? (
+            <PaginationControls
+              page={pagination.page}
+              totalPages={pagination.pages}
+              onPageChange={setPage}
+              isLoading={isLoading}
+            />
+          ) : null}
+        </>
       ) : null}
     </div>
   )

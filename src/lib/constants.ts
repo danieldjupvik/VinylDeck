@@ -11,7 +11,7 @@ export const THEME = {
 } as const
 
 export const COLLECTION = {
-  PER_PAGE: 5
+  PER_PAGE: 17
 } as const
 
 /**
