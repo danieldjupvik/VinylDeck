@@ -18,6 +18,21 @@ interface AuthProviderProps {
   children: ReactNode
 }
 
+type DiscogsIdentity = {
+  username: string
+  id: number
+}
+
+function createMinimalProfile(identity: DiscogsIdentity): {
+  id: number
+  username: string
+} {
+  return {
+    id: identity.id,
+    username: identity.username
+  }
+}
+
 /**
  * Provides authentication state and methods to the app.
  * Handles OAuth token validation, session management, and cross-tab sync.
@@ -127,7 +142,7 @@ export function AuthProvider({
   const validateTokens = async (tokens: {
     accessToken: string
     accessTokenSecret: string
-  }): Promise<{ username: string; id: number }> => {
+  }): Promise<DiscogsIdentity> => {
     const identity = await trpcUtils.client.discogs.getIdentity.query({
       accessToken: tokens.accessToken,
       accessTokenSecret: tokens.accessTokenSecret
@@ -186,10 +201,9 @@ export function AuthProvider({
             }
           } catch {
             // Profile fetch failed but tokens are valid - set minimal profile
-            useProfileCacheStore.getState().setProfile({
-              id: identity.id,
-              username: identity.username
-            })
+            useProfileCacheStore
+              .getState()
+              .setProfile(createMinimalProfile(identity))
           }
         }
       } catch (error: unknown) {
@@ -226,7 +240,7 @@ export function AuthProvider({
     options: { forceProfileRefresh: boolean; storeTokens: boolean }
   ): Promise<void> => {
     // Step 1: Validate tokens
-    let identity: { username: string; id: number }
+    let identity: DiscogsIdentity
     try {
       identity = await validateTokens(tokens)
     } catch (error) {
@@ -285,10 +299,9 @@ export function AuthProvider({
       } catch (profileError) {
         // Profile fetch failed but tokens are valid - set minimal profile
         console.warn('Profile fetch failed, using identity data:', profileError)
-        useProfileCacheStore.getState().setProfile({
-          id: identity.id,
-          username: identity.username
-        })
+        useProfileCacheStore
+          .getState()
+          .setProfile(createMinimalProfile(identity))
       }
     }
 

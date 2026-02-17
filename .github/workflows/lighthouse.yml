@@ -47,11 +47,15 @@ jobs:
       - name: Resolve base URL
         id: base_url
         shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PREVIEW_URL: ${{ steps.vercel_preview.outputs.url }}
+          BASE_INPUT: ${{ inputs.base_url }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            base="${{ steps.vercel_preview.outputs.url }}"
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            base="$PREVIEW_URL"
           else
-            base="${{ inputs.base_url }}"
+            base="$BASE_INPUT"
           fi
 
           base="${base%/}"
@@ -68,14 +72,17 @@ jobs:
       - name: Create LHCI config (mobile)
         if: steps.base_url.outputs.run_lighthouse == 'true'
         shell: bash
+        env:
+          BASE: ${{ steps.base_url.outputs.base }}
         run: |
-          base="${{ steps.base_url.outputs.base }}"
+          base_escaped="${BASE//\\/\\\\}"
+          base_escaped="${base_escaped//\"/\\\"}"
           cat > /tmp/lhci-mobile.json <<EOF
           {
             "ci": {
               "collect": {
                 "numberOfRuns": 3,
-                "url": ["$base", "$base/login"],
+                "url": ["$base_escaped", "$base_escaped/login"],
                 "settings": {
                   "chromeFlags": "--no-sandbox --disable-dev-shm-usage"
                 }
@@ -100,14 +107,17 @@ jobs:
       - name: Create LHCI config (desktop)
         if: steps.base_url.outputs.run_lighthouse == 'true'
         shell: bash
+        env:
+          BASE: ${{ steps.base_url.outputs.base }}
         run: |
-          base="${{ steps.base_url.outputs.base }}"
+          base_escaped="${BASE//\\/\\\\}"
+          base_escaped="${base_escaped//\"/\\\"}"
           cat > /tmp/lhci-desktop.json <<EOF
           {
             "ci": {
               "collect": {
                 "numberOfRuns": 3,
-                "url": ["$base", "$base/login"],
+                "url": ["$base_escaped", "$base_escaped/login"],
                 "settings": {
                   "preset": "desktop",
                   "chromeFlags": "--no-sandbox --disable-dev-shm-usage"
