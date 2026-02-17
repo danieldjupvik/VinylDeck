@@ -339,6 +339,11 @@ The facade (`src/server/discogs/`) wraps two libraries: **@lionralfs/discogs-cli
 
 Discogs endpoint return types are centralized in `src/types/discogs/index.ts` via `DiscojsAPI['methodName']` mapped types. OAuth token shapes are defined in `src/types/discogs/oauth.ts`.
 
+Type reuse policy for Discogs-backed data:
+
+- Prefer importing types from `@/types/discogs` and deriving local shapes with `Pick`/`Omit`/`Partial` instead of duplicating interfaces.
+- Define a local interface only when the app intentionally stores a reduced/synthesized shape (for example, offline/minimal fallback data), and keep that reason explicit in nearby docs.
+
 **Available procedures:**
 
 - `oauth.getRequestToken` / `oauth.getAccessToken` - OAuth flow
