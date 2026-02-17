@@ -50,7 +50,7 @@ export const useAuthStore = create<AuthStore>()(
       // Sign out: clear session, keep tokens for "welcome back"
       signOut: () => set({ sessionActive: false }),
 
-      // Disconnect: clear auth tokens (profile cleanup done by auth provider)
+      // Disconnect: clear auth tokens, avatar preferences, and profile cache
       disconnect: () => {
         // Reset avatar preferences to prevent cross-account data leakage
         usePreferencesStore.getState().resetAvatarSettings()

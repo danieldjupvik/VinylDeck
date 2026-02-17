@@ -347,7 +347,9 @@ export function AuthProvider({
 
     // OFFLINE PATH: trust cached state if available
     if (!isOnline && !tokens) {
-      if (!hasProfileCache) {
+      const hasCachedProfile = useProfileCacheStore.getState().profile !== null
+
+      if (!hasCachedProfile) {
         setState((prev) => ({ ...prev, isLoading: false }))
         throw new OfflineNoCacheError()
       }
