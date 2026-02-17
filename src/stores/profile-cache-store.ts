@@ -4,8 +4,10 @@ import { persist } from 'zustand/middleware'
 import { STORAGE_KEYS } from '@/lib/storage-keys'
 import type { User } from '@/types/discogs'
 
-export type UserProfile = Pick<User, 'id' | 'username'> &
-  Partial<Pick<User, 'avatar_url' | 'email'>>
+export type UserProfile = Pick<User, 'id' | 'username'> & {
+  avatar_url?: User['avatar_url'] | undefined
+  email?: User['email'] | undefined
+}
 
 interface ProfileCacheStore {
   profile: UserProfile | null
