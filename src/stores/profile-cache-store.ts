@@ -2,13 +2,10 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 import { STORAGE_KEYS } from '@/lib/storage-keys'
+import type { User } from '@/types/discogs'
 
-export interface UserProfile {
-  id: number
-  username: string
-  avatar_url?: string
-  email?: string
-}
+export type UserProfile = Pick<User, 'id' | 'username'> &
+  Partial<Pick<User, 'avatar_url' | 'email'>>
 
 interface ProfileCacheStore {
   profile: UserProfile | null

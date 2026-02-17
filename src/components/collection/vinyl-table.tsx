@@ -23,8 +23,8 @@ interface VinylTableProps {
   releases: CollectionRelease[]
   isLoading: boolean
   shouldAnimate: boolean
-  nonVinylCount?: number
-  nonVinylBreakdown?: NonVinylBreakdownItem[]
+  nonVinylCount?: number | undefined
+  nonVinylBreakdown?: NonVinylBreakdownItem[] | undefined
 }
 
 const formatFormats = (formats: Format[]) => {
