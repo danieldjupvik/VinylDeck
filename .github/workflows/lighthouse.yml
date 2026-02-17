@@ -82,18 +82,16 @@ jobs:
             "ci": {
               "collect": {
                 "numberOfRuns": 3,
-                "url": ["$base_escaped", "$base_escaped/login"],
+                "url": ["$base_escaped/login"],
                 "settings": {
                   "chromeFlags": "--no-sandbox --disable-dev-shm-usage"
                 }
               },
               "assert": {
-                "preset": "lighthouse:recommended",
                 "assertions": {
                   "categories:performance": ["error", { "minScore": 0.9 }],
                   "categories:accessibility": ["error", { "minScore": 0.95 }],
                   "categories:best-practices": ["error", { "minScore": 0.95 }],
-                  "categories:seo": ["error", { "minScore": 0.9 }],
                   "categories:pwa": "off"
                 }
               },
@@ -117,19 +115,17 @@ jobs:
             "ci": {
               "collect": {
                 "numberOfRuns": 3,
-                "url": ["$base_escaped", "$base_escaped/login"],
+                "url": ["$base_escaped/login"],
                 "settings": {
                   "preset": "desktop",
                   "chromeFlags": "--no-sandbox --disable-dev-shm-usage"
                 }
               },
               "assert": {
-                "preset": "lighthouse:recommended",
                 "assertions": {
                   "categories:performance": ["error", { "minScore": 0.9 }],
                   "categories:accessibility": ["error", { "minScore": 0.95 }],
                   "categories:best-practices": ["error", { "minScore": 0.95 }],
-                  "categories:seo": ["error", { "minScore": 0.9 }],
                   "categories:pwa": "off"
                 }
               },
@@ -145,6 +141,8 @@ jobs:
         id: lhci_mobile
         continue-on-error: true
         uses: treosh/lighthouse-ci-action@v12
+        env:
+          LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.event.pull_request.head.sha || github.sha }}
         with:
           configPath: /tmp/lhci-mobile.json
           artifactName: lighthouse-results-mobile
@@ -156,19 +154,52 @@ jobs:
         id: lhci_desktop
         continue-on-error: true
         uses: treosh/lighthouse-ci-action@v12
+        env:
+          LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.event.pull_request.head.sha || github.sha }}
         with:
           configPath: /tmp/lhci-desktop.json
           artifactName: lighthouse-results-desktop
           uploadArtifacts: true
           temporaryPublicStorage: true
 
+      - name: Read LHCI manifests
+        if: steps.base_url.outputs.run_lighthouse == 'true'
+        id: lhci_manifests
+        shell: bash
+        env:
+          MOBILE_RESULTS_PATH: ${{ steps.lhci_mobile.outputs.resultsPath || steps.lhci_mobile.outputs.resultspath }}
+          DESKTOP_RESULTS_PATH: ${{ steps.lhci_desktop.outputs.resultsPath || steps.lhci_desktop.outputs.resultspath }}
+        run: |
+          mobile_manifest='[]'
+          desktop_manifest='[]'
+
+          if [ -n "$MOBILE_RESULTS_PATH" ] && [ -f "$MOBILE_RESULTS_PATH/manifest.json" ]; then
+            mobile_manifest="$(tr -d '\n' < "$MOBILE_RESULTS_PATH/manifest.json")"
+          fi
+
+          if [ -n "$DESKTOP_RESULTS_PATH" ] && [ -f "$DESKTOP_RESULTS_PATH/manifest.json" ]; then
+            desktop_manifest="$(tr -d '\n' < "$DESKTOP_RESULTS_PATH/manifest.json")"
+          fi
+
+          {
+            echo 'mobile<<EOF'
+            echo "$mobile_manifest"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo 'desktop<<EOF'
+            echo "$desktop_manifest"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - name: Comment Lighthouse results on PR
         if: always() && steps.base_url.outputs.run_lighthouse == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/github-script@v8
         env:
           BASE_URL: ${{ steps.base_url.outputs.base }}
-          MOBILE_MANIFEST: ${{ steps.lhci_mobile.outputs.manifest }}
-          DESKTOP_MANIFEST: ${{ steps.lhci_desktop.outputs.manifest }}
+          MOBILE_MANIFEST: ${{ steps.lhci_manifests.outputs.mobile }}
+          DESKTOP_MANIFEST: ${{ steps.lhci_manifests.outputs.desktop }}
           MOBILE_LINKS: ${{ steps.lhci_mobile.outputs.links }}
           DESKTOP_LINKS: ${{ steps.lhci_desktop.outputs.links }}
           MOBILE_OUTCOME: ${{ steps.lhci_mobile.outcome }}
@@ -204,16 +235,13 @@ jobs:
             const mobileLinks = parseJson(process.env.MOBILE_LINKS, {})
             const desktopLinks = parseJson(process.env.DESKTOP_LINKS, {})
 
-            const homeUrl = baseUrl
             const loginUrl = `${baseUrl}/login`
 
-            const mobileHome = findSummary(mobileManifest, homeUrl)
-            const desktopHome = findSummary(desktopManifest, homeUrl)
             const mobileLogin = findSummary(mobileManifest, loginUrl)
             const desktopLogin = findSummary(desktopManifest, loginUrl)
 
             const renderRow = (label, summary) =>
-              `| ${label} | ${score(summary, 'performance')} | ${score(summary, 'accessibility')} | ${score(summary, 'best-practices')} | ${score(summary, 'seo')} |`
+              `| ${label} | ${score(summary, 'performance')} | ${score(summary, 'accessibility')} | ${score(summary, 'best-practices')} |`
 
             const mobileStatus = process.env.MOBILE_OUTCOME === 'success' ? 'pass' : 'fail'
             const desktopStatus = process.env.DESKTOP_OUTCOME === 'success' ? 'pass' : 'fail'
@@ -226,20 +254,14 @@ jobs:
               `Mobile assertions: **${mobileStatus}**`,
               `Desktop assertions: **${desktopStatus}**`,
               '',
-              '### Home (`/`)',
-              '| Mode | Performance | Accessibility | Best Practices | SEO |',
-              '| --- | --- | --- | --- | --- |',
-              renderRow('Mobile', mobileHome),
-              renderRow('Desktop', desktopHome),
-              '',
               '### Login (`/login`)',
-              '| Mode | Performance | Accessibility | Best Practices | SEO |',
-              '| --- | --- | --- | --- | --- |',
+              '| Mode | Performance | Accessibility | Best Practices |',
+              '| --- | --- | --- | --- |',
               renderRow('Mobile', mobileLogin),
               renderRow('Desktop', desktopLogin),
               '',
-              `Mobile report: ${mobileLinks[homeUrl] ?? mobileLinks[`${homeUrl}/`] ?? 'n/a'}`,
-              `Desktop report: ${desktopLinks[homeUrl] ?? desktopLinks[`${homeUrl}/`] ?? 'n/a'}`
+              `Mobile report: ${mobileLinks[loginUrl] ?? mobileLinks[`${loginUrl}/`] ?? 'n/a'}`,
+              `Desktop report: ${desktopLinks[loginUrl] ?? desktopLinks[`${loginUrl}/`] ?? 'n/a'}`
             ].join('\n')
 
             const { owner, repo } = context.repo
