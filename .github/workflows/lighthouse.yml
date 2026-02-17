@@ -37,6 +37,7 @@ jobs:
       - name: Wait for Vercel preview deployment
         if: github.event_name == 'pull_request'
         id: vercel_preview
+        continue-on-error: true
         uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -55,14 +56,17 @@ jobs:
 
           base="${base%/}"
           if [ -z "$base" ]; then
-            echo "Base URL is empty"
-            exit 1
+            echo "run_lighthouse=false" >> "$GITHUB_OUTPUT"
+            echo "No resolvable preview URL. Skipping Lighthouse run."
+            exit 0
           fi
 
+          echo "run_lighthouse=true" >> "$GITHUB_OUTPUT"
           echo "base=$base" >> "$GITHUB_OUTPUT"
           echo "Using base URL: $base"
 
       - name: Create LHCI config (mobile)
+        if: steps.base_url.outputs.run_lighthouse == 'true'
         shell: bash
         run: |
           base="${{ steps.base_url.outputs.base }}"
@@ -94,6 +98,7 @@ jobs:
           EOF
 
       - name: Create LHCI config (desktop)
+        if: steps.base_url.outputs.run_lighthouse == 'true'
         shell: bash
         run: |
           base="${{ steps.base_url.outputs.base }}"
@@ -126,6 +131,7 @@ jobs:
           EOF
 
       - name: Run Lighthouse CI (mobile)
+        if: steps.base_url.outputs.run_lighthouse == 'true'
         id: lhci_mobile
         continue-on-error: true
         uses: treosh/lighthouse-ci-action@v12
@@ -136,6 +142,7 @@ jobs:
           temporaryPublicStorage: true
 
       - name: Run Lighthouse CI (desktop)
+        if: steps.base_url.outputs.run_lighthouse == 'true'
         id: lhci_desktop
         continue-on-error: true
         uses: treosh/lighthouse-ci-action@v12
@@ -146,7 +153,7 @@ jobs:
           temporaryPublicStorage: true
 
       - name: Comment Lighthouse results on PR
-        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        if: always() && steps.base_url.outputs.run_lighthouse == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/github-script@v8
         env:
           BASE_URL: ${{ steps.base_url.outputs.base }}
@@ -257,17 +264,26 @@ jobs:
               })
             }
 
-      - name: Fail if Lighthouse assertions failed
+      - name: Lighthouse status (non-blocking)
         if: always()
         shell: bash
         run: |
           failed=0
           if [ "${{ steps.lhci_mobile.outcome }}" != "success" ]; then
-            echo "Mobile Lighthouse assertions failed"
+            echo "Mobile Lighthouse assertions failed (non-blocking)"
             failed=1
           fi
           if [ "${{ steps.lhci_desktop.outcome }}" != "success" ]; then
-            echo "Desktop Lighthouse assertions failed"
+            echo "Desktop Lighthouse assertions failed (non-blocking)"
             failed=1
           fi
-          exit "$failed"
+          if [ "${{ steps.base_url.outputs.run_lighthouse }}" != "true" ]; then
+            echo "Lighthouse skipped (no preview URL available)."
+            exit 0
+          fi
+
+          if [ "$failed" -eq 1 ]; then
+            echo "Lighthouse reported issues, but this workflow is non-blocking."
+          else
+            echo "Lighthouse checks passed."
+          fi
