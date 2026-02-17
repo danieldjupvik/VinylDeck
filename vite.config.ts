@@ -3,7 +3,7 @@ import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 import packageJson from './package.json'
@@ -16,6 +16,51 @@ function replacePwaLogoFavicon(html: string): string {
     ICON_LINK_PATTERN,
     '<link rel="icon" href="/favicon.svg" type="image/svg+xml">'
   )
+}
+
+function createPwaFaviconOverridePlugin(): Plugin {
+  let replacedFaviconInTransform = false
+  let missedFaviconReplacementInTransform = false
+
+  return {
+    name: 'pwa-favicon-override',
+    enforce: 'post' as const,
+    buildStart() {
+      replacedFaviconInTransform = false
+      missedFaviconReplacementInTransform = false
+    },
+    transformIndexHtml: {
+      order: 'post' as const,
+      handler: (html: string) => {
+        const replacedHtml = replacePwaLogoFavicon(html)
+        const didReplace = replacedHtml !== html
+
+        replacedFaviconInTransform = replacedFaviconInTransform || didReplace
+        missedFaviconReplacementInTransform =
+          missedFaviconReplacementInTransform || !didReplace
+
+        return replacedHtml
+      }
+    },
+    generateBundle(_, bundle) {
+      const html = bundle['index.html']
+      if (html?.type === 'asset' && typeof html.source === 'string') {
+        const source = html.source
+        const replacedHtml = replacePwaLogoFavicon(source)
+        const didReplaceInBundle = replacedHtml !== source
+        html.source = replacedHtml
+
+        if (
+          !didReplaceInBundle &&
+          (missedFaviconReplacementInTransform || !replacedFaviconInTransform)
+        ) {
+          console.warn(
+            'pwa-favicon-override: no <link rel="icon" ...logo.svg> tag was replaced; inspect emitted <link rel="icon"> tags from pwa-assets.'
+          )
+        }
+      }
+    }
+  }
 }
 
 // https://vite.dev/config/
@@ -72,23 +117,6 @@ export default defineConfig({
             ]
           }
         ]
-        // TODO: Add screenshots for richer install UI
-        // screenshots: [
-        //   {
-        //     src: 'screenshots/desktop.png',
-        //     sizes: '1280x720',
-        //     type: 'image/png',
-        //     form_factor: 'wide',
-        //     label: 'VinylDeck collection view on desktop'
-        //   },
-        //   {
-        //     src: 'screenshots/mobile.png',
-        //     sizes: '390x844',
-        //     type: 'image/png',
-        //     form_factor: 'narrow',
-        //     label: 'VinylDeck collection view on mobile'
-        //   }
-        // ]
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
@@ -157,20 +185,7 @@ export default defineConfig({
     // pwa-assets injects <link rel="icon" href="/logo.svg"> (its source image).
     // Replace with our hand-made favicon.svg for the browser tab icon.
     // transformIndexHtml covers dev, generateBundle covers build.
-    {
-      name: 'pwa-favicon-override',
-      enforce: 'post' as const,
-      transformIndexHtml: {
-        order: 'post' as const,
-        handler: (html: string) => replacePwaLogoFavicon(html)
-      },
-      generateBundle(_, bundle) {
-        const html = bundle['index.html']
-        if (html?.type === 'asset' && typeof html.source === 'string') {
-          html.source = replacePwaLogoFavicon(html.source)
-        }
-      }
-    }
+    createPwaFaviconOverridePlugin()
   ],
   build: {
     rollupOptions: {

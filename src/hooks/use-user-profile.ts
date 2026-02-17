@@ -14,6 +14,12 @@ import {
  * - Call fetchProfile() on login/continue/reconnect (forceProfileRefresh)
  * - Normal page refreshes use the cached profile without network requests
  * - Profile is cleared when disconnect() is called
+ *
+ * @returns Object containing profile cache state and actions:
+ * profile (`UserProfile | undefined`), isFetching (`boolean`), error (`Error | null`),
+ * fetchProfile (`(username: string, tokens: { accessToken: string; accessTokenSecret: string }) => Promise<UserProfile>`; `username` is the Discogs username and `tokens` is the OAuth token pair),
+ * clearProfile (`() => void`)
+ * @throws {Error} Returned fetchProfile throws when profile fetching fails
  */
 export function useUserProfile(): {
   profile: UserProfile | undefined

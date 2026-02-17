@@ -30,6 +30,15 @@ interface ProfileCacheStore {
  * localStorage-backed user profile store.
  * Replaces IndexedDB (TanStack Query) persistence for profile data.
  * Provides synchronous access on first render — no hydration wait.
+ * State includes profile plus the actions setProfile(profile) and clearProfile().
+ * Persists under STORAGE_KEYS.PROFILE.
+ *
+ * @returns ProfileCacheStore state and actions for profile cache management
+ *
+ * @example
+ * ```ts
+ * const { profile, setProfile, clearProfile } = useProfileCacheStore()
+ * ```
  */
 export const useProfileCacheStore = create<ProfileCacheStore>()(
   persist(

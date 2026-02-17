@@ -27,7 +27,7 @@ interface AuthStore {
  * Zustand store for authentication state.
  * Automatically persists to localStorage under 'vinyldeck-auth' key.
  *
- * Note: User profile is persisted separately in localStorage via profile-cache-store.
+ * Note: User profile is persisted separately in localStorage via useProfileCacheStore.
  * This store only manages auth credentials and session state.
  *
  * Two-tier auth system:
