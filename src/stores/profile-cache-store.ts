@@ -9,7 +9,7 @@ export type UserProfile = Pick<User, 'id' | 'username'> & {
   email?: User['email'] | undefined
 }
 
-interface ProfileCacheStore {
+export interface ProfileCacheStore {
   profile: UserProfile | null
 
   /**
