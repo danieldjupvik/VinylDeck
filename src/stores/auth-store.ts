@@ -27,8 +27,8 @@ interface AuthStore {
  * Zustand store for authentication state.
  * Automatically persists to localStorage under 'vinyldeck-auth' key.
  *
- * Note: User profile is stored separately in TanStack Query (IndexedDB)
- * via the useUserProfile hook. This store only manages auth credentials.
+ * Note: User profile is persisted separately in localStorage via profile-cache-store.
+ * This store only manages auth credentials and session state.
  *
  * Two-tier auth system:
  * - signOut(): Ends session, keeps tokens for "welcome back"

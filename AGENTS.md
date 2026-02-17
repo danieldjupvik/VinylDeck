@@ -224,7 +224,12 @@ Routes in `src/routes/` using TanStack Router's file-based routing:
 - `_authenticated/collection.tsx` - Collection page
 - `_authenticated/settings.tsx` - Settings page
 
-**View Transitions:** Use `viewTransition` prop on `<Link>` for smooth page transitions. Configured in `src/index.css` with fade animations that respect `prefers-reduced-motion`.
+**View Transitions policy:**
+
+- Use `viewTransition` on user-initiated `<Link>` navigation in unauthenticated/auth-boundary flows (example: `/oauth-callback` -> `/login`).
+- Do not use `viewTransition` for links inside `src/routes/_authenticated/**` (including collection and settings pages).
+- Do not add `viewTransition` to programmatic navigation (`navigate`) or page-load redirect effects.
+- Transition styles are configured in `src/index.css` and already respect `prefers-reduced-motion`.
 
 ## Code Quality & Linting
 

@@ -10,6 +10,7 @@ export const THEME = {
   STORAGE_KEY: 'vinyldeck-theme'
 } as const
 
+/** Collection pagination settings; PER_PAGE is the number of items per page. */
 export const COLLECTION = {
   PER_PAGE: 17
 } as const

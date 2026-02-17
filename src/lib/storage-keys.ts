@@ -4,7 +4,7 @@
  * All storage keys should be defined here for consistency.
  */
 export const STORAGE_KEYS = {
-  /** localStorage (via Zustand): OAuth tokens, session state, username, userId, cachedProfile */
+  /** localStorage (via Zustand): OAuth tokens, session state, username, userId */
   AUTH: 'vinyldeck-auth',
   /** localStorage (via Zustand): viewMode, avatarSource, gravatarEmail */
   PREFERENCES: 'vinyldeck-prefs',

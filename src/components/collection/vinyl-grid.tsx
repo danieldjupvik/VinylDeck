@@ -9,8 +9,8 @@ interface VinylGridProps {
   releases: CollectionRelease[]
   isLoading: boolean
   shouldAnimate: boolean
-  nonVinylCount?: number
-  nonVinylBreakdown?: NonVinylBreakdownItem[]
+  nonVinylCount?: number | undefined
+  nonVinylBreakdown?: NonVinylBreakdownItem[] | undefined
 }
 
 export function VinylGrid({

@@ -270,7 +270,7 @@ function CollectionPage() {
           {viewMode === 'grid' ? (
             <VinylGrid
               releases={filteredReleases}
-              isLoading={isLoading || isFetching}
+              isLoading={isLoading}
               shouldAnimate={shouldAnimateItems}
               nonVinylCount={nonVinylCount}
               nonVinylBreakdown={nonVinylBreakdown}
@@ -278,7 +278,7 @@ function CollectionPage() {
           ) : (
             <VinylTable
               releases={filteredReleases}
-              isLoading={isLoading || isFetching}
+              isLoading={isLoading}
               shouldAnimate={shouldAnimateItems}
               nonVinylCount={nonVinylCount}
               nonVinylBreakdown={nonVinylBreakdown}

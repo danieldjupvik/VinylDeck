@@ -244,7 +244,9 @@ function OAuthCallbackPage() {
           )}
           {effectiveStatus === 'error' && (
             <Button asChild variant="outline">
-              <Link to="/login">{t('auth.backToLogin')}</Link>
+              <Link to="/login" viewTransition>
+                {t('auth.backToLogin')}
+              </Link>
             </Button>
           )}
         </CardContent>

@@ -8,6 +8,16 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 import packageJson from './package.json'
 
+const ICON_LINK_PATTERN =
+  /<link(?=[^>]*\brel=["']icon["'])(?=[^>]*\bhref=["'][^"']*logo\.svg["'])[^>]*>/gi
+
+function replacePwaLogoFavicon(html: string): string {
+  return html.replace(
+    ICON_LINK_PATTERN,
+    '<link rel="icon" href="/favicon.svg" type="image/svg+xml">'
+  )
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   define: {
@@ -152,19 +162,12 @@ export default defineConfig({
       enforce: 'post' as const,
       transformIndexHtml: {
         order: 'post' as const,
-        handler: (html: string) =>
-          html.replace(
-            /<link rel="icon" href="\/logo\.svg"[^>]*>/,
-            '<link rel="icon" href="/favicon.svg" type="image/svg+xml">'
-          )
+        handler: (html: string) => replacePwaLogoFavicon(html)
       },
       generateBundle(_, bundle) {
         const html = bundle['index.html']
         if (html?.type === 'asset' && typeof html.source === 'string') {
-          html.source = html.source.replace(
-            /<link rel="icon" href="\/logo\.svg"[^>]*>/,
-            '<link rel="icon" href="/favicon.svg" type="image/svg+xml">'
-          )
+          html.source = replacePwaLogoFavicon(html.source)
         }
       }
     }

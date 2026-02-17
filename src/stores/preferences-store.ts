@@ -24,6 +24,12 @@ interface PreferencesStore {
    * @param version - Semver string (e.g., "0.3.0-beta.1")
    */
   setLastSeenVersion: (version: string) => void
+  /**
+   * Stores the resolved Gravatar URL for avatar rendering.
+   *
+   * @param url - Resolved Gravatar URL or null when not available
+   * @returns void
+   */
   setGravatarUrl: (url: string | null) => void
   resetAvatarSettings: () => void
 }
@@ -37,6 +43,7 @@ interface PreferencesStore {
  * - avatarSource
  * - gravatarEmail
  * - lastSeenVersion
+ * - gravatarUrl
  */
 export const usePreferencesStore = create<PreferencesStore>()(
   persist(
