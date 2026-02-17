@@ -5,17 +5,13 @@ updates:
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
+    target-branch: main
     groups:
-      patch-updates:
-        update-types:
-          - patch
-      minor-updates:
-        update-types:
-          - minor
-      major-updates:
-        update-types:
-          - major
+      non-major:
+        update-types: [minor, patch]
+      major:
+        update-types: [major]
     commit-message:
       prefix: chore
       include: scope
@@ -25,16 +21,13 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    open-pull-requests-limit: 5
+    target-branch: main
     groups:
-      patch-updates:
-        update-types:
-          - patch
-      minor-updates:
-        update-types:
-          - minor
-      major-updates:
-        update-types:
-          - major
+      non-major:
+        update-types: [minor, patch]
+      major:
+        update-types: [major]
     commit-message:
       prefix: chore
       include: scope
