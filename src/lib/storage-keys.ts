@@ -4,10 +4,12 @@
  * All storage keys should be defined here for consistency.
  */
 export const STORAGE_KEYS = {
-  /** localStorage (via Zustand): OAuth tokens, session state, username, userId, cachedProfile */
+  /** localStorage (via Zustand): OAuth tokens, session state, username, userId */
   AUTH: 'vinyldeck-auth',
   /** localStorage (via Zustand): viewMode, avatarSource, gravatarEmail */
   PREFERENCES: 'vinyldeck-prefs',
+  /** localStorage (via Zustand): cached user profile for instant display */
+  PROFILE: 'vinyldeck-profile',
   /** localStorage (via next-themes): theme preference (light/dark/system) */
   THEME: 'vinyldeck-theme',
   /** localStorage (via i18next): language preference */

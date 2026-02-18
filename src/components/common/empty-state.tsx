@@ -55,11 +55,7 @@ export function EmptyState({
         className
       )}
     >
-      {icon ? (
-        <div className="animate-in spin-in fill-mode-backwards text-muted-foreground duration-700">
-          {icon}
-        </div>
-      ) : null}
+      {icon ? <div className="text-muted-foreground">{icon}</div> : null}
       {!icon && iconText ? (
         <span
           className="text-8xl font-bold tracking-tighter opacity-20"

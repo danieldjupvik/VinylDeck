@@ -55,6 +55,7 @@
     "oauthDenied": "Autorisasjon ble avvist.",
     "oauthMissingParams": "Manglende autentiseringsparametere.",
     "oauthSessionExpired": "Din forrige økt utløp. Vennligst logg inn igjen.",
+    "oauthInternetRequired": "Internettforbindelse kreves for å fullføre innlogging med Discogs.",
     "offlineNoCachedData": "Kan ikke fortsette uten internett. Koble til for å fortsette.",
     "offlineCannotContinue": "Du er frakoblet. Koble til internett for å fortsette.",
     "welcomeBackGeneric": "Velkommen tilbake",

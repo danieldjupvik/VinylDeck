@@ -1,7 +1,8 @@
-import { ExternalLink, GhostIcon } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { EmptyState } from '@/components/common/empty-state'
+import { BrandMark } from '@/components/layout/brand-mark'
 import { Button } from '@/components/ui/button'
 import type { NonVinylBreakdownItem } from '@/types/collection'
 
@@ -34,7 +35,7 @@ export function CollectionEmptyState({
 
   return (
     <EmptyState
-      icon={<GhostIcon className="h-16 w-16" />}
+      icon={<BrandMark size="lg" decorative className="opacity-50" />}
       title={t('collection.emptyState.title')}
       description={description}
       size="fullHeight"

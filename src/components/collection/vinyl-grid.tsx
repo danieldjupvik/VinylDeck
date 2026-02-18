@@ -9,16 +9,14 @@ interface VinylGridProps {
   releases: CollectionRelease[]
   isLoading: boolean
   shouldAnimate: boolean
-  animationClassName?: string
-  nonVinylCount?: number
-  nonVinylBreakdown?: NonVinylBreakdownItem[]
+  nonVinylCount?: number | undefined
+  nonVinylBreakdown?: NonVinylBreakdownItem[] | undefined
 }
 
 export function VinylGrid({
   releases,
   isLoading,
   shouldAnimate,
-  animationClassName,
   nonVinylCount,
   nonVinylBreakdown
 }: VinylGridProps): React.JSX.Element {
@@ -47,11 +45,7 @@ export function VinylGrid({
       {releases.map((release, index) => (
         <div
           key={release.instance_id}
-          className={
-            shouldAnimate
-              ? (animationClassName ?? 'animate-card-pop')
-              : undefined
-          }
+          className={shouldAnimate ? 'animate-view-switch' : undefined}
           style={
             shouldAnimate
               ? { animationDelay: `${Math.min(index * 30, 300)}ms` }

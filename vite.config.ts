@@ -3,10 +3,65 @@ import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 import packageJson from './package.json'
+
+const ICON_LINK_PATTERN =
+  /<link(?=[^>]*\brel=["']icon["'])(?=[^>]*\bhref=["'][^"']*logo\.svg["'])[^>]*>/gi
+
+function replacePwaLogoFavicon(html: string): string {
+  return html.replace(
+    ICON_LINK_PATTERN,
+    '<link rel="icon" href="/favicon.svg" type="image/svg+xml">'
+  )
+}
+
+function createPwaFaviconOverridePlugin(): Plugin {
+  let replacedFaviconInTransform = false
+  let missedFaviconReplacementInTransform = false
+
+  return {
+    name: 'pwa-favicon-override',
+    enforce: 'post' as const,
+    buildStart() {
+      replacedFaviconInTransform = false
+      missedFaviconReplacementInTransform = false
+    },
+    transformIndexHtml: {
+      order: 'post' as const,
+      handler: (html: string) => {
+        const replacedHtml = replacePwaLogoFavicon(html)
+        const didReplace = replacedHtml !== html
+
+        replacedFaviconInTransform = replacedFaviconInTransform || didReplace
+        missedFaviconReplacementInTransform =
+          missedFaviconReplacementInTransform || !didReplace
+
+        return replacedHtml
+      }
+    },
+    generateBundle(_, bundle) {
+      const html = bundle['index.html']
+      if (html?.type === 'asset' && typeof html.source === 'string') {
+        const source = html.source
+        const replacedHtml = replacePwaLogoFavicon(source)
+        const didReplaceInBundle = replacedHtml !== source
+        html.source = replacedHtml
+
+        if (
+          !didReplaceInBundle &&
+          (missedFaviconReplacementInTransform || !replacedFaviconInTransform)
+        ) {
+          console.warn(
+            'pwa-favicon-override: no <link rel="icon" ...logo.svg> tag was replaced; inspect emitted <link rel="icon"> tags from pwa-assets.'
+          )
+        }
+      }
+    }
+  }
+}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -38,7 +93,10 @@ export default defineConfig({
       devOptions: {
         enabled: false
       },
-      includeAssets: ['icons/*.png'],
+      pwaAssets: {
+        config: true,
+        overrideManifestIcons: true
+      },
       manifest: {
         name: 'VinylDeck',
         short_name: 'VinylDeck',
@@ -46,21 +104,23 @@ export default defineConfig({
         theme_color: '#09090b',
         background_color: '#09090b',
         display: 'standalone',
-        icons: [
+        orientation: 'any',
+        id: '/',
+        categories: ['entertainment', 'music'],
+        shortcuts: [
           {
-            src: 'icons/icon-192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'icons/icon-512.png',
-            sizes: '512x512',
-            type: 'image/png'
+            name: 'My Collection',
+            short_name: 'Collection',
+            url: '/collection',
+            icons: [
+              { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' }
+            ]
           }
         ]
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globIgnores: ['**/apple-splash-*', '**/og-image*'],
         // SPA: serve index.html for all navigation requests (enables offline refresh)
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/api\//],
@@ -121,7 +181,11 @@ export default defineConfig({
           }
         ]
       }
-    })
+    }),
+    // pwa-assets injects <link rel="icon" href="/logo.svg"> (its source image).
+    // Replace with our hand-made favicon.svg for the browser tab icon.
+    // transformIndexHtml covers dev, generateBundle covers build.
+    createPwaFaviconOverridePlugin()
   ],
   build: {
     rollupOptions: {

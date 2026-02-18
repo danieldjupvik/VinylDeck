@@ -1,31 +1,36 @@
 import { useIsRestoring, useQueryClient } from '@tanstack/react-query'
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode
-} from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 
 import { useCrossTabAuthSync } from '@/hooks/use-cross-tab-auth-sync'
 import { useOnlineStatus } from '@/hooks/use-online-status'
 import { usePreferences } from '@/hooks/use-preferences'
-import {
-  type UserProfile,
-  USER_PROFILE_QUERY_KEY,
-  useUserProfile
-} from '@/hooks/use-user-profile'
+import { useUserProfile } from '@/hooks/use-user-profile'
 import { CACHE_NAMES } from '@/lib/constants'
 import { isAuthError, OfflineNoCacheError } from '@/lib/errors'
 import { queryPersister } from '@/lib/query-persister'
 import { trpc } from '@/lib/trpc'
 import { useAuthStore } from '@/stores/auth-store'
+import { useProfileCacheStore } from '@/stores/profile-cache-store'
 
 import { AuthContext, type AuthState } from './auth-context'
 
 interface AuthProviderProps {
   children: ReactNode
+}
+
+type DiscogsIdentity = {
+  username: string
+  id: number
+}
+
+function createMinimalProfile(identity: DiscogsIdentity): {
+  id: number
+  username: string
+} {
+  return {
+    id: identity.id,
+    username: identity.username
+  }
 }
 
 /**
@@ -60,13 +65,18 @@ export function AuthProvider({
   // Online status
   const isOnline = useOnlineStatus()
 
-  // Track if IndexedDB cache is still being restored
+  // Track if IndexedDB cache is still being restored (needed for collection, cross-tab sync)
   const isRestoring = useIsRestoring()
 
-  // User profile from TanStack Query
+  // localStorage profile cache (synchronous — available before IndexedDB hydrates)
+  const hasProfileCache = useProfileCacheStore(
+    (state) => state.profile !== null
+  )
+
+  // User profile hook (reads/writes localStorage-backed Zustand store)
   const { fetchProfile, clearProfile } = useUserProfile()
 
-  // Query client for cache management
+  // Query client for cache management (collection, not profile)
   const queryClient = useQueryClient()
 
   // Track previous tokens to detect changes (for cross-account leakage prevention)
@@ -129,20 +139,17 @@ export function AuthProvider({
    * Validates OAuth tokens by fetching identity from the server.
    * Does NOT fetch profile - use establishSession for that.
    */
-  const validateTokens = useCallback(
-    async (tokens: {
-      accessToken: string
-      accessTokenSecret: string
-    }): Promise<{ username: string; id: number }> => {
-      const identity = await trpcUtils.client.discogs.getIdentity.query({
-        accessToken: tokens.accessToken,
-        accessTokenSecret: tokens.accessTokenSecret
-      })
+  const validateTokens = async (tokens: {
+    accessToken: string
+    accessTokenSecret: string
+  }): Promise<DiscogsIdentity> => {
+    const identity = await trpcUtils.client.discogs.getIdentity.query({
+      accessToken: tokens.accessToken,
+      accessTokenSecret: tokens.accessTokenSecret
+    })
 
-      return identity
-    },
-    [trpcUtils.client.discogs.getIdentity]
-  )
+    return identity
+  }
 
   /**
    * Clears all cached data: TanStack Query, IndexedDB, and browser caches.
@@ -153,9 +160,9 @@ export function AuthProvider({
    * another component (AuthProvider). This happens because queryClient.clear()
    * synchronously notifies cache subscribers via useSyncExternalStore.
    */
-  const clearAllCaches = useCallback(() => {
+  const clearAllCaches = (): void => {
     queueMicrotask(() => {
-      // Clear TanStack Query in-memory cache
+      // Clear TanStack Query in-memory cache (collection data)
       queryClient.clear()
 
       // Clear IndexedDB via the persister (errors handled internally)
@@ -170,84 +177,36 @@ export function AuthProvider({
         })
       }
     })
-  }, [queryClient])
+  }
 
   /**
    * Validates OAuth tokens in the background without affecting loading state.
    * Used for optimistic auth - user sees authenticated UI immediately,
    * validation happens silently. Only disconnects on definitive auth errors (401/403).
    */
-  const validateTokensInBackground = useCallback(
-    (tokens: { accessToken: string; accessTokenSecret: string }) => {
-      void (async () => {
-        try {
-          const identity = await validateTokens(tokens)
-          // Tokens valid - ensure profile is cached
-          const cachedProfile = queryClient.getQueryData<UserProfile>(
-            USER_PROFILE_QUERY_KEY
-          )
-          if (!cachedProfile) {
-            try {
-              const userProfile = await fetchProfile(identity.username, tokens)
-              if (!latestGravatarEmailRef.current && userProfile.email) {
-                latestGravatarEmailRef.current = userProfile.email
-                setGravatarEmail(userProfile.email)
-              }
-            } catch {
-              // Profile fetch failed but tokens are valid - set minimal profile
-              const minimalProfile: UserProfile = {
-                id: identity.id,
-                username: identity.username
-              }
-              queryClient.setQueryData(USER_PROFILE_QUERY_KEY, minimalProfile)
-            }
-          }
-        } catch (error: unknown) {
-          // Only disconnect on auth errors (401/403) - tokens are definitively invalid
-          if (isAuthError(error)) {
-            disconnectStore()
-            clearAllCaches()
-            setState({
-              isAuthenticated: false,
-              isLoading: false,
-              isOnline: isOnlineRef.current,
-              hasStoredTokens: false,
-              oauthTokens: null
-            })
-          }
-          // Transient errors are silently ignored - user stays authenticated
-          // and we'll retry on next opportunity (window focus, etc.)
-        }
-      })()
-    },
-    [
-      validateTokens,
-      queryClient,
-      fetchProfile,
-      setGravatarEmail,
-      disconnectStore,
-      clearAllCaches
-    ]
-  )
-
-  /**
-   * Core auth validation flow shared by validateOAuthTokens and establishSession.
-   * Validates tokens, handles errors, fetches profile, and updates session state.
-   *
-   * @param tokens - OAuth tokens to validate
-   * @param options.forceProfileRefresh - Always fetch profile even if cached
-   * @param options.storeTokens - Whether to persist tokens to store
-   */
-  const performAuthValidation = useCallback(
-    async (
-      tokens: { accessToken: string; accessTokenSecret: string },
-      options: { forceProfileRefresh: boolean; storeTokens: boolean }
-    ): Promise<void> => {
-      // Step 1: Validate tokens
-      let identity: { username: string; id: number }
+  const validateTokensInBackground = (tokens: {
+    accessToken: string
+    accessTokenSecret: string
+  }): void => {
+    void (async () => {
       try {
-        identity = await validateTokens(tokens)
-      } catch (error) {
+        const identity = await validateTokens(tokens)
+        // Tokens valid - ensure profile is cached (skip if already in localStorage)
+        if (!useProfileCacheStore.getState().profile) {
+          try {
+            const userProfile = await fetchProfile(identity.username, tokens)
+            if (!latestGravatarEmailRef.current && userProfile.email) {
+              latestGravatarEmailRef.current = userProfile.email
+              setGravatarEmail(userProfile.email)
+            }
+          } catch {
+            // Profile fetch failed but tokens are valid - set minimal profile
+            useProfileCacheStore
+              .getState()
+              .setProfile(createMinimalProfile(identity))
+          }
+        }
+      } catch (error: unknown) {
         // Only disconnect on auth errors (401/403) - tokens are definitively invalid
         if (isAuthError(error)) {
           disconnectStore()
@@ -259,113 +218,126 @@ export function AuthProvider({
             hasStoredTokens: false,
             oauthTokens: null
           })
-        } else {
-          // Transient error (network, 5xx) - keep tokens, try to use cached state
-          console.warn(
-            'Token validation failed due to transient error, will retry later:',
-            error
-          )
+        }
+        // Transient errors are silently ignored - user stays authenticated
+        // and we'll retry on next opportunity (window focus, etc.)
+      }
+    })()
+  }
+  const validateTokensInBackgroundRef = useRef(validateTokensInBackground)
+  validateTokensInBackgroundRef.current = validateTokensInBackground
 
-          // If we have a cached profile, trust it and authenticate (like offline mode)
-          const cachedProfile = queryClient.getQueryData<UserProfile>(
-            USER_PROFILE_QUERY_KEY
-          )
-          if (cachedProfile) {
-            if (options.storeTokens) {
-              setTokens(tokens)
-            }
-            setSessionActive(true)
-            setState((prev) => ({
-              ...prev,
-              isAuthenticated: true,
-              isLoading: false,
-              oauthTokens: tokens
-            }))
-            return
+  /**
+   * Core auth validation flow shared by validateOAuthTokens and establishSession.
+   * Validates tokens, handles errors, fetches profile, and updates session state.
+   *
+   * @param tokens - OAuth tokens to validate
+   * @param options.forceProfileRefresh - Always fetch profile even if cached
+   * @param options.storeTokens - Whether to persist tokens to store
+   */
+  const performAuthValidation = async (
+    tokens: { accessToken: string; accessTokenSecret: string },
+    options: { forceProfileRefresh: boolean; storeTokens: boolean }
+  ): Promise<void> => {
+    // Step 1: Validate tokens
+    let identity: DiscogsIdentity
+    try {
+      identity = await validateTokens(tokens)
+    } catch (error) {
+      // Only disconnect on auth errors (401/403) - tokens are definitively invalid
+      if (isAuthError(error)) {
+        disconnectStore()
+        clearAllCaches()
+        setState({
+          isAuthenticated: false,
+          isLoading: false,
+          isOnline: isOnlineRef.current,
+          hasStoredTokens: false,
+          oauthTokens: null
+        })
+      } else {
+        // Transient error (network, 5xx) - keep tokens, try to use cached state
+        console.warn(
+          'Token validation failed due to transient error, will retry later:',
+          error
+        )
+
+        // If we have a cached profile, trust it and authenticate (like offline mode)
+        if (useProfileCacheStore.getState().profile) {
+          if (options.storeTokens) {
+            setTokens(tokens)
           }
-
-          // No cached profile - can't authenticate, but keep tokens for retry
+          setSessionActive(true)
           setState((prev) => ({
             ...prev,
+            isAuthenticated: true,
             isLoading: false,
-            hasStoredTokens: true
+            oauthTokens: tokens
           }))
+          return
         }
-        throw error
-      }
 
-      // Step 2: Fetch profile (conditionally based on cache and forceRefresh)
-      const cachedProfile = queryClient.getQueryData<UserProfile>(
-        USER_PROFILE_QUERY_KEY
-      )
-      if (options.forceProfileRefresh || !cachedProfile) {
-        try {
-          const userProfile = await fetchProfile(identity.username, tokens)
-          if (!latestGravatarEmailRef.current && userProfile.email) {
-            latestGravatarEmailRef.current = userProfile.email
-            setGravatarEmail(userProfile.email)
-          }
-        } catch (profileError) {
-          // Profile fetch failed but tokens are valid - set minimal profile
-          console.warn(
-            'Profile fetch failed, using identity data:',
-            profileError
-          )
-          const minimalProfile: UserProfile = {
-            id: identity.id,
-            username: identity.username
-          }
-          queryClient.setQueryData(USER_PROFILE_QUERY_KEY, minimalProfile)
+        // No cached profile - can't authenticate, but keep tokens for retry
+        setState((prev) => ({
+          ...prev,
+          isLoading: false,
+          hasStoredTokens: true
+        }))
+      }
+      throw error
+    }
+
+    // Step 2: Fetch profile (conditionally based on cache and forceRefresh)
+    const cachedProfile = useProfileCacheStore.getState().profile
+    if (options.forceProfileRefresh || !cachedProfile) {
+      try {
+        const userProfile = await fetchProfile(identity.username, tokens)
+        if (!latestGravatarEmailRef.current && userProfile.email) {
+          latestGravatarEmailRef.current = userProfile.email
+          setGravatarEmail(userProfile.email)
         }
+      } catch (profileError) {
+        // Profile fetch failed but tokens are valid - set minimal profile
+        console.warn('Profile fetch failed, using identity data:', profileError)
+        useProfileCacheStore
+          .getState()
+          .setProfile(createMinimalProfile(identity))
       }
+    }
 
-      // Step 3: Finalize session
-      if (options.storeTokens) {
-        setTokens(tokens)
-      }
-      setSessionActive(true)
-      setState((prev) => ({
-        ...prev,
-        isAuthenticated: true,
-        isLoading: false,
-        oauthTokens: tokens
-      }))
-    },
-    [
-      validateTokens,
-      disconnectStore,
-      clearAllCaches,
-      queryClient,
-      fetchProfile,
-      setGravatarEmail,
-      setTokens,
-      setSessionActive
-    ]
-  )
+    // Step 3: Finalize session
+    if (options.storeTokens) {
+      setTokens(tokens)
+    }
+    setSessionActive(true)
+    setState((prev) => ({
+      ...prev,
+      isAuthenticated: true,
+      isLoading: false,
+      oauthTokens: tokens
+    }))
+  }
 
   /**
    * Validates OAuth tokens in the background.
    * Called on page load when online to verify tokens are still valid.
    * Only fetches profile if not already cached.
    */
-  const validateOAuthTokens = useCallback(
-    async (tokens?: {
-      accessToken: string
-      accessTokenSecret: string
-    }): Promise<void> => {
-      const tokensToValidate = tokens ?? authTokens
-      if (!tokensToValidate) {
-        throw new Error('No OAuth tokens found')
-      }
+  const validateOAuthTokens = async (tokens?: {
+    accessToken: string
+    accessTokenSecret: string
+  }): Promise<void> => {
+    const tokensToValidate = tokens ?? authTokens
+    if (!tokensToValidate) {
+      throw new Error('No OAuth tokens found')
+    }
 
-      setState((prev) => ({ ...prev, isLoading: true }))
-      await performAuthValidation(tokensToValidate, {
-        forceProfileRefresh: false,
-        storeTokens: Boolean(tokens)
-      })
-    },
-    [authTokens, performAuthValidation]
-  )
+    setState((prev) => ({ ...prev, isLoading: true }))
+    await performAuthValidation(tokensToValidate, {
+      forceProfileRefresh: false,
+      storeTokens: Boolean(tokens)
+    })
+  }
 
   /**
    * Establishes a full session: validates tokens and fetches fresh profile.
@@ -375,54 +347,42 @@ export function AuthProvider({
    * state without network validation. If offline with no cached profile,
    * throws OfflineNoCacheError.
    */
-  const establishSession = useCallback(
-    async (tokens?: {
-      accessToken: string
-      accessTokenSecret: string
-    }): Promise<void> => {
-      const tokensToUse = tokens ?? authTokens
-      if (!tokensToUse) {
-        throw new Error('No OAuth tokens found')
+  const establishSession = async (tokens?: {
+    accessToken: string
+    accessTokenSecret: string
+  }): Promise<void> => {
+    const tokensToUse = tokens ?? authTokens
+    if (!tokensToUse) {
+      throw new Error('No OAuth tokens found')
+    }
+
+    setState((prev) => ({ ...prev, isLoading: true }))
+
+    // OFFLINE PATH: trust cached state if available
+    if (!isOnline && !tokens) {
+      const hasCachedProfile = useProfileCacheStore.getState().profile !== null
+
+      if (!hasCachedProfile) {
+        setState((prev) => ({ ...prev, isLoading: false }))
+        throw new OfflineNoCacheError()
       }
 
-      setState((prev) => ({ ...prev, isLoading: true }))
+      setSessionActive(true)
+      setState((prev) => ({
+        ...prev,
+        isAuthenticated: true,
+        isLoading: false,
+        oauthTokens: tokensToUse
+      }))
+      return
+    }
 
-      // OFFLINE PATH: trust cached state if available
-      if (!isOnline) {
-        const cachedProfile = queryClient.getQueryData<UserProfile>(
-          USER_PROFILE_QUERY_KEY
-        )
-        if (!cachedProfile) {
-          setState((prev) => ({ ...prev, isLoading: false }))
-          throw new OfflineNoCacheError()
-        }
-
-        if (tokens) setTokens(tokens)
-        setSessionActive(true)
-        setState((prev) => ({
-          ...prev,
-          isAuthenticated: true,
-          isLoading: false,
-          oauthTokens: tokensToUse
-        }))
-        return
-      }
-
-      // ONLINE PATH: validate and fetch fresh profile
-      await performAuthValidation(tokensToUse, {
-        forceProfileRefresh: true,
-        storeTokens: Boolean(tokens)
-      })
-    },
-    [
-      authTokens,
-      isOnline,
-      queryClient,
-      setTokens,
-      setSessionActive,
-      performAuthValidation
-    ]
-  )
+    // ONLINE PATH: validate and fetch fresh profile
+    await performAuthValidation(tokensToUse, {
+      forceProfileRefresh: true,
+      storeTokens: Boolean(tokens)
+    })
+  }
 
   // Initialize auth - Zustand hydrates synchronously from localStorage,
   // so we can be optimistic immediately if tokens + sessionActive exist
@@ -458,35 +418,22 @@ export function AuthProvider({
       return
     }
 
-    // OFFLINE GUARD: Wait for IndexedDB hydration before making auth decisions
-    // We need to know if cached profile exists before authenticating offline
-    if (!isOnline && isRestoring) {
-      // Keep showing loading state until hydration completes
-      // Effect will re-run when isRestoring becomes false
+    // OFFLINE WITHOUT CACHE: Cannot authenticate — no way to get username.
+    // Profile is in localStorage (synchronous), so no IndexedDB wait needed.
+    if (!isOnline && !hasProfileCache) {
+      hasInitializedRef.current = false
+      setState({
+        isAuthenticated: false,
+        isLoading: false,
+        isOnline,
+        hasStoredTokens: true,
+        oauthTokens: null
+      })
       return
     }
 
-    // OFFLINE WITHOUT CACHE: Cannot authenticate - no way to get username
-    // Fall back to "Welcome back" flow so user can re-authenticate when online
-    if (!isOnline) {
-      const cachedProfile = queryClient.getQueryData<UserProfile>(
-        USER_PROFILE_QUERY_KEY
-      )
-      if (!cachedProfile) {
-        hasInitializedRef.current = false
-        setState({
-          isAuthenticated: false,
-          isLoading: false,
-          isOnline,
-          hasStoredTokens: true,
-          oauthTokens: null
-        })
-        return
-      }
-    }
-
     // OPTIMISTIC AUTH: tokens + sessionActive = authenticate immediately
-    // Profile will load from IndexedDB in background, components handle their own loading
+    // Profile is available from localStorage, no async wait required
     hasInitializedRef.current = true
     setState({
       isAuthenticated: true,
@@ -499,10 +446,10 @@ export function AuthProvider({
     // If online, validate tokens in background (user won't see a loader)
     // If validation fails (401/403), user will be disconnected
     if (isOnline) {
-      validateTokensInBackground(authTokens)
+      validateTokensInBackgroundRef.current(authTokens)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Network validation guarded by hasInitializedRef; isRestoring and queryClient are stable refs
-  }, [authTokens, sessionActive, isOnline, isRestoring])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Network validation guarded by hasInitializedRef
+  }, [authTokens, sessionActive, isOnline, hasProfileCache])
 
   // Sync derived auth state when Zustand store changes (cross-tab sync)
   useCrossTabAuthSync({
@@ -527,21 +474,15 @@ export function AuthProvider({
       state.isAuthenticated &&
       authTokens
     ) {
-      validateTokensInBackground(authTokens)
+      validateTokensInBackgroundRef.current(authTokens)
     }
-  }, [
-    isOnline,
-    sessionActive,
-    state.isAuthenticated,
-    authTokens,
-    validateTokensInBackground
-  ])
+  }, [isOnline, sessionActive, state.isAuthenticated, authTokens])
 
   /**
    * Sign out - ends session but preserves OAuth tokens.
    * User will see "Welcome back" flow on next login.
    */
-  const signOut = useCallback((): void => {
+  const signOut = (): void => {
     signOutStore()
 
     setState((prev) => ({
@@ -550,14 +491,14 @@ export function AuthProvider({
       isLoading: false,
       oauthTokens: null
     }))
-  }, [signOutStore])
+  }
 
   /**
    * Disconnect - fully removes Discogs authorization.
    * Clears all tokens, profile cache, and IndexedDB data.
    */
-  const disconnect = useCallback((): void => {
-    // Store's disconnect() handles token and preference cleanup
+  const disconnect = (): void => {
+    // Store's disconnect() handles token, preference, and profile cleanup
     disconnectStore()
     clearAllCaches()
 
@@ -568,18 +509,18 @@ export function AuthProvider({
       hasStoredTokens: false,
       oauthTokens: null
     })
-  }, [disconnectStore, clearAllCaches])
+  }
 
-  const value = useMemo(
-    () => ({
-      ...state,
-      validateOAuthTokens,
-      establishSession,
-      signOut,
-      disconnect
-    }),
-    [state, validateOAuthTokens, establishSession, signOut, disconnect]
+  // eslint-disable-next-line react/jsx-no-constructed-context-values -- React Compiler handles memoization; manual useMemo is disallowed in this project
+  const contextValue = {
+    ...state,
+    validateOAuthTokens,
+    establishSession,
+    signOut,
+    disconnect
+  }
+
+  return (
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   )
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

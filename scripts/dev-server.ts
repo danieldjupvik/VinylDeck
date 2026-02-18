@@ -12,6 +12,7 @@ import { cors } from 'hono/cors'
 import { appRouter } from '../src/server/trpc/index.ts'
 
 const app = new Hono()
+const debugApiRequests = process.env['DEBUG_API'] === '1'
 
 // Enable CORS for local development
 app.use(
@@ -22,16 +23,34 @@ app.use(
   })
 )
 
+app.use('/api/*', async (c, next) => {
+  await next()
+
+  if (!debugApiRequests) {
+    return
+  }
+
+  const requestUrl = new URL(c.req.url)
+  console.log(
+    `[api] ${c.req.method} ${requestUrl.pathname}${requestUrl.search} -> ${c.res.status}`
+  )
+})
+
 // Handle all tRPC requests
 app.all('/api/trpc/*', async (c) => {
-  const response = await fetchRequestHandler({
-    endpoint: '/api/trpc',
-    req: c.req.raw,
-    router: appRouter,
-    createContext: () => ({}),
-    allowMethodOverride: true // Allow POST for queries (secure OAuth tokens)
-  })
-  return response
+  try {
+    const response = await fetchRequestHandler({
+      endpoint: '/api/trpc',
+      req: c.req.raw,
+      router: appRouter,
+      createContext: () => ({}),
+      allowMethodOverride: true // Allow POST for queries (secure OAuth tokens)
+    })
+    return response
+  } catch (error) {
+    console.error('[api] Unhandled tRPC handler error:', error)
+    throw error
+  }
 })
 
 // Health check endpoint

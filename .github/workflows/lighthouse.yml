@@ -1,0 +1,321 @@
+name: Lighthouse
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'index.html'
+      - 'vite.config.ts'
+      - 'package.json'
+      - 'bun.lock'
+      - '.github/workflows/lighthouse.yml'
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Base URL to audit (for example https://your-preview.vercel.app)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: lighthouse-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse:
+    name: Lighthouse CI
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Wait for Vercel preview deployment
+        if: github.event_name == 'pull_request'
+        id: vercel_preview
+        continue-on-error: true
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          max_timeout: 600
+          check_interval: 5
+
+      - name: Resolve base URL
+        id: base_url
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PREVIEW_URL: ${{ steps.vercel_preview.outputs.url }}
+          BASE_INPUT: ${{ inputs.base_url }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            base="$PREVIEW_URL"
+          else
+            base="$BASE_INPUT"
+          fi
+
+          base="${base%/}"
+          if [ -z "$base" ]; then
+            echo "run_lighthouse=false" >> "$GITHUB_OUTPUT"
+            echo "No resolvable preview URL. Skipping Lighthouse run."
+            exit 0
+          fi
+
+          echo "run_lighthouse=true" >> "$GITHUB_OUTPUT"
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+          echo "Using base URL: $base"
+
+      - name: Create LHCI config (mobile)
+        if: steps.base_url.outputs.run_lighthouse == 'true'
+        shell: bash
+        env:
+          BASE: ${{ steps.base_url.outputs.base }}
+        run: |
+          base_escaped="${BASE//\\/\\\\}"
+          base_escaped="${base_escaped//\"/\\\"}"
+          cat > /tmp/lhci-mobile.json <<EOF
+          {
+            "ci": {
+              "collect": {
+                "numberOfRuns": 3,
+                "url": ["$base_escaped/login"],
+                "settings": {
+                  "chromeFlags": "--no-sandbox --disable-dev-shm-usage"
+                }
+              },
+              "assert": {
+                "assertions": {
+                  "categories:performance": ["error", { "minScore": 0.9 }],
+                  "categories:accessibility": ["error", { "minScore": 0.95 }],
+                  "categories:best-practices": ["error", { "minScore": 0.95 }],
+                  "categories:pwa": "off"
+                }
+              },
+              "upload": {
+                "target": "temporary-public-storage"
+              }
+            }
+          }
+          EOF
+
+      - name: Create LHCI config (desktop)
+        if: steps.base_url.outputs.run_lighthouse == 'true'
+        shell: bash
+        env:
+          BASE: ${{ steps.base_url.outputs.base }}
+        run: |
+          base_escaped="${BASE//\\/\\\\}"
+          base_escaped="${base_escaped//\"/\\\"}"
+          cat > /tmp/lhci-desktop.json <<EOF
+          {
+            "ci": {
+              "collect": {
+                "numberOfRuns": 3,
+                "url": ["$base_escaped/login"],
+                "settings": {
+                  "preset": "desktop",
+                  "chromeFlags": "--no-sandbox --disable-dev-shm-usage"
+                }
+              },
+              "assert": {
+                "assertions": {
+                  "categories:performance": ["error", { "minScore": 0.9 }],
+                  "categories:accessibility": ["error", { "minScore": 0.95 }],
+                  "categories:best-practices": ["error", { "minScore": 0.95 }],
+                  "categories:pwa": "off"
+                }
+              },
+              "upload": {
+                "target": "temporary-public-storage"
+              }
+            }
+          }
+          EOF
+
+      - name: Run Lighthouse CI (mobile)
+        if: steps.base_url.outputs.run_lighthouse == 'true'
+        id: lhci_mobile
+        continue-on-error: true
+        uses: treosh/lighthouse-ci-action@v12
+        env:
+          LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.event.pull_request.head.sha || github.sha }}
+        with:
+          configPath: /tmp/lhci-mobile.json
+          artifactName: lighthouse-results-mobile
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: Run Lighthouse CI (desktop)
+        if: steps.base_url.outputs.run_lighthouse == 'true'
+        id: lhci_desktop
+        continue-on-error: true
+        uses: treosh/lighthouse-ci-action@v12
+        env:
+          LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.event.pull_request.head.sha || github.sha }}
+        with:
+          configPath: /tmp/lhci-desktop.json
+          artifactName: lighthouse-results-desktop
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: Read LHCI manifests
+        if: steps.base_url.outputs.run_lighthouse == 'true'
+        id: lhci_manifests
+        shell: bash
+        env:
+          MOBILE_RESULTS_PATH: ${{ steps.lhci_mobile.outputs.resultsPath || steps.lhci_mobile.outputs.resultspath }}
+          DESKTOP_RESULTS_PATH: ${{ steps.lhci_desktop.outputs.resultsPath || steps.lhci_desktop.outputs.resultspath }}
+        run: |
+          mobile_manifest='[]'
+          desktop_manifest='[]'
+
+          if [ -n "$MOBILE_RESULTS_PATH" ] && [ -f "$MOBILE_RESULTS_PATH/manifest.json" ]; then
+            mobile_manifest="$(tr -d '\n' < "$MOBILE_RESULTS_PATH/manifest.json")"
+          fi
+
+          if [ -n "$DESKTOP_RESULTS_PATH" ] && [ -f "$DESKTOP_RESULTS_PATH/manifest.json" ]; then
+            desktop_manifest="$(tr -d '\n' < "$DESKTOP_RESULTS_PATH/manifest.json")"
+          fi
+
+          {
+            echo 'mobile<<EOF'
+            echo "$mobile_manifest"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo 'desktop<<EOF'
+            echo "$desktop_manifest"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Comment Lighthouse results on PR
+        if: always() && steps.base_url.outputs.run_lighthouse == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v8
+        env:
+          BASE_URL: ${{ steps.base_url.outputs.base }}
+          MOBILE_MANIFEST: ${{ steps.lhci_manifests.outputs.mobile }}
+          DESKTOP_MANIFEST: ${{ steps.lhci_manifests.outputs.desktop }}
+          MOBILE_LINKS: ${{ steps.lhci_mobile.outputs.links }}
+          DESKTOP_LINKS: ${{ steps.lhci_desktop.outputs.links }}
+          MOBILE_OUTCOME: ${{ steps.lhci_mobile.outcome }}
+          DESKTOP_OUTCOME: ${{ steps.lhci_desktop.outcome }}
+        with:
+          script: |
+            const marker = '<!-- lighthouse-ci-report -->'
+            const baseUrl = process.env.BASE_URL
+
+            const parseJson = (value, fallback) => {
+              if (!value) return fallback
+              try {
+                return JSON.parse(value)
+              } catch {
+                return fallback
+              }
+            }
+
+            const normalize = (url) => (url || '').replace(/\/+$/, '')
+            const findSummary = (manifest, targetUrl) => {
+              const normalizedTarget = normalize(targetUrl)
+              const representative = manifest.filter((entry) => entry.isRepresentativeRun)
+              return representative.find((entry) => normalize(entry.url) === normalizedTarget)?.summary ?? representative[0]?.summary
+            }
+
+            const score = (summary, key) =>
+              summary && typeof summary[key] === 'number'
+                ? `${Math.round(summary[key] * 100)}`
+                : '-'
+
+            const mobileManifest = parseJson(process.env.MOBILE_MANIFEST, [])
+            const desktopManifest = parseJson(process.env.DESKTOP_MANIFEST, [])
+            const mobileLinks = parseJson(process.env.MOBILE_LINKS, {})
+            const desktopLinks = parseJson(process.env.DESKTOP_LINKS, {})
+
+            const loginUrl = `${baseUrl}/login`
+
+            const mobileLogin = findSummary(mobileManifest, loginUrl)
+            const desktopLogin = findSummary(desktopManifest, loginUrl)
+
+            const renderRow = (label, summary) =>
+              `| ${label} | ${score(summary, 'performance')} | ${score(summary, 'accessibility')} | ${score(summary, 'best-practices')} |`
+
+            const mobileStatus = process.env.MOBILE_OUTCOME === 'success' ? 'pass' : 'fail'
+            const desktopStatus = process.env.DESKTOP_OUTCOME === 'success' ? 'pass' : 'fail'
+
+            const body = [
+              marker,
+              '## Lighthouse CI',
+              '',
+              `Base URL: ${baseUrl}`,
+              `Mobile assertions: **${mobileStatus}**`,
+              `Desktop assertions: **${desktopStatus}**`,
+              '',
+              '### Login (`/login`)',
+              '| Mode | Performance | Accessibility | Best Practices |',
+              '| --- | --- | --- | --- |',
+              renderRow('Mobile', mobileLogin),
+              renderRow('Desktop', desktopLogin),
+              '',
+              `Mobile report: ${mobileLinks[loginUrl] ?? mobileLinks[`${loginUrl}/`] ?? 'n/a'}`,
+              `Desktop report: ${desktopLinks[loginUrl] ?? desktopLinks[`${loginUrl}/`] ?? 'n/a'}`
+            ].join('\n')
+
+            const { owner, repo } = context.repo
+            const issue_number = context.issue.number
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100
+            })
+
+            const existing = comments.find(
+              (comment) =>
+                comment.user?.type === 'Bot' &&
+                typeof comment.body === 'string' &&
+                comment.body.includes(marker)
+            )
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body
+              })
+            }
+
+      - name: Lighthouse status (non-blocking)
+        if: always()
+        shell: bash
+        run: |
+          failed=0
+          if [ "${{ steps.lhci_mobile.outcome }}" != "success" ]; then
+            echo "Mobile Lighthouse assertions failed (non-blocking)"
+            failed=1
+          fi
+          if [ "${{ steps.lhci_desktop.outcome }}" != "success" ]; then
+            echo "Desktop Lighthouse assertions failed (non-blocking)"
+            failed=1
+          fi
+          if [ "${{ steps.base_url.outputs.run_lighthouse }}" != "true" ]; then
+            echo "Lighthouse skipped (no preview URL available)."
+            exit 0
+          fi
+
+          if [ "$failed" -eq 1 ]; then
+            echo "Lighthouse reported issues, but this workflow is non-blocking."
+          else
+            echo "Lighthouse checks passed."
+          fi

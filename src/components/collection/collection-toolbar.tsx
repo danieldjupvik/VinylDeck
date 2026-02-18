@@ -108,6 +108,7 @@ export function CollectionToolbar({
           <SelectTrigger
             size="sm"
             className="w-[120px] px-2 sm:w-[140px] sm:px-3"
+            aria-label={t('collection.sort.placeholder')}
           >
             <SelectValue placeholder={t('collection.sort.placeholder')} />
           </SelectTrigger>
@@ -156,7 +157,6 @@ export function CollectionToolbar({
           disabled={isRandomSort ? !canReshuffle : false}
           title={sortOrderLabel}
           aria-label={sortOrderLabel}
-          className="transition-all duration-200 hover:scale-110"
         >
           {isRandomSort ? (
             <Shuffle className="h-4 w-4" />

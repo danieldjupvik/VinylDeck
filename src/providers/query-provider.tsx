@@ -49,8 +49,14 @@ const persistOptions = {
         return false
       }
 
-      // Exclude getCollectionMetadata - lightweight poll that runs fresh anyway
       const key = query.queryKey[0]
+
+      // Exclude userProfile - persisted in localStorage via profile-cache-store
+      if (key === 'userProfile') {
+        return false
+      }
+
+      // Exclude getCollectionMetadata - lightweight poll that runs fresh anyway
       if (Array.isArray(key) && key[1] === 'getCollectionMetadata') {
         return false
       }

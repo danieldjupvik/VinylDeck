@@ -80,6 +80,7 @@ export default defineConfig([
             'api/**/*.ts', // Vercel serverless functions
             'src/server/**/*.ts', // Server-side code consumed by API
             'vite.config.ts',
+            'pwa-assets.config.ts',
             'eslint.config.js'
           ]
         }
@@ -162,7 +163,12 @@ export default defineConfig([
     }
   },
   {
-    files: ['vite.config.ts', 'eslint.config.js', 'scripts/**/*.{js,ts}'],
+    files: [
+      'vite.config.ts',
+      'pwa-assets.config.ts',
+      'eslint.config.js',
+      'scripts/**/*.{js,ts}'
+    ],
     rules: {
       // Permit Node.js builtins in tooling and config files.
       'import-x/no-nodejs-modules': 'off',

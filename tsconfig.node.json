@@ -29,5 +29,5 @@
     "noUncheckedSideEffectImports": true,
     "useUnknownInCatchVariables": true
   },
-  "include": ["vite.config.ts"]
+  "include": ["vite.config.ts", "pwa-assets.config.ts"]
 }
