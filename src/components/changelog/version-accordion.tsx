@@ -78,10 +78,12 @@ export function VersionAccordion({
                   v
                   {/* Strip "-beta.N" suffix for cleaner user-facing display */}
                   {version.version.replace(/-beta\.\d+$/, '')}
-                  <span className="text-muted-foreground font-normal">
-                    {' · '}
-                    {formatChangelogDate(version.date)}
-                  </span>
+                  {version.date ? (
+                    <span className="text-muted-foreground font-normal">
+                      {' · '}
+                      {formatChangelogDate(version.date)}
+                    </span>
+                  ) : null}
                 </span>
               </AccordionTrigger>
               <AccordionContent className="px-4">

@@ -81,9 +81,11 @@ export function ChangelogContent({
           <h2 className="text-lg font-semibold">
             {t('changelog.header.title', { version })}
           </h2>
-          <p className="text-muted-foreground text-sm">
-            {formatChangelogDate(date)}
-          </p>
+          {date ? (
+            <p className="text-muted-foreground text-sm">
+              {formatChangelogDate(date)}
+            </p>
+          ) : null}
         </header>
       ) : null}
 

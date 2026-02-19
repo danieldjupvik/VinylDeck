@@ -4,9 +4,8 @@ import type { ChangelogData } from '@/types/changelog'
  * Changelog entries for VinylDeck releases.
  * Ordered newest to oldest. Each version contains user-facing changes only.
  *
- * To add a new version:
- * 1. Add translation keys to locales/{lang}/translation.json
- * 2. Add version entry here with references to those keys
+ * Entries are added on the release-please branch before merging a release.
+ * See CLAUDE.md "User-Facing Changelog" section for the full workflow.
  *
  * Translation key pattern: `changelog.{version_underscored}.{category}_{index}`
  */

@@ -1,5 +1,4 @@
 import { compare } from 'compare-versions'
-import { useMemo } from 'react'
 
 import { changelog } from '@/data/changelog'
 import { usePreferencesStore } from '@/stores/preferences-store'
@@ -20,30 +19,28 @@ export type ChangelogResult =
 export function useChangelog(): ChangelogResult {
   const lastSeenVersion = usePreferencesStore((state) => state.lastSeenVersion)
 
-  return useMemo(() => {
-    if (lastSeenVersion === null) {
-      return { hasEntries: false, reason: 'first-install' }
-    }
+  if (lastSeenVersion === null) {
+    return { hasEntries: false, reason: 'first-install' }
+  }
 
-    const newerVersions = changelog.filter((entry) =>
-      compare(entry.version, lastSeenVersion, '>')
-    )
+  const newerVersions = changelog.filter((entry) =>
+    compare(entry.version, lastSeenVersion, '>')
+  )
 
-    if (newerVersions.length === 0) {
-      return { hasEntries: false, reason: 'up-to-date' }
-    }
+  if (newerVersions.length === 0) {
+    return { hasEntries: false, reason: 'up-to-date' }
+  }
 
-    const hasUserEntries = newerVersions.some(
-      (v) =>
-        (v.features && v.features.length > 0) ||
-        (v.improvements && v.improvements.length > 0) ||
-        (v.fixes && v.fixes.length > 0)
-    )
+  const hasUserEntries = newerVersions.some(
+    (v) =>
+      (v.features && v.features.length > 0) ||
+      (v.improvements && v.improvements.length > 0) ||
+      (v.fixes && v.fixes.length > 0)
+  )
 
-    if (!hasUserEntries) {
-      return { hasEntries: false, reason: 'no-user-entries' }
-    }
+  if (!hasUserEntries) {
+    return { hasEntries: false, reason: 'no-user-entries' }
+  }
 
-    return { hasEntries: true, versions: newerVersions }
-  }, [lastSeenVersion])
+  return { hasEntries: true, versions: newerVersions }
 }
