@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.4.0-beta.1](https://github.com/danieldjupvik/VinylDeck/compare/vinyldeck-v0.3.1-beta.1...vinyldeck-v0.4.0-beta.1) (2026-02-19)
+
+
+### Features
+
+* add real logo support ([#64](https://github.com/danieldjupvik/VinylDeck/issues/64)) ([842e354](https://github.com/danieldjupvik/VinylDeck/commit/842e3549dd964f8ee1a2e19128f3b4609f9a2fcb))
+* add user friendly changelog and refactor UI code ([#69](https://github.com/danieldjupvik/VinylDeck/issues/69)) ([24f8b6a](https://github.com/danieldjupvik/VinylDeck/commit/24f8b6a069c844ad060848e46d6045c088162ab9))
+* consolidate storage from 11 keys to 4, add IndexedDB caching ([#61](https://github.com/danieldjupvik/VinylDeck/issues/61)) ([26292b4](https://github.com/danieldjupvik/VinylDeck/commit/26292b4d81bc3b29236887e2adcda742cbce1863))
+* fully support offline mode ([#67](https://github.com/danieldjupvik/VinylDeck/issues/67)) ([05b89e4](https://github.com/danieldjupvik/VinylDeck/commit/05b89e4006aace38afadf7a1be22fa198f7266ac))
+
+
+### Bug Fixes
+
+* improve loading states, eliminate UI flashes, and add PWA assets ([#90](https://github.com/danieldjupvik/VinylDeck/issues/90)) ([edfa381](https://github.com/danieldjupvik/VinylDeck/commit/edfa381b97d54b536c27e6d535e6c90e0c0c2b96))
+* improve UX on login page fixes ([#54](https://github.com/danieldjupvik/VinylDeck/issues/54)) ([7b661a7](https://github.com/danieldjupvik/VinylDeck/commit/7b661a7325cc17f04627f0c73e04a368ad8bbdfc))
+* resolve Vite build warnings ([#56](https://github.com/danieldjupvik/VinylDeck/issues/56)) ([d488084](https://github.com/danieldjupvik/VinylDeck/commit/d48808426a7f62113ed958f469b9a03cba3c1eb0))
+
 ## [0.3.1-beta.1](https://github.com/danieldjupvik/VinylDeck/compare/vinyldeck-v0.3.0-beta.1...vinyldeck-v0.3.1-beta.1) (2026-01-21)
 
 
