@@ -265,6 +265,14 @@
     },
     "olderVersions": "+ {{count}} eldre versjoner",
     "versionDate": "v{{version}} — {{date}}",
+    "0_4_0_beta": {
+      "feature_1": "Full offline-støtte — bla gjennom samlingen uten internett",
+      "feature_2": "\"Hva er nytt\"-modal for å se siste oppdateringer i appen",
+      "feature_3": "Ny VinylDeck-logo og merkevareidentitet",
+      "feature_4": "Raskere lasting med smart lokal hurtigbuffer",
+      "fix_1": "Jevnere lastetilstander uten blink i grensesnittet",
+      "fix_2": "Forbedret innloggingsopplevelse"
+    },
     "0_3_1_beta": {
       "feature_1": "Redesignet innloggingsside med animasjoner og forhåndsvisning av offentlig surfing",
       "feature_2": "Oppdatert fargepalett med nye aksentfarger",

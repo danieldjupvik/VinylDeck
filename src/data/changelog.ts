@@ -11,6 +11,20 @@ import type { ChangelogData } from '@/types/changelog'
  */
 export const changelog: ChangelogData = [
   {
+    version: '0.4.0-beta.1',
+    date: '2026-02-19',
+    features: [
+      { key: 'changelog.0_4_0_beta.feature_1' },
+      { key: 'changelog.0_4_0_beta.feature_2' },
+      { key: 'changelog.0_4_0_beta.feature_3' },
+      { key: 'changelog.0_4_0_beta.feature_4' }
+    ],
+    fixes: [
+      { key: 'changelog.0_4_0_beta.fix_1' },
+      { key: 'changelog.0_4_0_beta.fix_2' }
+    ]
+  },
+  {
     version: '0.3.1-beta.1',
     date: '2026-01-21',
     features: [

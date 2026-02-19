@@ -265,6 +265,14 @@
     },
     "olderVersions": "+ {{count}} older versions",
     "versionDate": "v{{version}} — {{date}}",
+    "0_4_0_beta": {
+      "feature_1": "Full offline support — browse your collection without internet",
+      "feature_2": "\"What's New\" modal to see the latest updates in-app",
+      "feature_3": "New VinylDeck logo and branding",
+      "feature_4": "Faster loading with smart local caching",
+      "fix_1": "Smoother loading states with no UI flashes",
+      "fix_2": "Improved login page experience"
+    },
     "0_3_1_beta": {
       "feature_1": "Redesigned login page with animations and public browsing preview",
       "feature_2": "Updated color palette with new accent colors",
