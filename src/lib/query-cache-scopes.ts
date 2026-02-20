@@ -100,7 +100,7 @@ export async function clearScopeCache(
  *
  * @param queryClient - TanStack Query client instance
  * @returns Promise that resolves after all query cache layers are cleared
- * @throws Errors from `cancelQueries`, `clear`, or `removeClient` operations
+ * @throws Errors from `cancelQueries` or `clear` (`removeClient` swallows errors internally)
  */
 export async function clearAllQueryCache(
   queryClient: QueryClient
