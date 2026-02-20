@@ -357,28 +357,32 @@ export function AuthProvider({
   }
 
   /**
-   * Validates OAuth tokens in the background without affecting loading state.
-   * Used for optimistic auth - user sees authenticated UI immediately,
-   * validation happens silently. Only disconnects on definitive auth errors (401/403).
+   * Stores the latest background token validation function for effects that
+   * intentionally avoid depending on unstable callback identities.
    */
-  const validateTokensInBackground = (tokens: {
-    accessToken: string
-    accessTokenSecret: string
-  }): void => {
-    void validateTokensInBackgroundFlow({
-      tokens,
-      validateTokens,
-      fetchProfile,
-      getLatestGravatarEmail: () => latestGravatarEmailRef.current,
-      setLatestGravatarEmail: (email) => {
-        latestGravatarEmailRef.current = email
-      },
-      setGravatarEmail,
-      disconnectAndClearState,
-      setState,
-      getIsOnline: () => isOnlineRef.current
-    })
-  }
+  const validateTokensInBackgroundRef = useRef<
+    (tokens: { accessToken: string; accessTokenSecret: string }) => void
+  >(() => {})
+  useEffect(() => {
+    validateTokensInBackgroundRef.current = (tokens: {
+      accessToken: string
+      accessTokenSecret: string
+    }): void => {
+      void validateTokensInBackgroundFlow({
+        tokens,
+        validateTokens,
+        fetchProfile,
+        getLatestGravatarEmail: () => latestGravatarEmailRef.current,
+        setLatestGravatarEmail: (email) => {
+          latestGravatarEmailRef.current = email
+        },
+        setGravatarEmail,
+        disconnectAndClearState,
+        setState,
+        getIsOnline: () => isOnlineRef.current
+      })
+    }
+  })
 
   /**
    * Core auth validation flow shared by validateOAuthTokens and establishSession.
@@ -524,7 +528,7 @@ export function AuthProvider({
         // If online, validate tokens in background (user won't see a loader)
         // If validation fails (401/403), user will be disconnected
         if (shouldValidateInBackground) {
-          validateTokensInBackground(authTokens)
+          validateTokensInBackgroundRef.current(authTokens)
         }
       })
 
@@ -569,9 +573,8 @@ export function AuthProvider({
       state.isAuthenticated &&
       authTokens
     ) {
-      validateTokensInBackground(authTokens)
+      validateTokensInBackgroundRef.current(authTokens)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Revalidation should only react to connectivity and auth/session flags.
   }, [isOnline, sessionActive, state.isAuthenticated, authTokens])
 
   /**

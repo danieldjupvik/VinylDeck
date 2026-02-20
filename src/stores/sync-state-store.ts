@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware'
 import { STORAGE_KEYS } from '@/lib/storage-keys'
 import type { SyncScope } from '@/types/sync'
 
-const SYNC_PERSIST_VERSION = 1
+const SYNC_PERSIST_VERSION = 2
 const COLLECTION_SCOPE_PREFIX = 'collection:'
 
 export interface SyncScopeState {
@@ -94,18 +94,10 @@ const normalizeCollectionSyncKey = (key: string): string | null => {
   if (!key.startsWith(COLLECTION_SCOPE_PREFIX)) return null
 
   const segments = key.split(':')
-  if (segments.length === 2) {
-    const username = segments[1]?.trim().toLowerCase()
-    return username ? `${COLLECTION_SCOPE_PREFIX}${username}` : null
-  }
+  if (segments.length !== 2) return null
 
-  // Legacy key shape from earlier sync implementation: collection:<userId>:<username>.
-  if (segments.length === 3) {
-    const username = segments[2]?.trim().toLowerCase()
-    return username ? `${COLLECTION_SCOPE_PREFIX}${username}` : null
-  }
-
-  return null
+  const username = segments[1]?.trim().toLowerCase()
+  return username ? `${COLLECTION_SCOPE_PREFIX}${username}` : null
 }
 
 const pickMostRecentEntry = (
