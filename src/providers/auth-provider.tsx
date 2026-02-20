@@ -119,6 +119,11 @@ async function validateTokensInBackgroundFlow({
         hasStoredTokens: false,
         oauthTokens: null
       })
+    } else {
+      console.warn(
+        'Background token validation failed due to transient error, will retry later:',
+        error
+      )
     }
   }
 }
@@ -511,11 +516,19 @@ export function AuthProvider({
         oauthTokens: authTokens
       }
 
-      // If online, validate tokens in background (user won't see a loader)
-      // If validation fails (401/403), user will be disconnected
-      if (isOnline) {
-        validateTokensInBackground(authTokens)
-      }
+      const shouldValidateInBackground = isOnline
+
+      queueMicrotask(() => {
+        setState(nextState)
+
+        // If online, validate tokens in background (user won't see a loader)
+        // If validation fails (401/403), user will be disconnected
+        if (shouldValidateInBackground) {
+          validateTokensInBackground(authTokens)
+        }
+      })
+
+      return
     }
 
     queueMicrotask(() => {

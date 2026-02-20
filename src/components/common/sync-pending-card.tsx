@@ -34,6 +34,7 @@ export function SyncPendingCard({
       <button
         type="button"
         onClick={onOpen}
+        aria-hidden={!isMinimized}
         className={cn(
           'bg-accent/70 text-card-foreground hover:bg-accent/80 border-border inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm shadow-lg backdrop-blur transition-all duration-200 ease-out [grid-area:stack]',
           isMinimized
@@ -46,6 +47,7 @@ export function SyncPendingCard({
       </button>
 
       <div
+        aria-hidden={isMinimized}
         className={cn(
           'bg-accent/70 text-card-foreground border-border w-[min(24rem,calc(100vw-1.5rem))] rounded-xl border p-4 shadow-xl backdrop-blur transition-all duration-200 ease-out [grid-area:stack]',
           isMinimized

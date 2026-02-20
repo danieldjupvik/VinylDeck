@@ -90,6 +90,7 @@ export function useCollectionSync(): CollectionSyncResult {
           username
         }
       : {
+          // metadataInput fallback only satisfies input typing; tokens/username checks disable this query branch.
           username: ''
         }
 
