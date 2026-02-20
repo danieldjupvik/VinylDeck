@@ -4,6 +4,9 @@ import { persist } from 'zustand/middleware'
 import { STORAGE_KEYS } from '@/lib/storage-keys'
 import type { SyncScope } from '@/types/sync'
 
+const SYNC_PERSIST_VERSION = 1
+const COLLECTION_SCOPE_PREFIX = 'collection:'
+
 export interface SyncScopeState {
   scope: SyncScope
   baselineCount: number
@@ -17,7 +20,7 @@ export interface SyncScopeState {
   lastAckedAt: number | null
 }
 
-interface UpsertFromMetadataInput {
+export interface UpsertFromMetadataInput {
   key: string
   scope: SyncScope
   liveCount: number
@@ -25,7 +28,7 @@ interface UpsertFromMetadataInput {
   detectedAt?: number | undefined
 }
 
-interface AcknowledgeBaselineInput {
+export interface AcknowledgeBaselineInput {
   key: string
   baselineCount?: number | undefined
   ackedAt?: number | undefined
@@ -71,11 +74,141 @@ export interface SyncStateStore {
   clearAll: () => void
 }
 
+type PersistedSyncState = Pick<SyncStateStore, 'entries'>
+
+const toNonNegativeNumber = (value: unknown): number | null => {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null
+  return Math.max(0, Math.trunc(value))
+}
+
+const toNullableTimestamp = (value: unknown): number | null => {
+  if (value === null) return null
+  const parsed = toNonNegativeNumber(value)
+  return parsed ?? null
+}
+
+const toBoolean = (value: unknown, fallback: boolean): boolean =>
+  typeof value === 'boolean' ? value : fallback
+
+const normalizeCollectionSyncKey = (key: string): string | null => {
+  if (!key.startsWith(COLLECTION_SCOPE_PREFIX)) return null
+
+  const segments = key.split(':')
+  if (segments.length === 2) {
+    const username = segments[1]?.trim().toLowerCase()
+    return username ? `${COLLECTION_SCOPE_PREFIX}${username}` : null
+  }
+  if (segments.length === 3) {
+    const username = segments[2]?.trim().toLowerCase()
+    return username ? `${COLLECTION_SCOPE_PREFIX}${username}` : null
+  }
+
+  return null
+}
+
+const pickMostRecentEntry = (
+  current: SyncScopeState | undefined,
+  candidate: SyncScopeState
+): SyncScopeState => {
+  if (!current) return candidate
+
+  const currentMostRecent = Math.max(
+    current.lastDetectedAt ?? 0,
+    current.lastAckedAt ?? 0
+  )
+  const candidateMostRecent = Math.max(
+    candidate.lastDetectedAt ?? 0,
+    candidate.lastAckedAt ?? 0
+  )
+
+  return candidateMostRecent >= currentMostRecent ? candidate : current
+}
+
+const sanitizePersistedEntry = (value: unknown): SyncScopeState | null => {
+  if (typeof value !== 'object' || value === null) return null
+
+  const raw = value as Record<string, unknown>
+  if (raw['scope'] !== 'collection') return null
+
+  const baselineCount = toNonNegativeNumber(raw['baselineCount'])
+  const liveCount = toNonNegativeNumber(raw['liveCount'])
+  if (baselineCount === null || liveCount === null) return null
+
+  const pendingNewCount = Math.max(0, liveCount - baselineCount)
+  const pendingDeletedCount = Math.max(0, baselineCount - liveCount)
+  const isPending = pendingNewCount > 0 || pendingDeletedCount > 0
+
+  return {
+    scope: 'collection',
+    baselineCount,
+    liveCount,
+    pendingNewCount,
+    pendingDeletedCount,
+    isPending,
+    isMinimized: isPending ? toBoolean(raw['isMinimized'], false) : false,
+    isRefreshing: false,
+    lastDetectedAt: isPending
+      ? toNullableTimestamp(raw['lastDetectedAt'])
+      : null,
+    lastAckedAt: toNullableTimestamp(raw['lastAckedAt'])
+  }
+}
+
+const sanitizePersistedEntries = (
+  entries: unknown
+): Record<string, SyncScopeState> => {
+  if (typeof entries !== 'object' || entries === null) return {}
+
+  const nextEntries: Record<string, SyncScopeState> = {}
+
+  for (const [rawKey, rawValue] of Object.entries(entries)) {
+    const normalizedKey = normalizeCollectionSyncKey(rawKey)
+    if (!normalizedKey) continue
+
+    const sanitized = sanitizePersistedEntry(rawValue)
+    if (!sanitized) continue
+
+    nextEntries[normalizedKey] = pickMostRecentEntry(
+      nextEntries[normalizedKey],
+      sanitized
+    )
+  }
+
+  return nextEntries
+}
+
+const partializeSyncState = (state: SyncStateStore): PersistedSyncState => ({
+  entries: Object.fromEntries(
+    Object.entries(state.entries).map(([key, entry]) => [
+      key,
+      {
+        ...entry,
+        isRefreshing: false
+      }
+    ])
+  )
+})
+
+const migrateSyncState = (
+  persistedState: unknown,
+  version: number
+): PersistedSyncState => {
+  if (version >= SYNC_PERSIST_VERSION) {
+    const rawState = (persistedState ?? {}) as Partial<PersistedSyncState>
+    return { entries: sanitizePersistedEntries(rawState.entries) }
+  }
+
+  const rawState = (persistedState ?? {}) as Partial<PersistedSyncState>
+  return { entries: sanitizePersistedEntries(rawState.entries) }
+}
+
 /**
  * localStorage-backed sync state store for pending data refresh indicators.
  *
  * Persists per-user/per-scope baseline and pending deltas so sync state survives
  * hard refresh and session sign-out. Disconnect flow clears this store.
+ *
+ * @returns Zustand store hook with sync entries and sync state actions
  */
 export const useSyncStateStore = create<SyncStateStore>()(
   persist(
@@ -118,14 +251,9 @@ export const useSyncStateStore = create<SyncStateStore>()(
             }
           }
 
-          const pendingNewCount = Math.max(
-            0,
-            liveCount - existing.baselineCount
-          )
-          const pendingDeletedCount = Math.max(
-            0,
-            existing.baselineCount - liveCount
-          )
+          const nextBaseline = baselineCount ?? existing.baselineCount
+          const pendingNewCount = Math.max(0, liveCount - nextBaseline)
+          const pendingDeletedCount = Math.max(0, nextBaseline - liveCount)
           const isPending = pendingNewCount > 0 || pendingDeletedCount > 0
           const pendingChanged =
             pendingNewCount !== existing.pendingNewCount ||
@@ -137,6 +265,7 @@ export const useSyncStateStore = create<SyncStateStore>()(
             isPending && pendingChanged ? now : existing.lastDetectedAt
 
           if (
+            existing.baselineCount === nextBaseline &&
             existing.liveCount === liveCount &&
             existing.pendingNewCount === pendingNewCount &&
             existing.pendingDeletedCount === pendingDeletedCount &&
@@ -153,6 +282,7 @@ export const useSyncStateStore = create<SyncStateStore>()(
               [key]: {
                 ...existing,
                 scope,
+                baselineCount: nextBaseline,
                 liveCount,
                 pendingNewCount,
                 pendingDeletedCount,
@@ -210,7 +340,7 @@ export const useSyncStateStore = create<SyncStateStore>()(
                 pendingNewCount,
                 pendingDeletedCount,
                 isPending,
-                isMinimized: isPending ? existing.isMinimized : false,
+                isMinimized: existing.isMinimized,
                 isRefreshing: false,
                 lastAckedAt: ackedAt ?? Date.now()
               }
@@ -221,16 +351,18 @@ export const useSyncStateStore = create<SyncStateStore>()(
       clearScope: (key) =>
         set((state) => {
           if (!(key in state.entries)) return state
-          const nextEntries = Object.fromEntries(
-            Object.entries(state.entries).filter(
-              ([entryKey]) => entryKey !== key
-            )
-          )
+          const { [key]: removedEntry, ...nextEntries } = state.entries
+          if (removedEntry === undefined) return state
           return { entries: nextEntries }
         }),
 
       clearAll: () => set({ entries: {} })
     }),
-    { name: STORAGE_KEYS.SYNC }
+    {
+      name: STORAGE_KEYS.SYNC,
+      version: SYNC_PERSIST_VERSION,
+      partialize: partializeSyncState,
+      migrate: migrateSyncState
+    }
   )
 )
