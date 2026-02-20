@@ -1,4 +1,5 @@
 import { RefreshCw } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
@@ -29,12 +30,44 @@ export function SyncPendingCard({
   onMinimize,
   onOpen
 }: SyncPendingCardProps): React.JSX.Element {
+  const openButtonRef = useRef<HTMLButtonElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    const activeElement = document.activeElement
+    if (!(activeElement instanceof HTMLElement)) return
+
+    if (isMinimized) {
+      if (cardRef.current?.contains(activeElement)) {
+        activeElement.blur()
+      }
+      return
+    }
+
+    if (openButtonRef.current === activeElement) {
+      activeElement.blur()
+    }
+  }, [isMinimized])
+
+  const handleOpen = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    event.currentTarget.blur()
+    onOpen()
+  }
+
+  const handleMinimize = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    event.currentTarget.blur()
+    onMinimize()
+  }
+
   return (
     <div className="relative inline-grid [grid-template-areas:'stack']">
       <button
+        ref={openButtonRef}
         type="button"
-        onClick={onOpen}
+        onClick={handleOpen}
         aria-hidden={!isMinimized}
+        inert={!isMinimized}
         className={cn(
           'bg-accent/70 text-card-foreground hover:bg-accent/80 border-border inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm shadow-lg backdrop-blur transition-all duration-200 ease-out [grid-area:stack]',
           isMinimized
@@ -47,7 +80,9 @@ export function SyncPendingCard({
       </button>
 
       <div
+        ref={cardRef}
         aria-hidden={isMinimized}
+        inert={isMinimized}
         className={cn(
           'bg-accent/70 text-card-foreground border-border w-[min(24rem,calc(100vw-1.5rem))] rounded-xl border p-4 shadow-xl backdrop-blur transition-all duration-200 ease-out [grid-area:stack]',
           isMinimized
@@ -65,7 +100,7 @@ export function SyncPendingCard({
           <Button
             variant="ghost"
             size="sm"
-            onClick={onMinimize}
+            onClick={handleMinimize}
             disabled={isRefreshing}
           >
             {minimizeLabel}

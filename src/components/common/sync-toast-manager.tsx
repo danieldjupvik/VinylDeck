@@ -15,7 +15,8 @@ export function SyncToastManager(): React.JSX.Element | null {
   if (!descriptor) return null
 
   const handleRefresh = () => {
-    void refreshCollection().catch(() => {
+    void refreshCollection().catch((error: unknown) => {
+      console.error('Collection sync refresh failed:', error)
       toast.error(descriptor.refreshFailedMessage)
     })
   }
