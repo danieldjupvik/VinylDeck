@@ -10,6 +10,8 @@ export const STORAGE_KEYS = {
   PREFERENCES: 'vinyldeck-prefs',
   /** localStorage (via Zustand): cached user profile for instant display */
   PROFILE: 'vinyldeck-profile',
+  /** localStorage (via Zustand): pending sync state and baselines */
+  SYNC: 'vinyldeck-sync',
   /** localStorage (via next-themes): theme preference (light/dark/system) */
   THEME: 'vinyldeck-theme',
   /** localStorage (via i18next): language preference */

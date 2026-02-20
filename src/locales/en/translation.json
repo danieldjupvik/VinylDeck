@@ -154,7 +154,10 @@
     "showing_other": "Showing {{start}}-{{end}} of {{total}} albums",
     "sync": {
       "refreshing": "Refreshing...",
-      "refreshNow": "Refresh now"
+      "refreshNow": "Refresh now",
+      "minimize": "Minimize",
+      "open": "Open sync",
+      "refreshFailed": "Unable to refresh right now. Try again."
     }
   },
   "settings": {
