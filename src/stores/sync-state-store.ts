@@ -98,6 +98,8 @@ const normalizeCollectionSyncKey = (key: string): string | null => {
     const username = segments[1]?.trim().toLowerCase()
     return username ? `${COLLECTION_SCOPE_PREFIX}${username}` : null
   }
+
+  // Legacy key shape from earlier sync implementation: collection:<userId>:<username>.
   if (segments.length === 3) {
     const username = segments[2]?.trim().toLowerCase()
     return username ? `${COLLECTION_SCOPE_PREFIX}${username}` : null
@@ -189,15 +191,7 @@ const partializeSyncState = (state: SyncStateStore): PersistedSyncState => ({
   )
 })
 
-const migrateSyncState = (
-  persistedState: unknown,
-  version: number
-): PersistedSyncState => {
-  if (version >= SYNC_PERSIST_VERSION) {
-    const rawState = (persistedState ?? {}) as Partial<PersistedSyncState>
-    return { entries: sanitizePersistedEntries(rawState.entries) }
-  }
-
+const migrateSyncState = (persistedState: unknown): PersistedSyncState => {
   const rawState = (persistedState ?? {}) as Partial<PersistedSyncState>
   return { entries: sanitizePersistedEntries(rawState.entries) }
 }
@@ -352,7 +346,7 @@ export const useSyncStateStore = create<SyncStateStore>()(
         set((state) => {
           if (!(key in state.entries)) return state
           const { [key]: removedEntry, ...nextEntries } = state.entries
-          if (removedEntry === undefined) return state
+          void removedEntry
           return { entries: nextEntries }
         }),
 

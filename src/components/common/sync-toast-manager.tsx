@@ -7,6 +7,12 @@ import { cn } from '@/lib/utils'
 
 import { SyncPendingCard } from './sync-pending-card'
 
+/**
+ * Renders the global collection sync surface on authenticated pages.
+ *
+ * @returns Sync toast UI element when pending/refreshing, otherwise null
+ * @throws Will not throw
+ */
 export function SyncToastManager(): React.JSX.Element | null {
   const { t } = useTranslation()
   const isMobile = useIsMobile()
