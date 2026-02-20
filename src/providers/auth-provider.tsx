@@ -14,7 +14,7 @@ import { usePreferences } from '@/hooks/use-preferences'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { CACHE_NAMES } from '@/lib/constants'
 import { isAuthError, OfflineNoCacheError } from '@/lib/errors'
-import { queryPersister } from '@/lib/query-persister'
+import { clearAllQueryCache } from '@/lib/query-cache-scopes'
 import { trpc } from '@/lib/trpc'
 import { useAuthStore } from '@/stores/auth-store'
 import { useProfileCacheStore } from '@/stores/profile-cache-store'
@@ -59,8 +59,6 @@ interface AuthFlowBase {
   getIsOnline: () => boolean
 }
 
-type ValidateTokensInBackgroundParams = AuthFlowBase
-
 interface PerformAuthValidationParams extends AuthFlowBase {
   options: { forceProfileRefresh: boolean; storeTokens: boolean }
   setTokens: (tokens: {
@@ -80,7 +78,7 @@ async function validateTokensInBackgroundFlow({
   disconnectAndClearState,
   setState,
   getIsOnline
-}: ValidateTokensInBackgroundParams): Promise<void> {
+}: AuthFlowBase): Promise<void> {
   try {
     const identity = await validateTokens(tokens)
     if (!useProfileCacheStore.getState().profile) {
@@ -316,11 +314,8 @@ export function AuthProvider({
    */
   const clearAllCaches = (): void => {
     queueMicrotask(() => {
-      // Clear TanStack Query in-memory cache (collection data)
-      queryClient.clear()
-
-      // Clear IndexedDB via the persister (errors handled internally)
-      void queryPersister.removeClient()
+      // Clear TanStack Query memory + persisted IndexedDB cache layers
+      void clearAllQueryCache(queryClient)
 
       // Clear browser caches for sensitive data
       if ('caches' in window) {

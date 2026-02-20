@@ -97,6 +97,7 @@ export function SyncPendingCard({
 
       <div
         ref={cardRef}
+        role={isMinimized ? undefined : 'status'}
         aria-hidden={isMinimized}
         inert={isMinimized}
         className={cn(
@@ -108,7 +109,7 @@ export function SyncPendingCard({
       >
         <div className="flex items-start gap-3">
           <div className="mt-0.5">
-            {isRefreshing ? <Spinner /> : <RefreshCw />}
+            {isRefreshing ? <Spinner /> : <RefreshCw className="size-4" />}
           </div>
           <p className="text-sm leading-relaxed">{message}</p>
         </div>

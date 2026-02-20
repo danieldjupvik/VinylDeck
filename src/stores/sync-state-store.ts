@@ -2,10 +2,11 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 import { STORAGE_KEYS } from '@/lib/storage-keys'
+import { buildSyncKey, parseSyncKey } from '@/lib/sync-keys'
+import { SYNC_SCOPES } from '@/types/sync'
 import type { SyncScope } from '@/types/sync'
 
 const SYNC_PERSIST_VERSION = 2
-const COLLECTION_SCOPE_PREFIX = 'collection:'
 
 export interface SyncScopeState {
   scope: SyncScope
@@ -90,16 +91,6 @@ const toNullableTimestamp = (value: unknown): number | null => {
 const toBoolean = (value: unknown, fallback: boolean): boolean =>
   typeof value === 'boolean' ? value : fallback
 
-const normalizeCollectionSyncKey = (key: string): string | null => {
-  if (!key.startsWith(COLLECTION_SCOPE_PREFIX)) return null
-
-  const segments = key.split(':')
-  if (segments.length !== 2) return null
-
-  const username = segments[1]?.trim().toLowerCase()
-  return username ? `${COLLECTION_SCOPE_PREFIX}${username}` : null
-}
-
 const pickMostRecentEntry = (
   current: SyncScopeState | undefined,
   candidate: SyncScopeState
@@ -122,7 +113,13 @@ const sanitizePersistedEntry = (value: unknown): SyncScopeState | null => {
   if (typeof value !== 'object' || value === null) return null
 
   const raw = value as Record<string, unknown>
-  if (raw['scope'] !== 'collection') return null
+  if (
+    typeof raw['scope'] !== 'string' ||
+    !SYNC_SCOPES.includes(raw['scope'] as SyncScope)
+  ) {
+    return null
+  }
+  const scope = raw['scope'] as SyncScope
 
   const baselineCount = toNonNegativeNumber(raw['baselineCount'])
   const liveCount = toNonNegativeNumber(raw['liveCount'])
@@ -133,7 +130,7 @@ const sanitizePersistedEntry = (value: unknown): SyncScopeState | null => {
   const isPending = pendingNewCount > 0 || pendingDeletedCount > 0
 
   return {
-    scope: 'collection',
+    scope,
     baselineCount,
     liveCount,
     pendingNewCount,
@@ -156,12 +153,13 @@ const sanitizePersistedEntries = (
   const nextEntries: Record<string, SyncScopeState> = {}
 
   for (const [rawKey, rawValue] of Object.entries(entries)) {
-    const normalizedKey = normalizeCollectionSyncKey(rawKey)
-    if (!normalizedKey) continue
+    const parsedKey = parseSyncKey(rawKey)
+    if (!parsedKey) continue
 
     const sanitized = sanitizePersistedEntry(rawValue)
     if (!sanitized) continue
 
+    const normalizedKey = buildSyncKey(parsedKey.scope, parsedKey.identity)
     nextEntries[normalizedKey] = pickMostRecentEntry(
       nextEntries[normalizedKey],
       sanitized

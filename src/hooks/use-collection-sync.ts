@@ -2,8 +2,13 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import {
+  useScopeRefresh,
+  type ScopeRefreshOptions
+} from '@/hooks/use-scope-refresh'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { COLLECTION } from '@/lib/constants'
+import { buildSyncKey } from '@/lib/sync-keys'
 import { trpc } from '@/lib/trpc'
 import { useHydrationState } from '@/providers/hydration-context'
 import { useAuthStore } from '@/stores/auth-store'
@@ -28,23 +33,26 @@ interface CollectionFetchParams {
 
 interface CollectionSyncResult {
   descriptor: SyncPendingDescriptor | null
-  refreshCollection: () => Promise<void>
+  refreshCollection: (options?: CollectionRefreshOptions) => Promise<void>
   minimize: () => void
   open: () => void
 }
 
-const buildCollectionSyncKey = (username: string): string =>
-  `${COLLECTION_SCOPE}:${username.toLowerCase()}`
+interface CollectionRefreshResult {
+  refreshCollection: (options?: CollectionRefreshOptions) => Promise<void>
+  isRefreshing: boolean
+}
+
+/**
+ * Options for a manual collection refresh operation.
+ */
+type CollectionRefreshOptions = ScopeRefreshOptions<CollectionFetchParams>
 
 const getLatestCachedCollectionCount = (
   queryClient: ReturnType<typeof useQueryClient>,
   username: string
 ): number | null => {
-  const queries = queryClient.getQueryCache().findAll({
-    queryKey: ['collection', username],
-    exact: false,
-    predicate: (query) => query.state.data !== undefined
-  })
+  const queries = findCachedCollectionQueries(queryClient, username)
 
   let latestQuery: (typeof queries)[number] | undefined
   for (const query of queries) {
@@ -62,6 +70,16 @@ const getLatestCachedCollectionCount = (
   const cachedCount = cachedCollection?.pagination.items
   return typeof cachedCount === 'number' ? cachedCount : null
 }
+
+const findCachedCollectionQueries = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  username: string
+) =>
+  queryClient.getQueryCache().findAll({
+    queryKey: ['collection', username],
+    exact: false,
+    predicate: (query) => query.state.data !== undefined
+  })
 
 const isSortOrder = (value: unknown): value is SortOrder =>
   value === 'asc' || value === 'desc'
@@ -93,6 +111,18 @@ const parseCollectionFetchParams = (
     sortOrder: rawSortOrder
   }
 }
+
+const buildCollectionQueryKey = (
+  username: string,
+  params: CollectionFetchParams
+): readonly [string, string, boolean, number | null, UserSort, SortOrder] => [
+  COLLECTION_QUERY_KEY_PREFIX,
+  username,
+  params.shouldFetchAllPages,
+  params.shouldFetchAllPages ? null : params.page,
+  params.sort,
+  params.sortOrder
+]
 
 const fetchCollectionForParams = async ({
   params,
@@ -127,15 +157,157 @@ const fetchCollectionForParams = async ({
 
   return {
     ...firstPage,
-    releases,
-    pagination: {
-      ...firstPage.pagination,
-      page: 1,
-      pages: 1,
-      items: releases.length,
-      per_page: releases.length
-    }
+    releases
   }
+}
+
+/**
+ * Refreshes collection data and sync baseline using one shared flow.
+ *
+ * Updates all cached collection query variants and reconciles sync state so
+ * manual refresh actions can originate from any route.
+ * Supports optional scoped cache clearing before refresh and optional cache
+ * hydration when no matching collection query exists.
+ *
+ * @returns Collection refresh function and current refreshing state
+ *
+ * Returned `refreshCollection` behavior:
+ * - Refreshes cached collection query variants for current user
+ * - Reconciles sync baseline/live counts on success
+ * - Optionally clears collection cache before refresh
+ * - Optionally seeds cache when no collection query is currently cached
+ *
+ * Returned `refreshCollection` throws:
+ * - `Error` when OAuth tokens are unavailable for a required fetch
+ * - upstream tRPC/fetch errors during collection or metadata requests
+ */
+export function useCollectionRefresh(): CollectionRefreshResult {
+  const queryClient = useQueryClient()
+  const trpcUtils = trpc.useUtils()
+  const { profile } = useUserProfile()
+
+  const username = profile?.username
+  const requireTokens = () => {
+    const currentTokens = useAuthStore.getState().tokens
+    if (!currentTokens) {
+      throw new Error('OAuth tokens are required to refresh collection')
+    }
+    return currentTokens
+  }
+  const { refresh: refreshScope, isRefreshing } =
+    useScopeRefresh<CollectionFetchParams>({
+      scope: COLLECTION_SCOPE,
+      identity: username,
+      getCachedBaselineCount: () => {
+        if (!username) return null
+        return getLatestCachedCollectionCount(queryClient, username)
+      },
+      refreshCachedData: async () => {
+        if (!username) return null
+
+        const cachedCollectionQueries = findCachedCollectionQueries(
+          queryClient,
+          username
+        )
+
+        let syncedCount: number | null = null
+
+        if (cachedCollectionQueries.length > 0) {
+          const currentTokens = requireTokens()
+
+          for (const query of cachedCollectionQueries) {
+            const fetchParams = parseCollectionFetchParams(
+              query.queryKey,
+              username
+            )
+            if (!fetchParams) {
+              console.warn(
+                'Skipping unrecognized cached collection query key during sync refresh:',
+                query.queryKey
+              )
+              continue
+            }
+
+            const refreshedCollection = await fetchCollectionForParams({
+              params: fetchParams,
+              fetchPage: async (page) =>
+                trpcUtils.client.discogs.getCollection.query({
+                  accessToken: currentTokens.accessToken,
+                  accessTokenSecret: currentTokens.accessTokenSecret,
+                  username,
+                  page,
+                  perPage: COLLECTION.PER_PAGE,
+                  sort: fetchParams.sort,
+                  sortOrder: fetchParams.sortOrder
+                })
+            })
+
+            queryClient.setQueryData(query.queryKey, refreshedCollection)
+
+            const refreshedTotal = refreshedCollection.pagination.items
+            if (typeof refreshedTotal === 'number') {
+              syncedCount =
+                syncedCount === null
+                  ? refreshedTotal
+                  : Math.max(syncedCount, refreshedTotal)
+            }
+          }
+        }
+
+        return syncedCount
+      },
+      hydrateIfMissing: async (hydrationTarget) => {
+        if (!username) return null
+        const currentTokens = requireTokens()
+
+        const hydratedCollection = await fetchCollectionForParams({
+          params: hydrationTarget,
+          fetchPage: async (page) =>
+            trpcUtils.client.discogs.getCollection.query({
+              accessToken: currentTokens.accessToken,
+              accessTokenSecret: currentTokens.accessTokenSecret,
+              username,
+              page,
+              perPage: COLLECTION.PER_PAGE,
+              sort: hydrationTarget.sort,
+              sortOrder: hydrationTarget.sortOrder
+            })
+        })
+
+        queryClient.setQueryData(
+          buildCollectionQueryKey(username, hydrationTarget),
+          hydratedCollection
+        )
+
+        const hydratedTotal = hydratedCollection.pagination.items
+        return typeof hydratedTotal === 'number' ? hydratedTotal : null
+      },
+      fetchLiveCount: async () => {
+        if (!username) {
+          throw new Error('Username is required to refresh collection')
+        }
+        const currentTokens = useAuthStore.getState().tokens
+        const metadata =
+          await trpcUtils.client.discogs.getCollectionMetadata.query(
+            currentTokens
+              ? {
+                  accessToken: currentTokens.accessToken,
+                  accessTokenSecret: currentTokens.accessTokenSecret,
+                  username
+                }
+              : { username }
+          )
+        return metadata.totalCount
+      }
+    })
+
+  const refreshCollection = async (
+    options?: CollectionRefreshOptions
+  ): Promise<void> => {
+    await refreshScope(options)
+  }
+
+  return { refreshCollection, isRefreshing }
 }
 
 /**
@@ -146,26 +318,25 @@ const fetchCollectionForParams = async ({
  * requiring collection query cache to exist.
  *
  * @returns Collection sync descriptor and controls for refresh/minimize/open
+ * @throws {Error} Returned `refreshCollection` can re-throw authentication and
+ * API errors from refresh operations (for example missing OAuth tokens,
+ * permission/auth failures, network failures, and upstream HTTP errors).
  */
 export function useCollectionSync(): CollectionSyncResult {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const trpcUtils = trpc.useUtils()
+  const { refreshCollection } = useCollectionRefresh()
   const { hasHydrated } = useHydrationState()
   const tokens = useAuthStore((state) => state.tokens)
   const { profile } = useUserProfile()
   const upsertFromMetadata = useSyncStateStore(
     (state) => state.upsertFromMetadata
   )
-  const setRefreshing = useSyncStateStore((state) => state.setRefreshing)
   const setMinimized = useSyncStateStore((state) => state.setMinimized)
-  const acknowledgeBaseline = useSyncStateStore(
-    (state) => state.acknowledgeBaseline
-  )
 
   const username = profile?.username
   const syncKey =
-    username !== undefined ? buildCollectionSyncKey(username) : null
+    username !== undefined ? buildSyncKey(COLLECTION_SCOPE, username) : null
 
   const syncEntry = useSyncStateStore((state) =>
     syncKey ? state.entries[syncKey] : undefined
@@ -235,79 +406,6 @@ export function useCollectionSync(): CollectionSyncResult {
   const open = (): void => {
     if (!syncKey) return
     setMinimized(syncKey, false)
-  }
-
-  const refreshCollection = async (): Promise<void> => {
-    if (!syncKey || !username) return
-
-    setRefreshing(syncKey, true)
-
-    try {
-      const cachedCollectionQueries = queryClient.getQueryCache().findAll({
-        queryKey: ['collection', username],
-        exact: false,
-        predicate: (query) => query.state.data !== undefined
-      })
-
-      if (cachedCollectionQueries.length > 0) {
-        const currentTokens = useAuthStore.getState().tokens
-        if (!currentTokens) {
-          throw new Error('OAuth tokens are required to refresh collection')
-        }
-
-        for (const query of cachedCollectionQueries) {
-          const fetchParams = parseCollectionFetchParams(
-            query.queryKey,
-            username
-          )
-          if (!fetchParams) {
-            console.warn(
-              'Skipping unrecognized cached collection query key during sync refresh:',
-              query.queryKey
-            )
-            continue
-          }
-
-          const refreshedCollection = await fetchCollectionForParams({
-            params: fetchParams,
-            fetchPage: async (page) =>
-              trpcUtils.client.discogs.getCollection.query({
-                accessToken: currentTokens.accessToken,
-                accessTokenSecret: currentTokens.accessTokenSecret,
-                username,
-                page,
-                perPage: COLLECTION.PER_PAGE,
-                sort: fetchParams.sort,
-                sortOrder: fetchParams.sortOrder
-              })
-          })
-
-          queryClient.setQueryData(query.queryKey, refreshedCollection)
-        }
-      }
-
-      const currentTokens = useAuthStore.getState().tokens
-      const metadata =
-        await trpcUtils.client.discogs.getCollectionMetadata.query(
-          currentTokens
-            ? {
-                accessToken: currentTokens.accessToken,
-                accessTokenSecret: currentTokens.accessTokenSecret,
-                username
-              }
-            : { username }
-        )
-
-      upsertFromMetadata({
-        key: syncKey,
-        scope: COLLECTION_SCOPE,
-        liveCount: metadata.totalCount
-      })
-      acknowledgeBaseline({ key: syncKey, baselineCount: metadata.totalCount })
-    } catch (error) {
-      setRefreshing(syncKey, false)
-      throw error
-    }
   }
 
   let status: 'idle' | 'pending' | 'refreshing' = 'idle'

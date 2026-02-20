@@ -1,4 +1,6 @@
-export type SyncScope = 'collection'
+export const SYNC_SCOPES = ['collection'] as const
+
+export type SyncScope = (typeof SYNC_SCOPES)[number]
 
 export type SyncStatus = 'idle' | 'pending' | 'refreshing'
 
