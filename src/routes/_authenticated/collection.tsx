@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { RotateCw } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 import { CollectionToolbar } from '@/components/collection/collection-toolbar'
 import { PaginationControls } from '@/components/collection/pagination-controls'
@@ -11,6 +12,7 @@ import { EmptyState } from '@/components/common/empty-state'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useCollection } from '@/hooks/use-collection'
+import { useCollectionRefresh } from '@/hooks/use-collection-sync'
 import { useHydrationState } from '@/providers/hydration-context'
 import { usePreferencesStore } from '@/stores/preferences-store'
 
@@ -25,6 +27,8 @@ function CollectionPage() {
   const { hasHydrated } = useHydrationState()
   const viewMode = usePreferencesStore((state) => state.viewMode)
   const setViewMode = usePreferencesStore((state) => state.setViewMode)
+  const { refreshCollection, isRefreshing: isCollectionRefreshing } =
+    useCollectionRefresh()
 
   const toggleView = () => {
     setViewMode(viewMode === 'grid' ? 'table' : 'grid')
@@ -172,6 +176,14 @@ function CollectionPage() {
     }, 420)
   }
 
+  const handleCollectionRefresh = () => {
+    handleClearFilters()
+    void refreshCollection().catch((error: unknown) => {
+      console.error('Collection refresh failed:', error)
+      toast.error(t('collection.sync.refreshFailed'))
+    })
+  }
+
   const shouldAnimateItems = isViewSwitching
 
   if (isError) {
@@ -205,15 +217,16 @@ function CollectionPage() {
             <Button
               variant="ghost"
               size="icon-sm"
-              onClick={() => {
-                handleClearFilters()
-                void refetch()
-              }}
-              disabled={isFetching}
+              onClick={handleCollectionRefresh}
+              disabled={isFetching || isCollectionRefreshing}
               aria-label={t('collection.refresh')}
               title={t('collection.refresh')}
             >
-              <RotateCw className={isFetching ? 'animate-spin' : ''} />
+              <RotateCw
+                className={
+                  isFetching || isCollectionRefreshing ? 'animate-spin' : ''
+                }
+              />
             </Button>
           </div>
         </div>

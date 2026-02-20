@@ -6,6 +6,8 @@ import { STORAGE_KEYS } from '@/lib/storage-keys'
 import { usePreferencesStore } from '@/stores/preferences-store'
 import { useProfileCacheStore } from '@/stores/profile-cache-store'
 
+const AUTH_PERSIST_VERSION = 1
+
 interface AuthTokens {
   accessToken: string
   accessTokenSecret: string
@@ -22,6 +24,46 @@ interface AuthStore {
   signOut: () => void
   disconnect: () => void
 }
+
+type PersistedAuthState = Pick<AuthStore, 'tokens' | 'sessionActive'>
+
+const sanitizeAuthTokens = (value: unknown): AuthTokens | null => {
+  if (typeof value !== 'object' || value === null) return null
+
+  const raw = value as Record<string, unknown>
+  const accessToken = raw['accessToken']
+  const accessTokenSecret = raw['accessTokenSecret']
+
+  if (
+    typeof accessToken !== 'string' ||
+    typeof accessTokenSecret !== 'string'
+  ) {
+    return null
+  }
+  if (!accessToken || !accessTokenSecret) return null
+
+  return { accessToken, accessTokenSecret }
+}
+
+const sanitizePersistedAuthState = (value: unknown): PersistedAuthState => {
+  const raw = (value ?? {}) as Partial<PersistedAuthState>
+  const tokens = sanitizeAuthTokens(raw.tokens)
+  const sessionActive =
+    typeof raw.sessionActive === 'boolean' ? raw.sessionActive : false
+
+  return {
+    tokens,
+    sessionActive: tokens ? sessionActive : false
+  }
+}
+
+const partializeAuthState = (state: AuthStore): PersistedAuthState => ({
+  tokens: state.tokens,
+  sessionActive: state.sessionActive
+})
+
+const migrateAuthState = (persistedState: unknown): PersistedAuthState =>
+  sanitizePersistedAuthState(persistedState)
 
 /**
  * Zustand store for authentication state.
@@ -63,6 +105,11 @@ export const useAuthStore = create<AuthStore>()(
         })
       }
     }),
-    { name: STORAGE_KEYS.AUTH }
+    {
+      name: STORAGE_KEYS.AUTH,
+      version: AUTH_PERSIST_VERSION,
+      partialize: partializeAuthState,
+      migrate: migrateAuthState
+    }
   )
 )

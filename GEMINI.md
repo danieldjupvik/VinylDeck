@@ -158,8 +158,8 @@ Existing `useMemo`/`useCallback` in the codebase is legacy code that will be rem
 - `src/components/collection/` - Collection view components
 - `src/components/changelog/` - Changelog modal and version display
 - `src/data/` - Static data (changelog entries)
-- `src/hooks/` - Custom hooks (auth, collection, preferences, online status, hydration, mobile detection, user profile, changelog)
-- `src/lib/` - Utilities, constants, tRPC client, query persister, errors
+- `src/hooks/` - Custom hooks (auth, collection, preferences, online status, hydration, mobile detection, user profile, changelog, sync refresh)
+- `src/lib/` - Utilities, constants, tRPC client, query persister, query-cache scopes, sync keys, errors
 - `src/providers/` - React providers (auth, theme, query/tRPC, hydration, i18n)
 - `src/routes/` - TanStack Router file-based routes
 - `src/stores/` - Zustand stores (auth-store, preferences-store, profile-cache-store)
@@ -448,6 +448,8 @@ Cache names defined in `src/lib/constants.ts` (`CACHE_NAMES`) for coordination b
 - IndexedDB persisted cache
 - Browser Cache API caches
 
+Global TanStack cache clearing is centralized in `clearAllQueryCache` (`src/lib/query-cache-scopes.ts`) and used by `AuthProvider`.
+
 ### Query Caching Strategy
 
 Default `staleTime: Infinity` in `query-provider.tsx`. Override per-query based on endpoint cost:
@@ -511,6 +513,7 @@ const viewMode = usePreferencesStore((state) => state.viewMode)
 | `vinyldeck-auth`     | Zustand     | OAuth tokens, sessionActive                                         |
 | `vinyldeck-prefs`    | Zustand     | viewMode, avatarSource, gravatarEmail, gravatarUrl, lastSeenVersion |
 | `vinyldeck-profile`  | Zustand     | Cached user profile (id, username, avatar_url, email)               |
+| `vinyldeck-sync`     | Zustand     | Sync baseline/live/pending state per scope and identity             |
 | `vinyldeck-theme`    | next-themes | Theme preference                                                    |
 | `vinyldeck-language` | i18next     | Language preference                                                 |
 
@@ -542,6 +545,24 @@ Detects collection changes via fast metadata check (count only):
 3. Background metadata check detects count mismatch
 4. Banner: "5 new items detected - Refresh"
 5. User clicks refresh → background refetch with old data shown
+
+### Scoped Sync and Refresh Architecture
+
+- `useScopeRefresh` (`src/hooks/use-scope-refresh.ts`) is the generic refresh orchestrator for sync-aware domains.
+- Domain hooks (for example `useCollectionRefresh`) are thin adapters that provide:
+  - cached refresh logic
+  - metadata live-count fetch
+  - optional cache hydration when no query exists
+- Sync store keys are normalized as `<scope>:<identity>` via `buildSyncKey` (`src/lib/sync-keys.ts`).
+- Valid scopes are defined in `SYNC_SCOPES` (`src/types/sync.ts`).
+- Scope cache clearing utilities are in `src/lib/query-cache-scopes.ts`:
+  - `clearScopeCache(queryClient, scope)` clears one scope from memory + persisted IndexedDB query cache
+  - `clearAllQueryCache(queryClient)` clears all TanStack query cache layers
+
+Query-key convention for scoped cache clearing:
+
+- The first element of each query key must be the scope string (for example `'collection'`).
+- If a domain does not follow this convention, `clearScopeCache` will not target that domain.
 
 ### Known Limitations
 

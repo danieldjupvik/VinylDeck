@@ -6,6 +6,8 @@ import { STORAGE_KEYS } from '@/lib/storage-keys'
 import type { AvatarSource } from '@/providers/preferences-context'
 import type { ViewMode } from '@/types/preferences'
 
+const PREFERENCES_PERSIST_VERSION = 1
+
 interface PreferencesStore {
   // State
   viewMode: ViewMode
@@ -33,6 +35,52 @@ interface PreferencesStore {
   setGravatarUrl: (url: string | null) => void
   resetAvatarSettings: () => void
 }
+
+type PersistedPreferencesState = Pick<
+  PreferencesStore,
+  | 'viewMode'
+  | 'avatarSource'
+  | 'gravatarEmail'
+  | 'lastSeenVersion'
+  | 'gravatarUrl'
+>
+
+const sanitizeViewMode = (value: unknown): ViewMode =>
+  value === 'table' ? 'table' : 'grid'
+
+const sanitizeAvatarSource = (value: unknown): AvatarSource =>
+  value === 'gravatar' ? 'gravatar' : 'discogs'
+
+const sanitizePersistedPreferencesState = (
+  value: unknown
+): PersistedPreferencesState => {
+  const raw = (value ?? {}) as Partial<PersistedPreferencesState>
+
+  return {
+    viewMode: sanitizeViewMode(raw.viewMode),
+    avatarSource: sanitizeAvatarSource(raw.avatarSource),
+    gravatarEmail:
+      typeof raw.gravatarEmail === 'string' ? raw.gravatarEmail : '',
+    lastSeenVersion:
+      typeof raw.lastSeenVersion === 'string' ? raw.lastSeenVersion : null,
+    gravatarUrl: typeof raw.gravatarUrl === 'string' ? raw.gravatarUrl : null
+  }
+}
+
+const partializePreferencesState = (
+  state: PreferencesStore
+): PersistedPreferencesState => ({
+  viewMode: state.viewMode,
+  avatarSource: state.avatarSource,
+  gravatarEmail: state.gravatarEmail,
+  lastSeenVersion: state.lastSeenVersion,
+  gravatarUrl: state.gravatarUrl
+})
+
+const migratePreferencesState = (
+  persistedState: unknown
+): PersistedPreferencesState =>
+  sanitizePersistedPreferencesState(persistedState)
 
 /**
  * Zustand store for user preferences.
@@ -66,6 +114,11 @@ export const usePreferencesStore = create<PreferencesStore>()(
           gravatarUrl: null
         })
     }),
-    { name: STORAGE_KEYS.PREFERENCES }
+    {
+      name: STORAGE_KEYS.PREFERENCES,
+      version: PREFERENCES_PERSIST_VERSION,
+      partialize: partializePreferencesState,
+      migrate: migratePreferencesState
+    }
   )
 )

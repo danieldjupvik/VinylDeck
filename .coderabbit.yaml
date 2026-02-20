@@ -131,18 +131,6 @@ reviews:
       - name: 'Debug Statements'
         instructions: 'Ensure no console.log/debugger statements are left in production code. console.warn/error are OK when justified.'
         mode: warning
-      - name: 'User-Facing Changelog'
-        instructions: >-
-          When a PR adds or changes user-facing features, improvements, or bug fixes
-          (changes to UI components, new routes, UX changes, new hooks used by components, etc.),
-          add a review comment reminding that these changes need user-facing changelog entries
-          on the release-please branch before the next release. The entries go in:
-          1. `src/data/changelog.ts` — new version entry with translation key references
-          2. `src/locales/en/translation.json` — English translations under `changelog.{version}.*`
-          3. `src/locales/no/translation.json` — Norwegian translations
-          Skip this reminder for PRs that only touch: dependencies, CI/CD, refactors, internal tooling,
-          server-only changes invisible to users, or documentation.
-        mode: warning
   tools:
     ast-grep:
       rule_dirs: []

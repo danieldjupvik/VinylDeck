@@ -1,5 +1,12 @@
 import { useIsRestoring, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction
+} from 'react'
 
 import { useCrossTabAuthSync } from '@/hooks/use-cross-tab-auth-sync'
 import { useOnlineStatus } from '@/hooks/use-online-status'
@@ -7,10 +14,11 @@ import { usePreferences } from '@/hooks/use-preferences'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { CACHE_NAMES } from '@/lib/constants'
 import { isAuthError, OfflineNoCacheError } from '@/lib/errors'
-import { queryPersister } from '@/lib/query-persister'
+import { clearAllQueryCache } from '@/lib/query-cache-scopes'
 import { trpc } from '@/lib/trpc'
 import { useAuthStore } from '@/stores/auth-store'
 import { useProfileCacheStore } from '@/stores/profile-cache-store'
+import { useSyncStateStore } from '@/stores/sync-state-store'
 
 import { AuthContext, type AuthState } from './auth-context'
 
@@ -31,6 +39,160 @@ function createMinimalProfile(identity: DiscogsIdentity): {
     id: identity.id,
     username: identity.username
   }
+}
+
+interface AuthFlowBase {
+  tokens: { accessToken: string; accessTokenSecret: string }
+  validateTokens: (tokens: {
+    accessToken: string
+    accessTokenSecret: string
+  }) => Promise<DiscogsIdentity>
+  fetchProfile: (
+    username: string,
+    tokens: { accessToken: string; accessTokenSecret: string }
+  ) => Promise<{ email?: string | undefined }>
+  getLatestGravatarEmail: () => string
+  setLatestGravatarEmail: (email: string) => void
+  setGravatarEmail: (email: string) => void
+  disconnectAndClearState: () => void
+  setState: Dispatch<SetStateAction<AuthState>>
+  getIsOnline: () => boolean
+}
+
+interface PerformAuthValidationParams extends AuthFlowBase {
+  options: { forceProfileRefresh: boolean; storeTokens: boolean }
+  setTokens: (tokens: {
+    accessToken: string
+    accessTokenSecret: string
+  }) => void
+  setSessionActive: (active: boolean) => void
+}
+
+async function validateTokensInBackgroundFlow({
+  tokens,
+  validateTokens,
+  fetchProfile,
+  getLatestGravatarEmail,
+  setLatestGravatarEmail,
+  setGravatarEmail,
+  disconnectAndClearState,
+  setState,
+  getIsOnline
+}: AuthFlowBase): Promise<void> {
+  try {
+    const identity = await validateTokens(tokens)
+    if (!useProfileCacheStore.getState().profile) {
+      try {
+        const userProfile = await fetchProfile(identity.username, tokens)
+        if (!getLatestGravatarEmail() && userProfile.email) {
+          setLatestGravatarEmail(userProfile.email)
+          setGravatarEmail(userProfile.email)
+        }
+      } catch {
+        useProfileCacheStore
+          .getState()
+          .setProfile(createMinimalProfile(identity))
+      }
+    }
+  } catch (error: unknown) {
+    if (isAuthError(error)) {
+      disconnectAndClearState()
+      setState({
+        isAuthenticated: false,
+        isLoading: false,
+        isOnline: getIsOnline(),
+        hasStoredTokens: false,
+        oauthTokens: null
+      })
+    } else {
+      console.warn(
+        'Background token validation failed due to transient error, will retry later:',
+        error
+      )
+    }
+  }
+}
+
+async function performAuthValidationFlow({
+  tokens,
+  options,
+  validateTokens,
+  disconnectAndClearState,
+  setState,
+  getIsOnline,
+  setTokens,
+  setSessionActive,
+  fetchProfile,
+  getLatestGravatarEmail,
+  setLatestGravatarEmail,
+  setGravatarEmail
+}: PerformAuthValidationParams): Promise<void> {
+  let identity: DiscogsIdentity
+  try {
+    identity = await validateTokens(tokens)
+  } catch (error) {
+    if (isAuthError(error)) {
+      disconnectAndClearState()
+      setState({
+        isAuthenticated: false,
+        isLoading: false,
+        isOnline: getIsOnline(),
+        hasStoredTokens: false,
+        oauthTokens: null
+      })
+    } else {
+      console.warn(
+        'Token validation failed due to transient error, will retry later:',
+        error
+      )
+
+      if (useProfileCacheStore.getState().profile) {
+        if (options.storeTokens) {
+          setTokens(tokens)
+        }
+        setSessionActive(true)
+        setState((prev) => ({
+          ...prev,
+          isAuthenticated: true,
+          isLoading: false,
+          oauthTokens: tokens
+        }))
+        return
+      }
+
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        hasStoredTokens: true
+      }))
+    }
+    throw error
+  }
+
+  const cachedProfile = useProfileCacheStore.getState().profile
+  if (options.forceProfileRefresh || !cachedProfile) {
+    try {
+      const userProfile = await fetchProfile(identity.username, tokens)
+      if (!getLatestGravatarEmail() && userProfile.email) {
+        setLatestGravatarEmail(userProfile.email)
+        setGravatarEmail(userProfile.email)
+      }
+    } catch (profileError) {
+      console.warn('Profile fetch failed, using identity data:', profileError)
+      useProfileCacheStore.getState().setProfile(createMinimalProfile(identity))
+    }
+  }
+
+  if (options.storeTokens) {
+    setTokens(tokens)
+  }
+  setSessionActive(true)
+  setState((prev) => ({
+    ...prev,
+    isAuthenticated: true,
+    isLoading: false,
+    oauthTokens: tokens
+  }))
 }
 
 /**
@@ -109,16 +271,6 @@ export function AuthProvider({
     latestGravatarEmailRef.current = gravatarEmail
   }, [gravatarEmail])
 
-  // Update online status in state
-  useEffect(() => {
-    setState((prev) => ({ ...prev, isOnline }))
-  }, [isOnline])
-
-  // Update hasStoredTokens in state
-  useEffect(() => {
-    setState((prev) => ({ ...prev, hasStoredTokens: authTokens !== null }))
-  }, [authTokens])
-
   // Clear stale profile if tokens change without disconnect (prevents cross-account leakage)
   useEffect(() => {
     if (
@@ -156,17 +308,14 @@ export function AuthProvider({
    * Used during disconnect, auth errors, and cross-tab sync.
    *
    * Cache clearing is deferred to the next microtask to prevent React warnings
-   * about updating components (e.g., CollectionSyncBanner) while rendering
+   * about updating components (e.g., SyncToastManager) while rendering
    * another component (AuthProvider). This happens because queryClient.clear()
    * synchronously notifies cache subscribers via useSyncExternalStore.
    */
   const clearAllCaches = (): void => {
     queueMicrotask(() => {
-      // Clear TanStack Query in-memory cache (collection data)
-      queryClient.clear()
-
-      // Clear IndexedDB via the persister (errors handled internally)
-      void queryPersister.removeClient()
+      // Clear TanStack Query memory + persisted IndexedDB cache layers
+      void clearAllQueryCache(queryClient)
 
       // Clear browser caches for sensitive data
       if ('caches' in window) {
@@ -179,53 +328,43 @@ export function AuthProvider({
     })
   }
 
-  /**
-   * Validates OAuth tokens in the background without affecting loading state.
-   * Used for optimistic auth - user sees authenticated UI immediately,
-   * validation happens silently. Only disconnects on definitive auth errors (401/403).
-   */
-  const validateTokensInBackground = (tokens: {
-    accessToken: string
-    accessTokenSecret: string
-  }): void => {
-    void (async () => {
-      try {
-        const identity = await validateTokens(tokens)
-        // Tokens valid - ensure profile is cached (skip if already in localStorage)
-        if (!useProfileCacheStore.getState().profile) {
-          try {
-            const userProfile = await fetchProfile(identity.username, tokens)
-            if (!latestGravatarEmailRef.current && userProfile.email) {
-              latestGravatarEmailRef.current = userProfile.email
-              setGravatarEmail(userProfile.email)
-            }
-          } catch {
-            // Profile fetch failed but tokens are valid - set minimal profile
-            useProfileCacheStore
-              .getState()
-              .setProfile(createMinimalProfile(identity))
-          }
-        }
-      } catch (error: unknown) {
-        // Only disconnect on auth errors (401/403) - tokens are definitively invalid
-        if (isAuthError(error)) {
-          disconnectStore()
-          clearAllCaches()
-          setState({
-            isAuthenticated: false,
-            isLoading: false,
-            isOnline: isOnlineRef.current,
-            hasStoredTokens: false,
-            oauthTokens: null
-          })
-        }
-        // Transient errors are silently ignored - user stays authenticated
-        // and we'll retry on next opportunity (window focus, etc.)
-      }
-    })()
+  const clearSyncState = (): void => {
+    useSyncStateStore.getState().clearAll()
   }
-  const validateTokensInBackgroundRef = useRef(validateTokensInBackground)
-  validateTokensInBackgroundRef.current = validateTokensInBackground
+
+  const disconnectAndClearState = (): void => {
+    disconnectStore()
+    clearSyncState()
+    clearAllCaches()
+  }
+
+  /**
+   * Stores the latest background token validation function for effects that
+   * intentionally avoid depending on unstable callback identities.
+   */
+  const validateTokensInBackgroundRef = useRef<
+    (tokens: { accessToken: string; accessTokenSecret: string }) => void
+  >(() => {})
+  useEffect(() => {
+    validateTokensInBackgroundRef.current = (tokens: {
+      accessToken: string
+      accessTokenSecret: string
+    }): void => {
+      void validateTokensInBackgroundFlow({
+        tokens,
+        validateTokens,
+        fetchProfile,
+        getLatestGravatarEmail: () => latestGravatarEmailRef.current,
+        setLatestGravatarEmail: (email) => {
+          latestGravatarEmailRef.current = email
+        },
+        setGravatarEmail,
+        disconnectAndClearState,
+        setState,
+        getIsOnline: () => isOnlineRef.current
+      })
+    }
+  })
 
   /**
    * Core auth validation flow shared by validateOAuthTokens and establishSession.
@@ -239,83 +378,22 @@ export function AuthProvider({
     tokens: { accessToken: string; accessTokenSecret: string },
     options: { forceProfileRefresh: boolean; storeTokens: boolean }
   ): Promise<void> => {
-    // Step 1: Validate tokens
-    let identity: DiscogsIdentity
-    try {
-      identity = await validateTokens(tokens)
-    } catch (error) {
-      // Only disconnect on auth errors (401/403) - tokens are definitively invalid
-      if (isAuthError(error)) {
-        disconnectStore()
-        clearAllCaches()
-        setState({
-          isAuthenticated: false,
-          isLoading: false,
-          isOnline: isOnlineRef.current,
-          hasStoredTokens: false,
-          oauthTokens: null
-        })
-      } else {
-        // Transient error (network, 5xx) - keep tokens, try to use cached state
-        console.warn(
-          'Token validation failed due to transient error, will retry later:',
-          error
-        )
-
-        // If we have a cached profile, trust it and authenticate (like offline mode)
-        if (useProfileCacheStore.getState().profile) {
-          if (options.storeTokens) {
-            setTokens(tokens)
-          }
-          setSessionActive(true)
-          setState((prev) => ({
-            ...prev,
-            isAuthenticated: true,
-            isLoading: false,
-            oauthTokens: tokens
-          }))
-          return
-        }
-
-        // No cached profile - can't authenticate, but keep tokens for retry
-        setState((prev) => ({
-          ...prev,
-          isLoading: false,
-          hasStoredTokens: true
-        }))
-      }
-      throw error
-    }
-
-    // Step 2: Fetch profile (conditionally based on cache and forceRefresh)
-    const cachedProfile = useProfileCacheStore.getState().profile
-    if (options.forceProfileRefresh || !cachedProfile) {
-      try {
-        const userProfile = await fetchProfile(identity.username, tokens)
-        if (!latestGravatarEmailRef.current && userProfile.email) {
-          latestGravatarEmailRef.current = userProfile.email
-          setGravatarEmail(userProfile.email)
-        }
-      } catch (profileError) {
-        // Profile fetch failed but tokens are valid - set minimal profile
-        console.warn('Profile fetch failed, using identity data:', profileError)
-        useProfileCacheStore
-          .getState()
-          .setProfile(createMinimalProfile(identity))
-      }
-    }
-
-    // Step 3: Finalize session
-    if (options.storeTokens) {
-      setTokens(tokens)
-    }
-    setSessionActive(true)
-    setState((prev) => ({
-      ...prev,
-      isAuthenticated: true,
-      isLoading: false,
-      oauthTokens: tokens
-    }))
+    await performAuthValidationFlow({
+      tokens,
+      options,
+      validateTokens,
+      disconnectAndClearState,
+      setState,
+      getIsOnline: () => isOnlineRef.current,
+      setTokens,
+      setSessionActive,
+      fetchProfile,
+      getLatestGravatarEmail: () => latestGravatarEmailRef.current,
+      setLatestGravatarEmail: (email) => {
+        latestGravatarEmailRef.current = email
+      },
+      setGravatarEmail
+    })
   }
 
   /**
@@ -392,73 +470,76 @@ export function AuthProvider({
       return
     }
 
-    // No tokens - user is not authenticated
+    let nextState: AuthState
+
     if (!authTokens) {
       hasInitializedRef.current = false
-      setState({
+      nextState = {
         isAuthenticated: false,
         isLoading: false,
         isOnline,
         hasStoredTokens: false,
         oauthTokens: null
-      })
-      return
-    }
-
-    // Tokens exist but session not active - show "Welcome back" flow
-    if (!sessionActive) {
+      }
+    } else if (!sessionActive || (!isOnline && !hasProfileCache)) {
       hasInitializedRef.current = false
-      setState({
+      nextState = {
         isAuthenticated: false,
         isLoading: false,
         isOnline,
         hasStoredTokens: true,
         oauthTokens: null
-      })
-      return
-    }
-
-    // OFFLINE WITHOUT CACHE: Cannot authenticate — no way to get username.
-    // Profile is in localStorage (synchronous), so no IndexedDB wait needed.
-    if (!isOnline && !hasProfileCache) {
-      hasInitializedRef.current = false
-      setState({
-        isAuthenticated: false,
+      }
+    } else {
+      // OPTIMISTIC AUTH: tokens + sessionActive = authenticate immediately
+      // Profile is available from localStorage, no async wait required
+      hasInitializedRef.current = true
+      nextState = {
+        isAuthenticated: true,
         isLoading: false,
         isOnline,
         hasStoredTokens: true,
-        oauthTokens: null
+        oauthTokens: authTokens
+      }
+
+      const shouldValidateInBackground = isOnline
+
+      queueMicrotask(() => {
+        setState(nextState)
+
+        // If online, validate tokens in background (user won't see a loader)
+        // If validation fails (401/403), user will be disconnected
+        if (shouldValidateInBackground) {
+          validateTokensInBackgroundRef.current(authTokens)
+        }
       })
+
       return
     }
 
-    // OPTIMISTIC AUTH: tokens + sessionActive = authenticate immediately
-    // Profile is available from localStorage, no async wait required
-    hasInitializedRef.current = true
-    setState({
-      isAuthenticated: true,
-      isLoading: false,
-      isOnline,
-      hasStoredTokens: true,
-      oauthTokens: authTokens
+    queueMicrotask(() => {
+      setState(nextState)
     })
-
-    // If online, validate tokens in background (user won't see a loader)
-    // If validation fails (401/403), user will be disconnected
-    if (isOnline) {
-      validateTokensInBackgroundRef.current(authTokens)
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Network validation guarded by hasInitializedRef
   }, [authTokens, sessionActive, isOnline, hasProfileCache])
+
+  const effectiveState: AuthState = {
+    ...state,
+    isOnline,
+    hasStoredTokens: authTokens !== null
+  }
 
   // Sync derived auth state when Zustand store changes (cross-tab sync)
   useCrossTabAuthSync({
     authTokens,
     sessionActive,
     isRestoring,
-    state,
+    state: effectiveState,
     setState,
-    onCrossTabDisconnect: clearAllCaches
+    onCrossTabDisconnect: () => {
+      clearSyncState()
+      clearAllCaches()
+    }
   })
 
   // Revalidate tokens when coming back online (background validation, no loader)
@@ -499,8 +580,7 @@ export function AuthProvider({
    */
   const disconnect = (): void => {
     // Store's disconnect() handles token, preference, and profile cleanup
-    disconnectStore()
-    clearAllCaches()
+    disconnectAndClearState()
 
     setState({
       isAuthenticated: false,
@@ -513,7 +593,7 @@ export function AuthProvider({
 
   // eslint-disable-next-line react/jsx-no-constructed-context-values -- React Compiler handles memoization; manual useMemo is disallowed in this project
   const contextValue = {
-    ...state,
+    ...effectiveState,
     validateOAuthTokens,
     establishSession,
     signOut,

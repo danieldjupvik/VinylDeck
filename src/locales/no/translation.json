@@ -154,7 +154,10 @@
     "showing_other": "Viser {{start}}-{{end}} av {{total}} album",
     "sync": {
       "refreshing": "Oppdaterer...",
-      "refreshNow": "Oppdater nå"
+      "refreshNow": "Oppdater nå",
+      "minimize": "Minimer",
+      "open": "Åpne synk",
+      "refreshFailed": "Kunne ikke oppdatere nå. Prøv igjen."
     }
   },
   "settings": {
