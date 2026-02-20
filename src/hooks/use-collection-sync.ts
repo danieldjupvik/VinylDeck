@@ -177,9 +177,8 @@ const fetchCollectionForParams = async ({
  * - Optionally clears collection cache before refresh
  * - Optionally seeds cache when no collection query is currently cached
  *
- * Returned `refreshCollection` throws:
- * - `Error` when OAuth tokens are unavailable for a required fetch
- * - upstream tRPC/fetch errors during collection or metadata requests
+ * @throws {Error} When OAuth tokens are unavailable for a required fetch
+ * @throws Upstream tRPC/fetch errors during collection or metadata requests
  */
 export function useCollectionRefresh(): CollectionRefreshResult {
   const queryClient = useQueryClient()
@@ -215,6 +214,8 @@ export function useCollectionRefresh(): CollectionRefreshResult {
         if (cachedCollectionQueries.length > 0) {
           const currentTokens = requireTokens()
 
+          let lastError: unknown = null
+
           for (const query of cachedCollectionQueries) {
             const fetchParams = parseCollectionFetchParams(
               query.queryKey,
@@ -228,29 +229,44 @@ export function useCollectionRefresh(): CollectionRefreshResult {
               continue
             }
 
-            const refreshedCollection = await fetchCollectionForParams({
-              params: fetchParams,
-              fetchPage: async (page) =>
-                trpcUtils.client.discogs.getCollection.query({
-                  accessToken: currentTokens.accessToken,
-                  accessTokenSecret: currentTokens.accessTokenSecret,
-                  username,
-                  page,
-                  perPage: COLLECTION.PER_PAGE,
-                  sort: fetchParams.sort,
-                  sortOrder: fetchParams.sortOrder
-                })
-            })
+            try {
+              const refreshedCollection = await fetchCollectionForParams({
+                params: fetchParams,
+                fetchPage: async (page) =>
+                  trpcUtils.client.discogs.getCollection.query({
+                    accessToken: currentTokens.accessToken,
+                    accessTokenSecret: currentTokens.accessTokenSecret,
+                    username,
+                    page,
+                    perPage: COLLECTION.PER_PAGE,
+                    sort: fetchParams.sort,
+                    sortOrder: fetchParams.sortOrder
+                  })
+              })
 
-            queryClient.setQueryData(query.queryKey, refreshedCollection)
+              queryClient.setQueryData(query.queryKey, refreshedCollection)
 
-            const refreshedTotal = refreshedCollection.pagination.items
-            if (typeof refreshedTotal === 'number') {
-              syncedCount =
-                syncedCount === null
-                  ? refreshedTotal
-                  : Math.max(syncedCount, refreshedTotal)
+              const refreshedTotal = refreshedCollection.pagination.items
+              if (typeof refreshedTotal === 'number') {
+                syncedCount =
+                  syncedCount === null
+                    ? refreshedTotal
+                    : Math.max(syncedCount, refreshedTotal)
+              }
+            } catch (error) {
+              console.error(
+                'Failed to refresh collection variant:',
+                query.queryKey,
+                error
+              )
+              lastError = error
             }
+          }
+
+          if (syncedCount === null && lastError !== null) {
+            throw lastError instanceof Error
+              ? lastError
+              : new Error('All collection variant refreshes failed')
           }
         }
 
@@ -359,7 +375,9 @@ export function useCollectionSync(): CollectionSyncResult {
       enabled: Boolean(tokens && username),
       refetchOnWindowFocus: true,
       refetchInterval: 60 * 1000,
-      staleTime: 30 * 1000
+      // Immediately stale so refetchOnWindowFocus always fires on tab-back.
+      // refetchInterval handles polling when the user stays on the tab.
+      staleTime: 0
     })
 
   useEffect(() => {

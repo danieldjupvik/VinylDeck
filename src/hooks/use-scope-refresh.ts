@@ -49,6 +49,8 @@ interface UseScopeRefreshResult<THydrateTarget> {
  * @typeParam THydrateTarget - Input shape used by `hydrateIfMissing`
  * @param params - Scope refresh configuration and data callbacks
  * @returns Scope refresh action and current scope refresh state
+ * @throws Re-throws errors from `refreshCachedData`, `hydrateIfMissing`,
+ * `fetchLiveCount`, or `clearScopeCache` during a refresh execution
  */
 export function useScopeRefresh<THydrateTarget>(
   params: UseScopeRefreshParams<THydrateTarget>

@@ -9,6 +9,8 @@ interface PersistedQueryShape {
   queryKey: readonly unknown[]
 }
 
+// Matches manually-keyed queries (e.g. ['collection', username, ...]).
+// tRPC-managed queries have an array at queryKey[0] and are intentionally excluded.
 const isScopeQueryKey = (scope: SyncScope, queryKey: readonly unknown[]) =>
   queryKey[0] === scope
 
@@ -83,6 +85,7 @@ const clearPersistedScopeCache = async (scope: SyncScope): Promise<void> => {
  * @param queryClient - TanStack Query client instance
  * @param scope - Cache scope identifier
  * @returns Promise that resolves after both cache layers are cleared for the scope
+ * @throws Errors from in-memory query cancellation/removal or IndexedDB persistence
  */
 export async function clearScopeCache(
   queryClient: QueryClient,
@@ -97,6 +100,7 @@ export async function clearScopeCache(
  *
  * @param queryClient - TanStack Query client instance
  * @returns Promise that resolves after all query cache layers are cleared
+ * @throws Errors from `cancelQueries`, `clear`, or `removeClient` operations
  */
 export async function clearAllQueryCache(
   queryClient: QueryClient
