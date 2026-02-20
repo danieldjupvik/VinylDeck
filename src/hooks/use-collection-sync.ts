@@ -125,7 +125,17 @@ const fetchCollectionForParams = async ({
     }
   }
 
-  return { ...firstPage, releases }
+  return {
+    ...firstPage,
+    releases,
+    pagination: {
+      ...firstPage.pagination,
+      page: 1,
+      pages: 1,
+      items: releases.length,
+      per_page: releases.length
+    }
+  }
 }
 
 /**

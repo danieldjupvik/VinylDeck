@@ -41,7 +41,7 @@ function createMinimalProfile(identity: DiscogsIdentity): {
   }
 }
 
-interface ValidateTokensInBackgroundParams {
+interface AuthFlowBase {
   tokens: { accessToken: string; accessTokenSecret: string }
   validateTokens: (tokens: {
     accessToken: string
@@ -59,28 +59,15 @@ interface ValidateTokensInBackgroundParams {
   getIsOnline: () => boolean
 }
 
-interface PerformAuthValidationParams {
-  tokens: { accessToken: string; accessTokenSecret: string }
+type ValidateTokensInBackgroundParams = AuthFlowBase
+
+interface PerformAuthValidationParams extends AuthFlowBase {
   options: { forceProfileRefresh: boolean; storeTokens: boolean }
-  validateTokens: (tokens: {
-    accessToken: string
-    accessTokenSecret: string
-  }) => Promise<DiscogsIdentity>
-  disconnectAndClearState: () => void
-  setState: Dispatch<SetStateAction<AuthState>>
-  getIsOnline: () => boolean
   setTokens: (tokens: {
     accessToken: string
     accessTokenSecret: string
   }) => void
   setSessionActive: (active: boolean) => void
-  fetchProfile: (
-    username: string,
-    tokens: { accessToken: string; accessTokenSecret: string }
-  ) => Promise<{ email?: string | undefined }>
-  getLatestGravatarEmail: () => string
-  setLatestGravatarEmail: (email: string) => void
-  setGravatarEmail: (email: string) => void
 }
 
 async function validateTokensInBackgroundFlow({

@@ -18,6 +18,22 @@ interface SyncPendingCardProps {
   onOpen: () => void
 }
 
+/**
+ * Floating card that surfaces a pending collection sync notification.
+ * Supports a minimized pill state and an expanded card state with refresh controls.
+ *
+ * @param message - Localised description of the pending sync (e.g. "3 new items detected")
+ * @param isRefreshing - Whether a refresh is currently in progress
+ * @param isMinimized - Whether the card is collapsed to its pill form
+ * @param refreshLabel - Button label when idle (e.g. "Refresh")
+ * @param refreshingLabel - Button label while refreshing (e.g. "Refreshing…")
+ * @param minimizeLabel - Button label for the minimize action
+ * @param openLabel - Label shown on the minimized pill button
+ * @param onRefresh - Callback invoked when the user clicks the refresh button
+ * @param onMinimize - Callback invoked when the user minimizes the card
+ * @param onOpen - Callback invoked when the user expands the minimized pill
+ * @returns A floating sync-pending notification card element
+ */
 export function SyncPendingCard({
   message,
   isRefreshing,
